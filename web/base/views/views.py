@@ -1,5 +1,8 @@
 from django.core.exceptions import SuspiciousOperation
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView, CreateView
+from web.auth.mixins import RequireRegisteredMixin
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,26 +20,55 @@ class PostActionMixin(object):
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
-        if not action:
-            raise_suspicious('Invalid action')
-
         logger.debug('Form action: "%s", Arguments:[%s]', action, kwargs)
+        if action and hasattr(self, action):
+            return getattr(self, action)(request, *args, **kwargs)
 
-        return getattr(self, action)(request, *args, **kwargs)
+        return super().__self_class__.__mro__[2].post(
+            self, request, *args, **kwargs)
 
 
-class FilteredListView(PostActionMixin, ListView):
-    def _get_item(self, request):
-        if not (request.POST or request.POST.get('item')):
+class PostActionView(PostActionMixin):
+    def _get_item(self, request, item_param='item'):
+        if not (request.POST or request.POST.get(item_param)):
             raise_suspicious()
-        id = request.POST.get('item')
-        return self.filterset_class.Meta.model.objects.get(pk=id)
+        id = request.POST.get(item_param)
+        return self.model.objects.get(pk=id)
 
+    def archive(self, request):
+        if not self.model.Display.archive:
+            raise_suspicious()
+        self._get_item(request).archive()
+        return super().get(request)
+
+    def unarchive(self, request):
+        if not self.model.Display.archive:
+            raise_suspicious()
+        self._get_item(request).unarchive()
+        return super().get(request)
+
+    def move_up(self, request):
+        item = self._get_item
+        if not self.model.Display.sort:
+            raise_suspicious()
+        item(request).swap_order(item(request, 'prev_item'))
+        return super().get(request)
+
+    def move_down(self, request):
+        item = self._get_item
+        if not self.model.Display.sort:
+            raise_suspicious()
+        item(request).swap_order(item(request, 'next_item'))
+        return super().get(request)
+
+
+class FilteredListView(PostActionView, ListView):
     def get_queryset(self):
-        if self.request.GET or self.request.POST:
-            return self.filterset_class.Meta.model.objects.all()
+        load_immediate = hasattr(self, 'load_immediate') and self.load_immediate
+        if self.request.GET or self.request.POST or load_immediate:
+            return self.model.objects.all()
         else:
-            return self.filterset_class.Meta.model.objects.none()
+            return self.model.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -44,14 +76,22 @@ class FilteredListView(PostActionMixin, ListView):
             self.request.GET or None, queryset=self.get_queryset())
         return context
 
-    def archive(self, request):
-        if not self.filterset_class.Meta.model.Display.archive:
-            raise_suspicious()
-        self._get_item(request).archive()
-        return super().get(request)
 
-    def unarchive(self, request):
-        if not self.filterset_class.Meta.model.Display.archive:
-            raise_suspicious()
-        self._get_item(request).unarchive()
-        return super().get(request)
+class SecureFilteredListView(RequireRegisteredMixin, FilteredListView):
+    pass
+
+
+class SecureUpdateView(RequireRegisteredMixin, UpdateView):
+    pass
+
+
+class SecureCreateView(RequireRegisteredMixin, CreateView):
+    pass
+
+
+class SecureListView(RequireRegisteredMixin, ListView):
+    pass
+
+
+class SecureDetailView(RequireRegisteredMixin, DetailView):
+    pass

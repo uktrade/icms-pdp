@@ -1,11 +1,12 @@
-from django.views.generic.edit import (CreateView, UpdateView)
-from django_filters import (CharFilter, ChoiceFilter)
+from django_filters import CharFilter, ChoiceFilter
 from web.base.forms import FilterSet, ModelForm
-from web.base.forms.widgets import (TextInput, Select)
-from web.base.views import FilteredListView
+from web.base.forms.widgets import Select, TextInput
+from web.base.views import (SecureCreateView, SecureFilteredListView,
+                            SecureUpdateView)
 from web.models import Constabulary
-from .filters import _filter_config
+
 from .contacts import ContactsManagementMixin
+from .filters import _filter_config
 
 
 class ConstabularyEditForm(ModelForm):
@@ -20,7 +21,8 @@ class ConstabularyEditForm(ModelForm):
         widgets = {'region': Select(choices=Constabulary.REGIONS)}
         config = {
             'label': {
-                'cols': 'three'
+                'cols': 'three',
+                'prompt': 'west'
             },
             'input': {
                 'cols': 'six'
@@ -44,7 +46,8 @@ class ConstabularyCreateForm(ConstabularyEditForm):
     class Meta(ConstabularyEditForm.Meta):
         config = {
             'label': {
-                'cols': 'three'
+                'cols': 'three',
+                'prompt': 'west'
             },
             'input': {
                 'cols': 'six'
@@ -68,24 +71,21 @@ class ConstabularyCreateForm(ConstabularyEditForm):
 
 
 class ConstabulariesFilter(FilterSet):
-    name = CharFilter(
-        field_name='name',
-        lookup_expr='icontains',
-        widget=TextInput,
-        label='Constabulary Name')
+    name = CharFilter(field_name='name',
+                      lookup_expr='icontains',
+                      widget=TextInput,
+                      label='Constabulary Name')
 
-    region = ChoiceFilter(
-        field_name='region',
-        choices=Constabulary.REGIONS,
-        lookup_expr='icontains',
-        widget=Select,
-        label='Constabulary Region')
+    region = ChoiceFilter(field_name='region',
+                          choices=Constabulary.REGIONS,
+                          lookup_expr='icontains',
+                          widget=Select,
+                          label='Constabulary Region')
 
-    email = CharFilter(
-        field_name='email',
-        lookup_expr='icontains',
-        widget=TextInput,
-        label='Email Address')
+    email = CharFilter(field_name='email',
+                       lookup_expr='icontains',
+                       widget=TextInput,
+                       label='Email Address')
 
     class Meta:
         model = Constabulary
@@ -93,19 +93,19 @@ class ConstabulariesFilter(FilterSet):
         config = _filter_config
 
 
-class ConstabularyListView(FilteredListView):
+class ConstabularyListView(SecureFilteredListView):
     template_name = 'web/constabulary/list.html'
     model = Constabulary
     filterset_class = ConstabulariesFilter
 
 
-class ConstabularyEditView(ContactsManagementMixin, UpdateView):
+class ConstabularyEditView(ContactsManagementMixin, SecureUpdateView):
     template_name = 'web/constabulary/edit.html'
     form_class = ConstabularyEditForm
     model = Constabulary
 
 
-class ConstabularyCreateView(ContactsManagementMixin, CreateView):
+class ConstabularyCreateView(ContactsManagementMixin, SecureCreateView):
     template_name = 'web/constabulary/create.html'
     form_class = ConstabularyCreateForm
     model = Constabulary

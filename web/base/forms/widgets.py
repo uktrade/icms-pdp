@@ -32,5 +32,9 @@ class Display(TextInput):
     template_name = 'forms/widgets/input.html'
 
 
+class Hiddennput(HiddenInput):
+    pass
+
+
 class CheckboxInput(CheckboxInput):
     pass

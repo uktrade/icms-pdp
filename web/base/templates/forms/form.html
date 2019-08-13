@@ -45,8 +45,8 @@
                     {# default #}
                     {% set submit=opts.actions.submit %}
                     {% set _link=opts.actions.link %}
-                    {{button(label=submit.label, name=submit.name, value=submit.value)}}
-                    {{link(href=_link.href, label=_link.label, attrs=_link.attrs)}}
+                    {% if submit %}{{button(label=submit.label, name=submit.name, value=submit.value)}}{% endif %}
+                    {% if _link %}{{link(href=_link.href, label=_link.label, attrs=_link.attrs)}}{% endif %}
                 {% endif %}
             </ul>
         {%- endcall %}
@@ -72,10 +72,10 @@
 
 
 {# Renders label for given django form field #}
-{% macro label(field, opts, prompt='west') -%}
+{% macro label(field, opts) -%}
     <div class="{{opts.label.cols}} columns">
         <label for="{{ field.id_for_label }}"
-            class="prompt {{prompt}}">
+            class="prompt {{opts.label.prompt}}">
             {{field.label}}
             {% if opts.label.optional_indicators and not field.field.required %}
             <span class="mand-label">optional</span>

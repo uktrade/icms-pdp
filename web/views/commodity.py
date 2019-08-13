@@ -1,11 +1,11 @@
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView
 from django_filters import (CharFilter, ChoiceFilter, DateFilter,
                             BooleanFilter)
 from web.base.forms import ModelForm
 from web.base.forms.fields import DisplayField
 from web.base.forms import FilterSet, widgets
-from web.base.views import (FilteredListView)
+from web.base.views import (SecureFilteredListView, SecureUpdateView,
+                            SecureCreateView)
 from web.models import Commodity
 from .filters import _filter_config
 
@@ -91,37 +91,32 @@ class CommodityCreateForm(ModelForm):
 
 
 class CommodityFilter(FilterSet):
-    commodity_code = CharFilter(
-        field_name='commodity_code',
-        lookup_expr='icontains',
-        widget=widgets.TextInput,
-        label='Commodity Code')
+    commodity_code = CharFilter(field_name='commodity_code',
+                                lookup_expr='icontains',
+                                widget=widgets.TextInput,
+                                label='Commodity Code')
 
-    commodity_type = ChoiceFilter(
-        field_name='commodity_type',
-        choices=Commodity.TYPES,
-        lookup_expr='icontains',
-        widget=widgets.Select,
-        label='Commodity Type')
+    commodity_type = ChoiceFilter(field_name='commodity_type',
+                                  choices=Commodity.TYPES,
+                                  lookup_expr='icontains',
+                                  widget=widgets.Select,
+                                  label='Commodity Type')
 
-    valid_start = DateFilter(
-        field_name='validity_start_date',
-        widget=widgets.DateInput,
-        lookup_expr='gte',
-        label='Valid between')
+    valid_start = DateFilter(field_name='validity_start_date',
+                             widget=widgets.DateInput,
+                             lookup_expr='gte',
+                             label='Valid between')
 
-    valid_end = DateFilter(
-        field_name='validity_end_date',
-        widget=widgets.DateInput,
-        lookup_expr='lte',
-        label='and')
+    valid_end = DateFilter(field_name='validity_end_date',
+                           widget=widgets.DateInput,
+                           lookup_expr='lte',
+                           label='and')
 
-    is_archived = BooleanFilter(
-        field_name='is_active',
-        widget=widgets.CheckboxInput,
-        lookup_expr='exact',
-        exclude=True,
-        label='Search Archived')
+    is_archived = BooleanFilter(field_name='is_active',
+                                widget=widgets.CheckboxInput,
+                                lookup_expr='exact',
+                                exclude=True,
+                                label='Search Archived')
 
     class Meta:
         model = Commodity
@@ -129,19 +124,21 @@ class CommodityFilter(FilterSet):
         config = _filter_config
 
 
-class CommodityListView(FilteredListView):
+class CommodityListView(SecureFilteredListView):
     template_name = 'web/commodity/list.html'
     filterset_class = CommodityFilter
+    model = Commodity
     paginate_by = 100
 
 
-class CommodityEditView(UpdateView):
+class CommodityEditView(SecureUpdateView):
     template_name = 'web/commodity/edit.html'
     form_class = CommodityEditForm
     success_url = reverse_lazy('commodity-list')
+    model = Commodity
 
 
-class CommodityCreateView(CreateView):
+class CommodityCreateView(SecureCreateView):
     template_name = 'web/commodity/create.html'
     form_class = CommodityCreateForm
     success_url = reverse_lazy('commodity-list')
