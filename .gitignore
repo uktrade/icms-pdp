@@ -119,3 +119,9 @@ dmypy.json
 # Collected static files
 /static/
 
+# Pycharm
+.idea
+
+# Emacs
+#.*
+#*
