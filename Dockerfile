@@ -9,11 +9,11 @@ COPY Pipfile Pipfile.lock /code/
 
 # Install dependencies
 RUN \
-  apk add --no-cache postgresql-libs openssl && \
+  apk add --no-cache postgresql-libs openssl npm git && \
   apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
   python3 -m pip install --upgrade pip && \
   python3 -m pip install pipenv && \
-  python3 -m pipenv install --system --dev --deploy && \
+  pipenv install --dev && \
   apk --purge del .build-deps
 # Install dockerize
 RUN \

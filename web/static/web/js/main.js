@@ -1,3 +1,5 @@
+import FOXjs from './core-footer'
+
 (function($){
 
     function handle_security_question(){
@@ -24,7 +26,6 @@
             row.find('.move-down').hide();
         }
     }
-
 
     function swap_orders(row1, row2) {
         row1_order_input = row1.find('.calibre-order input');
@@ -73,6 +74,10 @@
 
 
     function initialise() {
+
+
+
+        FOXjs.init(function() {});
 
         var path= window.location.pathname;
 

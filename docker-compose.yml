@@ -6,8 +6,9 @@ services:
     image: postgres:11
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
   web:
-    restart: always
     build: .
     # user: ${UID}
     entrypoint: dockerize -wait tcp://db:5432 -timeout 20s
@@ -28,11 +29,34 @@ services:
       - DJANGO_SETTINGS_MODULE
     tty: true
     ports:
-      - "8080:8080"
+      - "8000:8000"
     volumes:
       - .:/code
     depends_on:
       - db
+  livereload:
+    build: .
+    environment:
+      - ICMS_WEB_PORT
+      - ICMS_DEBUG
+      - ICMS_NUM_WORKERS # Gunicorn workers number
+      - ICMS_MIGRATE
+      - ICMS_ADDRESS_API_KEY # getAddress.io api key for post code search
+      # DATABASE_URL not namespaced due to GOV PaaS setting DATABASE_URL env var
+      - DATABASE_URL
+      - ICMS_ALLOWED_HOSTS
+      - ICMS_SECRET_KEY
+      - ICMS_EMAIL_FROM
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - DJANGO_SETTINGS_MODULE
+    expose:
+      - "35729"
+    ports:
+      - "35729:35729"
+    volumes:
+      - .:/code
+    command: pipenv run python manage.py livereload
   pa11y:
     build: ./pa11y
     entrypoint: dockerize -wait tcp://web:8080 -timeout 20s
@@ -44,3 +68,6 @@ services:
       - ./pa11y:/code
     depends_on:
       - web
+
+volumes:
+  postgres_data:

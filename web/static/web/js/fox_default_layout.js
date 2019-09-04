@@ -1,3 +1,6 @@
+import jQuery from './thirdparty/jquery-1.12.4'
+window.$ = window.jQuery = jQuery;
+
 function compressTopMenu() {
   //Reset any compression performed before
   $(".overflow-menu").remove();

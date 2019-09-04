@@ -14,6 +14,8 @@ pytest-xdist = "*"
 pytest-mock = "*"
 pytest-flake8 = "*"
 pyparsing = ">2.4.1"
+django-livereload-server = "*"
+v = {editable = true,version = "*"}
 
 [packages]
 django = "==2.2.4"
@@ -23,13 +25,16 @@ django-ses = "*"
 gunicorn = "*"
 html2text = "*"
 django-viewflow = "*"
-psycopg2 = "*"
+#psycopg2 = "*"
 whitenoise = "*"
 django-filter = "*"
 django-phonenumber-field = "*"
 phonenumbers = "*"
 jinja2 = "*"
 requests = "*"
+django-webpack-loader = "*"
+psycopg2-binary = "*"
+django-jinja = "*"
 
 [requires]
 python_version = "3.7"
