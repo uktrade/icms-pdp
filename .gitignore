@@ -127,3 +127,4 @@ dmypy.json
 #*
 node_modules
 webpack-stats.json
+assets
