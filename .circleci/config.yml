@@ -2,8 +2,6 @@ version: 2.1
 
 job_defaults: &job_defaults
   parameters:
-    circleci/python:3.6:
-      type: string
 
     postgres_image:
       type: string
@@ -21,7 +19,7 @@ job_defaults: &job_defaults
   working_directory: ~/code
 
   docker:
-    - image: <<parameters.python_image>>
+    - image: circleci/python:3.6
 
     - image: <<parameters.postgres_image>>
       environment:
