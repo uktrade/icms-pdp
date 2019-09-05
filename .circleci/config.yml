@@ -49,6 +49,14 @@ job_defaults: &job_defaults
           - ~/cache/pip
 
     - run:
+        name: Install node modules
+        command: npm install
+
+    - run:
+        name: Webpack build
+        command: npm run deploy
+
+    - run:
         name: Run tests
         command: python -m pytest -p no:sugar --cov=web --cov=config web/tests
 
