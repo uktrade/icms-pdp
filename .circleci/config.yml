@@ -2,7 +2,7 @@ version: 2.1
 
 job_defaults: &job_defaults
   parameters:
-    python_image:
+    circleci/python:3.6:
       type: string
 
     postgres_image:
