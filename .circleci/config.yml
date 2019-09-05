@@ -2,7 +2,6 @@ version: 2.1
 
 job_defaults: &job_defaults
   parameters:
-
     postgres_image:
       type: string
 
@@ -86,5 +85,4 @@ workflows:
     jobs:
       - build:
           publish_coverage: true
-          python_image: python:3.7
           postgres_image: postgres:9.5
