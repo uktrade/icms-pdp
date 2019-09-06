@@ -18,7 +18,7 @@ job_defaults: &job_defaults
   working_directory: ~/code
 
   docker:
-    - image: circleci/python:3.6
+    - image: circleci/python:3.6-jessie-node-browsers
 
     - image: <<parameters.postgres_image>>
       environment:
@@ -47,7 +47,7 @@ job_defaults: &job_defaults
 
     - run:
         name: Install node modules
-        command: npm install
+        command: npm install --production
 
     - run:
         name: Webpack build
@@ -55,11 +55,11 @@ job_defaults: &job_defaults
 
     - run:
         name: Run tests
-        command: python -m pytest -p no:sugar --cov=web --cov=config web/tests
+        command: pipenv run python -m pytest -p no:sugar --cov=web --cov=config web/tests
 
     - run:
         name: Run Flake8
-        command: python -m flake8
+        command: pipenv run python -m flake8
 
     - store_test_results:
         path: test-reports
