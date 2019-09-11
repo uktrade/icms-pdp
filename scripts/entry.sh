@@ -10,7 +10,7 @@ ICMS_NUM_WORKERS="${ICMS_NUM_WORKERS:-3}"
 echo "ICMS running now with debug $ICMS_DEBUG"
 
 # Run webpack which bundles javascript in production mode
-# npm run deploy
+npm run deploy
 
 if [ "${ICMS_MIGRATE}" = 'True' ]; then
   echo "Running migrations"
