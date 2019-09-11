@@ -2,5 +2,4 @@
 applications:
   - name: icms
     buildpacks:
-#      - nodejs_buildpack
       - python_buildpack
