@@ -9,14 +9,14 @@ ICMS_NUM_WORKERS="${ICMS_NUM_WORKERS:-3}"
 
 echo "ICMS running now with debug $ICMS_DEBUG"
 
+# Run webpack which bundles javascript in production mode
+npm run deploy
+
 if [ "${ICMS_MIGRATE}" = 'True' ]; then
   echo "Running migrations"
   pipenv run python manage.py migrate
   pipenv run python manage.py loaddata --app web web/fixtures/web/*.json
 fi
-
-# Run webpack which bundles javascript in production mode
-npm run deploy
 
 if [ "$ICMS_DEBUG" = 'False' ]; then
   pipenv run python manage.py collectstatic --noinput --traceback
