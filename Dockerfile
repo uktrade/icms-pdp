@@ -13,7 +13,10 @@ RUN \
   apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
   python3 -m pip install --upgrade pip && \
   python3 -m pip install pipenv && \
-  pipenv install --dev && \
+
+  # cf installs directly to global, hence --system
+  python3 -m pipenv install --system --dev --deploy && \
+
   apk --purge del .build-deps
 # Install dockerize
 RUN \
