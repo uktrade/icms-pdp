@@ -12,22 +12,22 @@ echo "ICMS running now with debug $ICMS_DEBUG"
 # Run webpack which bundles javascript in production mode
 # npm run deploy
 
-if [ "${ICMS_MIGRATE}" = 'True' ]; then
-  echo "Running migrations"
-  python manage.py migrate
-  python manage.py loaddata --app web web/fixtures/web/*.json
-fi
+#if [ "${ICMS_MIGRATE}" = 'True' ]; then
+#  echo "Running migrations"
+#  python manage.py migrate
+#  python manage.py loaddata --app web web/fixtures/web/*.json
+#fi
 
 #if [ "$ICMS_DEBUG" = 'False' ]; then
 #  python manage.py collectstatic --noinput --traceback
 #fi
 
 
-if [ "$ICMS_DEBUG" = 'True' ]; then
-  python manage.py runserver 0:"$ICMS_WEB_PORT"
-else
-  gunicorn config.wsgi \
-           --name icms \
-           --workers "$ICMS_NUM_WORKERS" \
-           --bind 0:"$ICMS_WEB_PORT"
-fi
+#if [ "$ICMS_DEBUG" = 'True' ]; then
+#  python manage.py runserver 0:"$ICMS_WEB_PORT"
+#else
+#  gunicorn config.wsgi \
+#           --name icms \
+#           --workers "$ICMS_NUM_WORKERS" \
+#           --bind 0:"$ICMS_WEB_PORT"
+#fi
