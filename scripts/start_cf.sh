@@ -5,6 +5,8 @@ ICMS_DEBUG="${ICMS_DEBUG:-False}"
 ICMS_MIGRATE="${ICMS_MIGRATE:-True}"
 ICMS_NUM_WORKERS="${ICMS_NUM_WORKERS:-3}"
 
+npm run deploy
+
 python manage.py migrate --noinput
 
 python manage.py collectstatic --noinput

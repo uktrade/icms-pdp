@@ -1,17 +1,16 @@
-#!/bin/bash -xe
-
+#!/bin/sh -e
 ICMS_WEB_PORT="${ICMS_WEB_PORT:-8080}"
 ICMS_DEBUG="${ICMS_DEBUG:-False}"
 ICMS_MIGRATE="${ICMS_MIGRATE:-True}"
 ICMS_NUM_WORKERS="${ICMS_NUM_WORKERS:-3}"
 
-# while true; do sleep 10000; done
+#while true; do sleep 10000; done
 #sleep infinity
 
 echo "ICMS running now with debug $ICMS_DEBUG"
 
 # Run webpack which bundles javascript in production mode
-# npm run deploy
+npm run deploy
 
 if [ "${ICMS_MIGRATE}" = 'True' ]; then
   echo "Running migrations"
