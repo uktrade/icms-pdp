@@ -18,7 +18,7 @@ job_defaults: &job_defaults
   working_directory: ~/code
 
   docker:
-    - image: circleci/python:3.7.2-node
+    - image: circleci/python:3.7.4-node
 
     - image: <<parameters.postgres_image>>
       environment:
