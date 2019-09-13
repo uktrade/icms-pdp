@@ -1,1 +1,1 @@
-web: scripts/entry.sh
+web: bash start_cf.sh

@@ -1,5 +1,7 @@
 ---
 applications:
-  - name: icms
-    buildpacks:
+  -
+    buildpack:
       - python_buildpack
+      - nodejs_buildpack
+    stack: cflinuxfs3
