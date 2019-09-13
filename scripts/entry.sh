@@ -14,17 +14,17 @@ echo "ICMS running now with debug $ICMS_DEBUG"
 
 if [ "${ICMS_MIGRATE}" = 'True' ]; then
   echo "Running migrations"
-  pipenv run python manage.py migrate
-  pipenv run python manage.py loaddata --app web web/fixtures/web/*.json
+  python manage.py migrate
+  python manage.py loaddata --app web web/fixtures/web/*.json
 fi
 
 if [ "$ICMS_DEBUG" = 'False' ]; then
-  pipenv run python manage.py collectstatic --noinput --traceback
+  python manage.py collectstatic --noinput --traceback
 fi
 
 
 if [ "$ICMS_DEBUG" = 'True' ]; then
-  pipenv run python manage.py runserver 0:"$ICMS_WEB_PORT"
+  python manage.py runserver 0:"$ICMS_WEB_PORT"
 else
   gunicorn config.wsgi \
            --name icms \
