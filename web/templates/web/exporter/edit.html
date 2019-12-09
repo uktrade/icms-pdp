@@ -1,5 +1,5 @@
 {% extends "layout/sidebar.html" %}
-{% import "forms/form.html" as forms %}
+{% import "forms/forms.html" as forms %}
 {% import "forms/list.html" as lists %}
 
 {% block page_title %}Edit Exporter{% endblock %}
@@ -7,6 +7,6 @@
 
 {% block main_content %}
 
-{{ forms.form(form, fields=form.fields, csrf_input=csrf_input) }}
+{#{{ forms.form(form, fields=form.fields, csrf_input=csrf_input) }}#}
 
 {% endblock %}

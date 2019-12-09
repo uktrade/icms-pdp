@@ -162,36 +162,22 @@ urlpatterns = [
 
     # Importer
     path('importer/', ImporterListView.as_view(), name='importer-list'),
-    path('importer/<int:pk>/edit/',
-         ImporterEditView.as_view(),
-         name='importer-edit'),
+    path('importer/<int:pk>/edit/', ImporterEditView.as_view(), name='importer-edit'),
     path('importer/new/', ImporterCreateView.as_view(), name='importer-new'),
-    path('importer/<int:pk>/',
-         ImporterDetailView.as_view(),
-         name='importer-view'),
+    path('importer/<int:pk>/', ImporterDetailView.as_view(), name='importer-view'),
 
     # Importer Agents
-    path('importer/<int:importer_id>/agent/<int:pk>/edit',
-         ImporterEditView.as_view(),
-         name='importer-agent-edit'),
-    path('importer/<int:importer_id>/agent/new/',
-         ImporterCreateView.as_view(),
-         name='importer-agent-new'),
+    path('importer/<int:importer_id>/agent/<int:pk>/edit', ImporterEditView.as_view(), name='importer-agent-edit'),
+    path('importer/<int:importer_id>/agent/new/', ImporterCreateView.as_view(), name='importer-agent-new'),
 
     # Exporter
     path('exporter/', ExporterListView.as_view(), name='exporter-list'),
-    path('exporter/<int:pk>/edit/',
-         ExporterEditView.as_view(),
-         name='exporter-edit'),
+    path('exporter/<int:pk>/edit/', ExporterEditView.as_view(), name='exporter-edit'),
     path('exporter/new/', ExporterCreateView.as_view(), name='exporter-new'),
-    path('exporter/<int:pk>/',
-         ExporterDetailView.as_view(),
-         name='exporter-view'),
+    path('exporter/<int:pk>/', ExporterDetailView.as_view(), name='exporter-view'),
 
     # Access Request
-    path('access/',
-         RedirectView.as_view(url='request', permanent=False),
-         name='request-access'),
+    path('access/', RedirectView.as_view(url='request', permanent=False), name='request-access'),
     re_path(r'^access/', include(FlowViewSet(AccessRequestFlow).urls)),
 
     # Import Application

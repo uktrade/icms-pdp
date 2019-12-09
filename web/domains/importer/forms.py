@@ -28,7 +28,7 @@ class ImporterFilter(ModelSearchFilter):
         #  Filter concatanation of title name and last name in case the importer
         #  to cover both individual importers and organisations
         # see manager.py for annotated queryset to filter in concatanated
-        return queryset.filter(full_name__icontains=value)
+        return queryset.filter(name__icontains=value)
 
     #  valid_end = DateFilter(field_name='validity_end_date',
     #  widget=widgets.DateInput,
