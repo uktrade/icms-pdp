@@ -138,6 +138,12 @@
                 New Import Application
             </a>
         </li>
+         <li class="top-menu-button">
+            <a href="{{ url('import_application_new_start') }}" class="primary-button button"
+               style="height:33px;line-height: 33px;">
+                Start Import Application
+            </a>
+        </li>
         <li class="icon-user" id="user-info">
             <a class="dropdown-label" href="#">
                 {{ request.user.title }} {{ request.user.first_name }} {{ request.user.last_name }}</a>

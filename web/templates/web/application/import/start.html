@@ -1,0 +1,10 @@
+{% extends "layout/no-sidebar.html" %}
+{% set page_title= "New Import Application" %}
+{% block main_content %}
+
+    {% for application_type in application_types %}
+        <h4><a href="/application/create/{{ application_type.type_code }}/{{ application_type.sub_type_code }}">{{ application_type }}</a></h4>
+        <p>{{ application_type.guidance_file_url }}</p>
+    {% endfor  %}
+
+{% endblock %}

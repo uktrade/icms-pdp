@@ -181,7 +181,11 @@ urlpatterns = [
     re_path(r'^access/', include(FlowViewSet(AccessRequestFlow).urls)),
 
     # Import Application
-    path('import/apply/',
-         imp_app_views.ImportApplicationCreateView.as_view(),
-         name='import_application_new')
+    path('import/apply/', imp_app_views.ImportApplicationCreateView.as_view(), name='import_application_new'),
+
+    path('application/start', imp_app_views.import_application_start, name='import_application_new_start'),
+
+    # THESE CODES ARE FROM THE ImporterApplicationType MODEL
+    path('application/create/FA/SIL', imp_app_views.import_application_create_firearms_specific,
+         name="import_application_create_firearms_specific"),
 ]

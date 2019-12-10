@@ -1,0 +1,36 @@
+{% extends "layout/sidebar.html" %}
+{% set page_title= application_type %}
+{% block main_content %}
+    <h4>{{ application_type }}</h4>
+    <form>
+        <div class="container setoutForm">
+            <div class="row">
+                <div class="three columns">
+                    <label class="prompt west">Importer</label>
+                </div>
+                <div class="six columns input-group">
+                    <div class="eleven-column-input">
+                        <select name="importer" required>
+                            {% for importer in importers %}
+                                <option>{{ importer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="input-group-addon hint-addon">
+
+                        <div id="importer-hint-content" role="tooltip" class="hint-content" aria-hidden="true">
+                            For Derogations from Sanctions applications, you must be a main importer, and will not be
+                            able to select and agent importer.
+                        </div>
+                        <div aria-describedby="importer-hint-content" class="hint icon-info tooltipstered"></div>
+
+                    </div>
+                </div>
+                <div class="three columns"></div>
+            </div>
+        </div>
+
+    </form>
+
+
+{% endblock %}

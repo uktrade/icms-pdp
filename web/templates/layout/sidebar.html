@@ -1,23 +1,22 @@
 {% extends "internal.html" %}
 
 {% block header %}
-<header id="menu-bar">
-  {% include "partial/navigation.html" %}
-</header>
-{{ super() }}
+    <header id="menu-bar">
+        {% include "partial/navigation.html" %}
+    </header>
+    {{ super() }}
 {% endblock %}
 
 {% block content %}
     <div id="sidebar-substitute"></div>
     <div id="sidebar">
-      {% block sidebar %}{% endblock %}
+        {% block sidebar %}{% endblock %}
     </div>
     <div id="sidebar-background"></div>
     <div id="content">
-      <div class="content-ie8-float"
-        {% block content_actions %}{%endblock%}
+        <div class="content-ie8-float"></div>
+        {% block content_actions %}{% endblock %}
         {% include "partial/mainstart.html" %}
-        {% block main_content %}{%endblock%}
-      </div>
+        {% block main_content %}{% endblock %}
     </div>
 {% endblock %}

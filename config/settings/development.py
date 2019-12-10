@@ -3,7 +3,6 @@ import environ
 
 env = environ.Env()
 
-# Debug toolbar config
 INTERNAL_IPS = ('127.0.0.1', 'localhost')
 INSTALLED_APPS += [  # NOQA
     'debug_toolbar',
@@ -39,17 +38,15 @@ DEBUG = env.bool('ICMS_DEBUG', True)
 # Email
 AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
 AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
-EMAIL_FROM = env.str('ICMS_EMAIL_FROM',
-                     'enquiries.ilb@icms.trade.dev.uktrade.io')
+EMAIL_FROM = env.str('ICMS_EMAIL_FROM', 'enquiries.ilb@icms.trade.dev.uktrade.io')
 
-# Loging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format':
-            '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {

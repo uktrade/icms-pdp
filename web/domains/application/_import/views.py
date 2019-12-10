@@ -1,14 +1,44 @@
+import logging
+from django.shortcuts import render
 from django.urls import reverse_lazy
+
 from web.views import ModelCreateView
 
 from .forms import NewImportApplicationForm
-from .models import ImportApplication
+from .models import ImportApplication, ImportApplicationType
+
+from web.domains.importer.models import Importer
+
+logger = logging.getLogger(__name__)
+
+
+def import_application_create_firearms_specific(request):
+    logger.debug(f"import_application_create_firearms_specific {request.user}")
+    application_type = ImportApplicationType.objects.get(type_code="FA", sub_type_code="SIL")
+
+    importers = Importer.objects.filter(is_active=True)
+    logger.debug("There are %s importers" % importers.count())
+
+    return render(request, "web/application/import/create_firearms_specific.html", {
+        "application_type": application_type,
+        "importers": importers
+    })
+
+
+def import_application_start(request):
+    application_types = ImportApplicationType.objects.filter(is_active=True).order_by('type')
+
+    return render(request, "web/application/import/start.html", {
+        "application_types": application_types
+    })
 
 
 class ImportApplicationCreateView(ModelCreateView):
     template_name = 'web/application/import/create.html'
     model = ImportApplication
+
     # TODO: Change to application form when created
+
     success_url = reverse_lazy('product-legislation-list')
     cancel_url = success_url
     form_class = NewImportApplicationForm
