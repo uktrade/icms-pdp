@@ -65,6 +65,18 @@ class Importer(Archivable, BaseTeam):
 
     class Meta:
         ordering = (
-            '-is_active',
             'name',
         )
+
+    @staticmethod
+    def get_agent_importer_ids(user):
+        """ Get ids for main importers of given agents"""
+        agents = Importer.objects \
+            .filter(is_active=True) \
+            .filter(members=user) \
+            .filter(main_importer__isnull=False)
+        ids = []
+        for agent in agents:
+            ids.append(agent.main_importer_id)
+
+        return ids

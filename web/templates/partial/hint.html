@@ -1,0 +1,10 @@
+{% macro hint(id, hint_text="") -%}
+    <div class="input-group-addon hint-addon">
+
+        <div id="{{ id }}" role="tooltip" class="hint-content" aria-hidden="true">
+            {{ hint_text }}
+        </div>
+        <div aria-describedby="{{ id }}" class="hint icon-info tooltipstered"></div>
+
+    </div>
+{%- endmacro %}

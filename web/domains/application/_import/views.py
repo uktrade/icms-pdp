@@ -1,5 +1,6 @@
 import logging
-from django.shortcuts import render
+from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 
 from web.views import ModelCreateView
@@ -8,20 +9,37 @@ from .forms import NewImportApplicationForm
 from .models import ImportApplication, ImportApplicationType
 
 from web.domains.importer.models import Importer
+from web.domains.office.models import Office
 
 logger = logging.getLogger(__name__)
 
 
-def import_application_create_firearms_specific(request):
-    logger.debug(f"import_application_create_firearms_specific {request.user}")
-    application_type = ImportApplicationType.objects.get(type_code="FA", sub_type_code="SIL")
+def get_importers(user):
+    main_importers = Q(members=user, main_importer__isnull=True)
+    agent_importers = Q(pk__in=Importer.get_agent_importer_ids(user))
 
     importers = Importer.objects.filter(is_active=True)
+    return importers.filter(main_importers | agent_importers)
+
+
+def get_offices():
+    return Office.objects.all()
+
+
+def import_application_create_firearms_sil(request):
+    type_code = "FA"
+    type_sub_code = "SIL"
+    logger.debug(f"import_application_create_firearms_specific {request.user} {type_code} {type_sub_code}")
+    application_type = get_object_or_404(ImportApplicationType, type_code=type_code, sub_type_code=type_sub_code,
+                                         is_active=True)
+
+    importers = get_importers(request.user)
     logger.debug("There are %s importers" % importers.count())
 
-    return render(request, "web/application/import/create_firearms_specific.html", {
+    return render(request, "web/application/import/create_firearms_sil.html", {
         "application_type": application_type,
-        "importers": importers
+        "importers": importers,
+        "offices": get_offices()
     })
 
 

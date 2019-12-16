@@ -1,0 +1,51 @@
+{% extends "layout/sidebar.html" %}
+
+{% import "partial/hint.html" as hint %}
+
+{% set page_title= application_type %}
+{% block main_content %}
+    <form method="post">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="container setoutForm">
+            <div class="row">
+                <div class="three columns">
+                    <label class="prompt west" for="importer_list">Main Importer</label>
+                </div>
+                <div class="six columns input-group">
+                    <div class="eleven-column-input">
+                        <select name="importer" required id="importer_list">    
+                            {% for importer in importers %}
+                                <option value="{{ importer.id }}">{{ importer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {{ hint.hint("importer-hint-content", "Imports of textiles and clothing or iron and steel of a value less than £120 do not need an import licence. This does NOT apply to firearms or sanctions derogations.For Derogations from Sanctions applications, you must be a main importer, and will not be
+                            able to select and agent importer.") }}
+
+                </div>
+                <div class="three columns"></div>
+            </div>
+
+            <div class="row">
+                <div class="three columns">
+                    <label class="prompt west">Importer Office </label>
+                </div>
+                <div class="six columns input-group">
+                    <div class="eleven-column-input">
+                        <select>
+                            {% for office in offices %}
+                                <option>{{ office.address }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {{ hint.hint("office", "The office that this licence will be issued to.") }}
+                </div>
+                <div class="three columns"></div>
+            </div>
+
+        </div>
+
+        <input type="submit"/>
+    </form>
+
+{% endblock %}
