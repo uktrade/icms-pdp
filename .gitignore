@@ -118,3 +118,11 @@ dmypy.json
 
 # Pycharm
 .idea
+=======
+/.idea
+
+# Collected static files
+/static/
+
+# postgress data
+/pgdata

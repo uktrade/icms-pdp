@@ -1,0 +1,14 @@
+{% extends "model/list.html" %}
+{% block page_title %}Maintain Commodities{% endblock %}
+{% block context_header %}Maintain Commodities{% endblock %}
+
+{% block sidebar %}
+<ul class="menu-out">
+    <li> <a href="{{ url('commodity-new') }}">New Commodity</a></li>
+</ul>
+<ul class="menu-out">
+    <li> <a href="{{ url('commodity-group-list') }}">Maintain Groups</a></li>
+</ul>
+{% endblock %}
+
+{% block empty_message %}There aren't any commodities that match your search{% endblock %}

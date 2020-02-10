@@ -1,0 +1,38 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+django-debug-toolbar = "*"
+pytest = "*"
+pytest-django = "*"
+pytest-cov = "*"
+pytest-sugar = "*"
+flake8 = "*"
+pytest-xdist = "*"
+pytest-mock = "*"
+pytest-flake8 = "*"
+pyparsing = ">2.4.1"
+factory-boy = "*"
+faker = "*"
+
+[packages]
+django = "==2.2.10"
+django-environ = "*"
+django-recaptcha = "*"
+django-ses = "*"
+gunicorn = "*"
+html2text = "*"
+psycopg2 = "*"
+whitenoise = "*"
+django-filter = "*"
+django-phonenumber-field = "*"
+phonenumbers = "*"
+jinja2 = "*"
+requests = "*"
+django-compressor = "*"
+django-viewflow="*"
+
+[requires]
+python_version = "3.7.6"

@@ -1,0 +1,36 @@
+{% extends "layout/simple.html" %}
+
+{% block page_title %}Importer/Exporter Access Request{% endblock %}
+{% block context_header %}Importer/Exporter Access Request{% endblock %}
+
+
+{% block main_content %}
+    <div class="no-sidebar" id="content">
+        <div id="content-ie8-float">
+
+            <div class="content-actions"></div>
+
+            <div class="info-box info-box-success">
+
+                <p>Your access request has been submitted to ILB. You will receive an email notification when your request has been processed (usually within 1 working day).</p>
+                <p>You may submit another access request if you require access to multiple importers/exporters, or otherwise you may exit by logging out below.</p>
+
+            </div>
+            <ul class="menu-out flow-across">
+                <li> <a id="g19" href="/access/start/" name="g19"  class="link-button button">
+                        Submit Another Request </a></li>
+                <li> <a id="g18" href="{{ url('logout') }}" name="g18"  class="link-button button">
+                        Logout </a></li>
+            </ul>
+
+            <div class="content-actions"></div>
+
+        </div>
+    </div>
+    <style>
+    /* Remove Viewflow DJango flash message */
+    .flash-message .info-box {
+        display: none;
+    }
+    </style>
+{% endblock %}

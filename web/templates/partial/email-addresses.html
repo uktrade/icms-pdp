@@ -1,0 +1,46 @@
+{% import "forms/forms.html" as forms %}
+{% import "forms/fields.html" as fields %}
+
+<h3>
+  {{title}}
+</h3>
+
+{{forms.errors(formset)}}
+<table id="{{id}}" responsiveList class="setoutList">
+    <thead>
+        <tr>
+            <th scope="col">Email Address
+            </th>
+            <th scope="col">Type
+            </th>
+            <th scope="col">Portal Notifications
+            </th>
+            <th scope="col">Comment
+            </th>
+            <th scope="col">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+      {% for form in formset %}
+        {% with form=form %}{% include 'forms/email-form.html' %}{% endwith %}
+      {% endfor %}
+      {% if formset.total_form_count() == 0 %}
+      {% with form=formset.empty_form, hide=True %}
+        {% include 'forms/email-form.html' %}
+      {% endwith %}
+      {% endif %}
+    </tbody>
+</table>
+{{ formset.management_form }}
+<script type="text/javascript">
+    $(function() {
+        $('#{{id}} tbody tr').formset({
+            prefix: '{{ formset.prefix }}',
+            formCssClass: '{{ form_item_class }}',
+            addCssClass: 'icon-mail2 small-button button',
+            addText: 'Add Email Address',
+            deleteText: 'Remove',
+        });
+    })
+</script>

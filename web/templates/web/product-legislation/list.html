@@ -1,0 +1,40 @@
+{% extends "model/list.html" %}
+{% block empty_message %}There isn't any product legislation that matches your current filters.{% endblock %}
+
+{% block sidebar %}
+    <ul class="menu-out flow-across">
+        <li> <a href="{{url('product-legislation-new')}}">Create Product Legislation</a></li>
+    </ul>
+    <div class="section-break"></div>
+    <h4> Filter </h4>
+    {% call forms.form(action=url('product-legislation-list'))%}
+      {{fields.field(filter.form.name)}}
+      {{fields.field(filter.form.is_biocidal)}}
+      {{fields.field(filter.form.is_biocidal_claim)}}
+      {{fields.field(filter.form.is_eu_cosmetics_regulation)}}
+      {{fields.field(filter.form.status)}}
+      <div class="clearBoth"></div>
+      <div class="container">
+        <div class="row">
+        <div class="twelve columns">
+          <ul class="menu-out flow-across">
+            <li>
+              <button type="submit" name="" value="" class="primary-button button">
+                Apply Filter
+              </button>
+            </li>
+            <li>
+              <a href="{{url('product-legislation-list')}}" class="button link-button">
+                Clear Filter
+              </a>
+            </li>
+          </ul>
+        </div>
+        </div>
+      </div>
+    {% endcall %}
+{% endblock %}
+
+{% block filters %}
+{# Left empty, filter is on the sidebar unlike other pages #}
+{% endblock %}

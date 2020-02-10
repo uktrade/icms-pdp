@@ -1,0 +1,12 @@
+{% macro page_link(request, label, page_no, active=True, class=None) %}
+<li class="{{class}} {% if not active %}disabled{% endif %}" 
+  aria-disabled="{%if not active %}true{%endif%}">
+    {% if active %}
+    <a class="button link-button" href="{{modify_query(request, page=page_no)}}">
+      {{label}}
+    </a>
+    {% else %}
+      {{label}}
+    {% endif %}
+  </li>
+{% endmacro %}

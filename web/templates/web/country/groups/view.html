@@ -1,0 +1,24 @@
+{% extends "model/view.html" %}
+{% from "web/country/country-selections.html" import country_selector %}
+
+{% block sidebar %}
+  {% include "web/country/sidebar.html" %}
+{% endblock %}
+
+{% block  fields %}
+{% include "web/country/groups/filter-bar.html" %}
+{{super()}}
+{% endblock %}
+
+{% block additional_content %}
+<div class="list-actions">
+    <ul class="menu-out flow-across">
+        <li>
+            <a id="edit-group" href="{{url('country-group-edit', args=[object.id])}}" class="small-button icon-pencil button">
+                Edit Group
+            </a>
+        </li>
+    </ul>
+</div>
+{{country_selector(object.countries.all(), readonly=True)}}
+{% endblock %}
