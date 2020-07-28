@@ -49,5 +49,9 @@
             {% endwith %}
         {% endif %}
 
+        {% with members = form.instance.members.all() %}
+            {% include "web/contacts/tabs.html" %}
+        {% endwith %}
+
     {% endcall %}
 {% endblock %}

@@ -5,9 +5,9 @@ from django.http import JsonResponse
 
 from web.auth import utils as auth_utils
 
+from web.domains.team.mixins import ContactsManagementMixin
 from web.views import ModelCreateView, ModelDetailView, ModelFilterView, ModelUpdateView
 from web.views.actions import Archive, Edit, Unarchive, CreateAgent
-from web.views.mixins import PostActionMixin
 
 from .forms import (
     ImporterOrganisationDisplayForm,
@@ -57,10 +57,11 @@ class ImporterListView(ModelFilterView):
         actions = [Archive(**opts), Unarchive(**opts), CreateAgent(**opts), Edit(**opts)]
 
 
-class ImporterEditView(PostActionMixin, ModelUpdateView):
+class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
     template_name = "web/domains/importer/edit.html"
     success_url = reverse_lazy("importer-list")
     cancel_url = success_url
+    model = Importer
 
     def has_permission(self):
         return has_permission(self.request.user)
@@ -69,9 +70,10 @@ class ImporterEditView(PostActionMixin, ModelUpdateView):
         importer = Importer.objects.get(pk=pk)
         if not form:
             if importer.is_organisation():
-                form = ImporterOrganisationEditForm(instance=importer)
+                self.form_class = ImporterOrganisationEditForm
             else:
-                form = ImporterIndividualEditForm(instance=importer)
+                self.form_class = ImporterIndividualEditForm
+            form = self.form_class(instance=importer)
 
         # should the offices formset be shown on the edit page
         # if we received the form, then we displayed as we want to
@@ -81,7 +83,7 @@ class ImporterEditView(PostActionMixin, ModelUpdateView):
             Formset = formset_factory(OfficeEditForm)
             offices_form = Formset()
             show_offices_form = False
-
+        contact_context_data = super().get(request).context_data
         return render(
             request,
             self.template_name,
@@ -92,6 +94,7 @@ class ImporterEditView(PostActionMixin, ModelUpdateView):
                 "cancel_url": self.cancel_url,
                 "view": self,
                 "show_offices_form": show_offices_form,
+                **contact_context_data,
             },
         )
 
