@@ -66,15 +66,13 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
     def has_permission(self):
         return has_permission(self.request.user)
 
-    def get(self, request, pk, offices_form=None, form=None):
-        importer = Importer.objects.get(pk=pk)
-        if not form:
-            if importer.is_organisation():
-                self.form_class = ImporterOrganisationEditForm
-            else:
-                self.form_class = ImporterIndividualEditForm
-            form = self.form_class(instance=importer)
+    def get_form_class(self):
+        importer = self.get_object()
+        if importer.is_organisation():
+            return ImporterOrganisationEditForm
+        return ImporterIndividualEditForm
 
+    def get(self, request, pk, offices_form=None, form=None):
         # should the offices formset be shown on the edit page
         # if we received the form, then we displayed as we want to
         # show the form and errors, otherwise
@@ -88,7 +86,6 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
             request,
             self.template_name,
             {
-                "form": form,
                 "offices_form": offices_form,
                 "success_url": self.success_url,
                 "cancel_url": self.cancel_url,
@@ -99,20 +96,14 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
         )
 
     def edit(self, request, pk):
-        importer = Importer.objects.get(pk=pk)
-
-        if importer.is_organisation():
-            form_class = ImporterOrganisationEditForm
-        else:
-            form_class = ImporterIndividualEditForm
-
-        form = form_class(request.POST, instance=importer)
-
         Formset = formset_factory(OfficeEditForm, formset=OfficeFormSet)
         offices_form = Formset(request.POST)
 
+        form_class = self.get_form_class()
+        form = form_class(request.POST, instance=self.get_object())
+
         if not offices_form.is_valid() or not form.is_valid():
-            return self.get(request, pk, offices_form=offices_form, form=form)
+            return self.get(request, pk, offices_form=offices_form)
 
         importer = form.save()
 
