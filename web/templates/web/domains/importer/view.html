@@ -49,8 +49,8 @@
             {% endwith %}
         {% endif %}
 
-        {% with members = form.instance.members.all() %}
-            {% include "web/contacts/tabs.html" %}
+        {% with read_only = True %}
+            {% include "partial/contacts/contacts.html" %}
         {% endwith %}
 
     {% endcall %}

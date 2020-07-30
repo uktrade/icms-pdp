@@ -82,6 +82,9 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
             offices_form = Formset()
             show_offices_form = False
         contact_context_data = super().get(request).context_data
+        if self.extra_context is not None:
+            contact_context_data.update(self.extra_context)
+
         return render(
             request,
             self.template_name,
@@ -94,6 +97,11 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
                 **contact_context_data,
             },
         )
+
+    def add_people(self, *args, **kwargs):
+        template_response = super().add_people(*args, **kwargs)
+        self.extra_context = template_response.context_data
+        return self.get(*args, **kwargs)
 
     def edit(self, request, pk):
         Formset = formset_factory(OfficeEditForm, formset=OfficeFormSet)
@@ -110,7 +118,7 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
         for form in offices_form:
             office = form.save()
             importer.offices.add(office)
-        importer.save()
+        super().save(request=request)
 
         return redirect("importer-view", pk=pk)
 
@@ -149,7 +157,7 @@ class ImporterCreateView(ModelCreateView):
         return has_permission(self.request.user)
 
 
-class ImporterOrganisationDetailView(ModelDetailView):
+class ImporterOrganisationDetailView(ContactsManagementMixin, ModelDetailView):
     template_name = "web/domains/importer/view.html"
     form_class = ImporterOrganisationDisplayForm
     model = Importer
@@ -157,13 +165,17 @@ class ImporterOrganisationDetailView(ModelDetailView):
     def has_permission(self):
         return has_permission(self.request.user)
 
-    def get_context_data(self, object):
-        context = super().get_context_data(object)
-        context["form"] = ImporterOrganisationDisplayForm(instance=object)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = ImporterOrganisationDisplayForm(instance=self.get_object)
         return context
 
+    # required by ContactsManagementMixin.get
+    def get_form_class(self, *args, **kwargs):
+        return self.form_class
 
-class ImporterIndividualDetailView(ModelDetailView):
+
+class ImporterIndividualDetailView(ContactsManagementMixin, ModelDetailView):
     template_name = "web/domains/importer/view.html"
     form_class = ImporterIndividualDisplayForm
     model = Importer
@@ -189,6 +201,10 @@ class ImporterIndividualDetailView(ModelDetailView):
         context["form"] = form
 
         return context
+
+    # required by ContactsManagementMixin.get
+    def get_form_class(self, *args, **kwargs):
+        return self.form_class
 
 
 def importer_detail_view(request, pk):

@@ -26,9 +26,8 @@
       {% include "partial/offices-edit.html" %}
     {% endwith %}
 
-    {% with members = form.instance.members.all() %}
-      {% include "web/contacts/tabs.html" %}
-    {% endwith %}
+    {% include "partial/contacts/contacts.html" %}
+
     {#
     {% include "partial/firearms-authorities.html" %}
     {% include "partial/section5-authorities.html" %}
