@@ -74,7 +74,13 @@
                 <td>
                     <div class="individual-input">
                         <label for="role{{role.id}}-input" class="radio-label">
-                          <input id="role{{role.id}}-input" name="role_members_{{role.id}}" value="{{user.id}}" type="checkbox" {% if has_role %}checked="checked"{% endif %} {% if read_only %}disabled=disabled{% endif %}/>
+                          <input id="role{{role.id}}-input"
+                                 name="role_members_{{role.id}}"
+                                 value="{{user.id}}"
+                                 type="checkbox"
+                                 {% if has_role %}checked="checked"{% endif %}
+                                 {% if read_only %}disabled=disabled{% endif %}
+                          />
                         </label>
                     </div>
                 </td>
