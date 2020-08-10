@@ -12,8 +12,10 @@ from web.views.actions import Archive, Edit, Unarchive, CreateAgent
 from .forms import (
     ImporterOrganisationDisplayForm,
     ImporterOrganisationEditForm,
+    ImporterOrganisationForm,
     ImporterIndividualEditForm,
     ImporterIndividualDisplayForm,
+    ImporterIndividualForm,
     ImporterFilter,
 )
 from .models import Importer
@@ -24,6 +26,7 @@ from web.domains.office.forms import OfficeEditForm, OfficeFormSet
 from django.forms import formset_factory
 
 from web.address.address import find as postcode_lookup
+from web.company.hmrc import api
 
 logger = logging.getLogger(__name__)
 
@@ -144,15 +147,64 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
         return redirect("importer-edit", pk=pk)
 
 
-class ImporterCreateView(ModelCreateView):
+class ImporterCreateMixin:
     template_name = "web/domains/importer/create.html"
-    # TODO: this is tricky, organisation/individual have completely
-    # different fields..need to dynamically switch which form we're using
-    form_class = ImporterOrganisationEditForm
     success_url = reverse_lazy("importer-list")
     cancel_url = success_url
-    page_title = "Create Importer"
     model = Importer
+
+    def has_permission(self):
+        return has_permission(self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        Formset = formset_factory(OfficeEditForm)
+        offices_form = Formset()
+        self.extra_context = self.extra_context or {}
+        self.extra_context = {
+            "offices": Office.objects.none(),
+            "offices_form": self.extra_context.get("offices_form", offices_form),
+            "show_offices_form": self.extra_context.get("offices_form", False),
+        }
+        return super().get_context_data(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        Formset = formset_factory(OfficeEditForm, formset=OfficeFormSet, extra=1)
+        offices_form = Formset(self.request.POST)
+
+        form = self.get_form()
+        if form.is_valid() and offices_form.is_valid():
+            return self.form_valid(form, offices_form)
+        return self.form_invalid(form, offices_form)
+
+    def form_valid(self, form, offices_form):
+        self.object = form.save()
+        for form in offices_form:
+            office = form.save()
+            self.object.offices.add(office)
+        self.object.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form, offices_form):
+        # required for PageTitleMixin - need to investigate
+        self.object = None
+        self.extra_context = {}
+        # if an office form is submitted make sure we include it back
+        if len(offices_form) > 0:
+            self.extra_context = {"offices_form": offices_form}
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class ImporterIndividualCreate(ImporterCreateMixin, ModelCreateView):
+    form_class = ImporterIndividualForm
+    page_title = "Create Importer for Individual"
+
+    def has_permission(self):
+        return has_permission(self.request.user)
+
+
+class ImporterOrganisationCreate(ImporterCreateMixin, ModelCreateView):
+    form_class = ImporterOrganisationForm
+    page_title = "Create Importer for Organisation"
 
     def has_permission(self):
         return has_permission(self.request.user)
@@ -225,3 +277,10 @@ def list_postcode_addresses(request,):
     postcode = request.POST.get("postcode")
 
     return JsonResponse(postcode_lookup(postcode), safe=False)
+
+
+def list_companies(request):
+    query = request.POST.get("query")
+    companies = api(query)
+
+    return JsonResponse(companies, safe=False)

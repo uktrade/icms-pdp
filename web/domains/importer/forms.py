@@ -1,10 +1,15 @@
+from dal import autocomplete
 from django.forms.fields import ChoiceField, CharField
+from django.forms.widgets import Textarea
 from django_filters import CharFilter, ChoiceFilter
 from web.forms import ModelEditForm, ModelSearchFilter
-from web.forms.mixins import ReadonlyFormMixin
+from web.forms.mixins import ReadonlyFormMixin, RequiredFieldsMixin
 from django.db.models import Q
 
 from .models import Importer
+
+
+HELP_TEXT_EORI_NUMBER = "EORI number should include the GB or GBN prefix."
 
 
 class ImporterFilter(ModelSearchFilter):
@@ -57,6 +62,39 @@ class ImporterFilter(ModelSearchFilter):
     class Meta:
         model = Importer
         fields = []
+
+
+class ImporterIndividualForm(RequiredFieldsMixin, ModelEditForm):
+    class Meta:
+        model = Importer
+        required = ["user", "eori_number"]
+        fields = required + ["region_origin", "comments"]
+        widgets = {
+            "user": autocomplete.ModelSelect2(
+                url="user-autocomplete", attrs={"data-placeholder": "Search for a person"}
+            ),
+            "comments": Textarea({"rows": 5, "cols": 20}),
+        }
+        labels = {"eori_number": "EORI Number", "user": "Person"}
+        help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
+
+    def clean(self):
+        self.instance.type = Importer.INDIVIDUAL
+        return super().clean()
+
+
+class ImporterOrganisationForm(RequiredFieldsMixin, ModelEditForm):
+    class Meta:
+        model = Importer
+        required = ["name", "eori_number"]
+        fields = ["name", "registered_number", "eori_number", "region_origin", "comments"]
+        widgets = {"comments": Textarea({"rows": 5, "cols": 20})}
+        labels = {"eori_number": "EORI number", "name": "Organisation Name"}
+        help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
+
+    def clean(self):
+        self.instance.type = Importer.ORGANISATION
+        return super().clean()
 
 
 class ImporterOrganisationEditForm(ModelEditForm):

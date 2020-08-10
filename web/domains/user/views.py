@@ -1,5 +1,7 @@
+from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required as require_permission
+from django.db.models import Q
 from django.shortcuts import render
 
 from web.address import address
@@ -197,3 +199,18 @@ class UsersListView(ModelFilterView):
             actions.ReIssuePassword(),
         ]
         select = True
+
+
+class UserAutocomplete(autocomplete.Select2QuerySetView):
+    permission_required = permissions
+
+    def get_queryset(self):
+        qs = User.objects.all()
+        if self.q:
+            where_clause = Q(first_name__istartswith=self.q)
+            where_clause |= Q(last_name__istartswith=self.q)
+            where_clause |= Q(email__icontains=self.q)
+            where_clause |= Q(title__icontains=self.q)
+            qs = qs.filter(where_clause)
+
+        return qs

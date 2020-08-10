@@ -1,11 +1,36 @@
 {% extends "model/edit.html" %}
 
+{% block main_content %}
+<div class="modal-popover-container hidden">
+  <div class="modal-popover regular-popover">
+    <div class="modal-popover-content">
+      <h2 id="engine-modal-popover-title">Find Company</h2>
+      <table class="setoutList">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Company Name</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="body-company">
+        </tbody>
+      </table>
+      <ul class="menu-out modal-popover-actions flow-across">
+        <li>
+          <button type="button" onclick="$('.modal-popover-container').hide()" class="link-button button">
+            Cancel
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{{ super() }}
+{% endblock %}
+
 {% block sidebar %}
-  <ul class="menu-out">
-    <li>
-      <a href="">Search Access Requests</a>
-    </li>
-  </ul>
+    {% include "partial/importer/sidebar.html" %}
 {% endblock %}
 
 {% import "forms/forms.html" as forms %}
@@ -13,10 +38,93 @@
 
 {% block fields %}
   {% call forms.form(method='post', csrf_input=csrf_input) %}
-    {{fields.field(form.type)}}
-    {{fields.field(form.name)}}
-    {{fields.field(form.region_origin)}}
-    {{fields.field(form.comments)}}
-    {% include "partial/offices.html" %}
+    {% for field in form %}
+      {% if field.name in ['name', 'registered_number'] %}
+        {{ fields.field(field, extra_icon='icon-search') }}
+      {% else %}
+        {{ fields.field(field) }}
+      {% endif %}
+    {% endfor %}
+
+    {% include "partial/offices-edit.html" %}
+
   {% endcall %}
+{% endblock %}
+
+{% block page_js %}
+  {% include "partial/offices/formset-script.html" %}
+  <script>
+    $('.name-button, .registered_number-button').on('click', function(evt) {
+        evt.preventDefault();
+        $ta = $(this).closest('div').prev().find('input');
+        company_info = {};
+
+        data = {
+            query: $ta.val(),
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        }
+
+        $ui = $('.modal-popover-container');
+        $ui.show();
+
+        $('.body-company').on('click', '.select-company', function(evt) {
+            evt.stopImmediatePropagation();
+            data = company_info[this.text];
+            $('#id_name').val(data['title']);
+            $('#id_registered_number').val(this.text);
+
+            $('#btn-add-office').click();
+            office_form_id = $('#id_form-TOTAL_FORMS').val() - 1;
+            address = data['address'];
+            address_without_postcode = [address['premises'], address['address_line_1'], address['locality']];
+            address_without_postcode = address_without_postcode.join('\n');
+            $('textarea[name=form-' + office_form_id + '-address]').val(address_without_postcode)
+            $('input[name=form-' + office_form_id + '-postcode]').val(address['postal_code'])
+
+            $('.body-company').empty();
+            $ui.hide();
+            return false;
+        });
+        message = 'No companies were found returned matching your search, please try again.';
+        html_no_results = [
+            '<tr>' +
+            '<td colspan="3">' + message + '</td>' +
+            '</tr>'
+        ];
+
+        $.ajax({
+          method: 'POST',
+          url: '{{ url("importer-company-lookup") }}',
+          data: data,
+          success: function(data, status, xhr) {
+            $('.body-company').empty();
+            if (data['total_results'] === 0) {
+                $('.body-company').append(html_no_results.join(''));
+            }
+
+            for (row of data['items']) {
+                status = row['company_status'];
+                company_number = row['company_number'];
+                company_info[company_number] = row;
+
+                if (status === 'active') {
+                    company_number = '<a href="#" class="select-company">' + row['company_number'] + '</a>';
+                }
+
+                html = [
+                    '<tr>' +
+                    '<td>' + company_number + '</td>' +
+                    '<td>' + row['title'] + '</td>' +
+                    '<td>' + row['company_status'] + '</td>' +
+                    '</tr>'
+                ];
+                $('.body-company').append(html.join(''));
+            }
+          },
+          error: function() {
+              $('.body-company').append(html_no_results.join(''));
+          }
+        })
+    });
+  </script>
 {% endblock %}

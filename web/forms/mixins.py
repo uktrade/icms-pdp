@@ -72,3 +72,11 @@ class FiltersFieldConfigMixin(ProcessConfigMixin):
 
     def _get_fields(self):
         return self.form.fields
+
+
+class RequiredFieldsMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            if field in self.Meta.required:
+                self[field].field.required = True
