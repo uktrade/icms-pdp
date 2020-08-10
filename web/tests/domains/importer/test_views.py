@@ -106,7 +106,7 @@ class ImporterEditViewTest(AuthTestCase):
 
 
 class ImporterCreateViewTest(AuthTestCase):
-    url = "/importer/new/"
+    url = "/importer/new/individual/"
     redirect_url = f"{LOGIN_URL}?next={url}"
 
     def test_anonymous_access_redirects(self):
@@ -124,13 +124,45 @@ class ImporterCreateViewTest(AuthTestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    def test_importer_created(self):
+    def test_indiviual_importer_created(self):
         self.login_with_permissions(ADMIN_PERMISSIONS)
-        self.client.post(self.url, {"type": Importer.ORGANISATION, "name": "test importer"})
+        expected_address = "3 avenue des arbres, Pommier"
+        expected_postcode = "42000"
+        data = {
+            "user": self.user.pk,
+            "eori_number": "42",
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-address": expected_address,
+            "form-0-postcode": expected_postcode,
+        }
+
+        response = self.client.post(self.url, data)
+        self.assertRedirects(response, "/importer/")
+        importer = Importer.objects.first()
+        self.assertEqual(importer.user.pk, self.user.pk)
+        office = importer.offices.first()
+        self.assertEqual(office.address, expected_address)
+        self.assertEqual(office.postcode, expected_postcode)
+
+    def test_organisation_importer_created(self):
+        self.login_with_permissions(ADMIN_PERMISSIONS)
+        data = {
+            "name": "test importer",
+            "eori_number": "42",
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-address": "3 avenue des arbres, Pommier",
+            "form-0-postcode": "42000",
+        }
+
+        url = "/importer/new/organisation/"
+        response = self.client.post(url, data)
+        self.assertRedirects(response, "/importer/")
         importer = Importer.objects.first()
         self.assertEqual(importer.name, "test importer")
 
     def test_page_title(self):
         self.login_with_permissions(ADMIN_PERMISSIONS)
         response = self.client.get(self.url)
-        self.assertEqual(response.context_data["page_title"], "Create Importer")
+        self.assertEqual(response.context_data["page_title"], "Create Importer for Individual")
