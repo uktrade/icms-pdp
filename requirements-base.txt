@@ -1,5 +1,5 @@
 --extra-index-url https://pypi.viewflow.io/${ICMS_VIEWFLOW_LICENSE}/simple/
-django-autocomplete-light~=3.5.1
+django-autocomplete-light==3.5.1
 celery==4.4.6
 django-celery-results==1.2.1
 django-compressor==2.4
