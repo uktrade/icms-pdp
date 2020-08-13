@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-import base64
 import os
 
 import environ
@@ -228,4 +227,3 @@ SESSION_CACHE_ALIAS = "default"
 DEFAULT_DOMAIN = env.str("ICMS_DEFAULT_DOMAIN", "http://localhost:8080/")
 
 COMPANIES_HOUSE_TOKEN = os.environ.get("COMPANIES_HOUSE_TOKEN", "changeme")
-COMPANIES_HOUSE_TOKEN = base64.b64encode(bytes(COMPANIES_HOUSE_TOKEN, "utf-8")).decode("utf-8")
