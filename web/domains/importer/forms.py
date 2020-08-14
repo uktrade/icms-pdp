@@ -6,10 +6,13 @@ from web.forms import ModelEditForm, ModelSearchFilter
 from web.forms.mixins import ReadonlyFormMixin, RequiredFieldsMixin
 from django.db.models import Q
 
-from .models import Importer
+from web.domains.importer.models import Importer
+from web.domains.importer.validators import eori_individual_gb, eori_organisation_gb
 
 
 HELP_TEXT_EORI_NUMBER = "EORI number should include the GB or GBN prefix."
+LABEL_EORI = "EORI Number"
+LABEL_ORG_NAME = "Organisation Name"
 
 
 class ImporterFilter(ModelSearchFilter):
@@ -31,7 +34,7 @@ class ImporterFilter(ModelSearchFilter):
     # Filter base queryset to only get importers that are not agents.
     @property
     def qs(self):
-        return super().qs.filter(main_importer__isnull=True)
+        return super().qs.select_related("user").filter(main_importer__isnull=True)
 
     def filter_importer_name(self, queryset, name, value):
         if not value:
@@ -65,6 +68,10 @@ class ImporterFilter(ModelSearchFilter):
 
 
 class ImporterIndividualForm(RequiredFieldsMixin, ModelEditForm):
+    eori_number = CharField(
+        validators=[eori_individual_gb], label=LABEL_EORI, help_text=HELP_TEXT_EORI_NUMBER
+    )
+
     class Meta:
         model = Importer
         required = ["user", "eori_number"]
@@ -75,8 +82,7 @@ class ImporterIndividualForm(RequiredFieldsMixin, ModelEditForm):
             ),
             "comments": Textarea({"rows": 5, "cols": 20}),
         }
-        labels = {"eori_number": "EORI Number", "user": "Person"}
-        help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
+        labels = {"user": "Person"}
 
     def clean(self):
         self.instance.type = Importer.INDIVIDUAL
@@ -84,12 +90,16 @@ class ImporterIndividualForm(RequiredFieldsMixin, ModelEditForm):
 
 
 class ImporterOrganisationForm(RequiredFieldsMixin, ModelEditForm):
+    eori_number = CharField(
+        validators=[eori_organisation_gb], label=LABEL_EORI, help_text=HELP_TEXT_EORI_NUMBER
+    )
+
     class Meta:
         model = Importer
         required = ["name", "eori_number"]
         fields = ["name", "registered_number", "eori_number", "region_origin", "comments"]
         widgets = {"comments": Textarea({"rows": 5, "cols": 20})}
-        labels = {"eori_number": "EORI number", "name": "Organisation Name"}
+        labels = {"eori_number": LABEL_EORI, "name": LABEL_ORG_NAME}
         help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
 
     def clean(self):
