@@ -130,7 +130,7 @@ class ImporterCreateViewTest(AuthTestCase):
         expected_postcode = "42000"
         data = {
             "user": self.user.pk,
-            "eori_number": "42",
+            "eori_number": "GBPR",
             "form-TOTAL_FORMS": 1,
             "form-INITIAL_FORMS": 0,
             "form-0-address": expected_address,
@@ -149,7 +149,7 @@ class ImporterCreateViewTest(AuthTestCase):
         self.login_with_permissions(ADMIN_PERMISSIONS)
         data = {
             "name": "test importer",
-            "eori_number": "42",
+            "eori_number": "GB",
             "form-TOTAL_FORMS": 1,
             "form-INITIAL_FORMS": 0,
             "form-0-address": "3 avenue des arbres, Pommier",
