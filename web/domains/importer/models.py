@@ -31,6 +31,7 @@ class Importer(Archivable, BaseTeam):
     name = models.CharField(max_length=4000, blank=True, null=True)
     registered_number = models.CharField(max_length=15, blank=True, null=True)
     eori_number = models.CharField(max_length=20, blank=True, null=True)
+    eori_number_ni = models.CharField(max_length=20, blank=True, null=True)
     region_origin = models.CharField(max_length=1, choices=REGIONS, blank=True, null=True)
 
     # only set for individuals

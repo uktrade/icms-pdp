@@ -12,6 +12,7 @@ from web.domains.importer.validators import eori_individual_gb, eori_organisatio
 
 HELP_TEXT_EORI_NUMBER = "EORI number should include the GB or GBN prefix."
 LABEL_EORI = "EORI Number"
+LABEL_EORI_NI = "NI EORI Number"
 LABEL_ORG_NAME = "Organisation Name"
 
 
@@ -75,14 +76,14 @@ class ImporterIndividualForm(RequiredFieldsMixin, ModelEditForm):
     class Meta:
         model = Importer
         required = ["user", "eori_number"]
-        fields = required + ["region_origin", "comments"]
+        fields = required + ["eori_number_ni", "region_origin", "comments"]
         widgets = {
             "user": autocomplete.ModelSelect2(
                 url="user-autocomplete", attrs={"data-placeholder": "Search for a person"}
             ),
             "comments": Textarea({"rows": 5, "cols": 20}),
         }
-        labels = {"user": "Person"}
+        labels = {"eori_number_ni": LABEL_EORI_NI, "user": "Person"}
 
     def clean(self):
         self.instance.type = Importer.INDIVIDUAL
@@ -97,9 +98,20 @@ class ImporterOrganisationForm(RequiredFieldsMixin, ModelEditForm):
     class Meta:
         model = Importer
         required = ["name", "eori_number"]
-        fields = ["name", "registered_number", "eori_number", "region_origin", "comments"]
+        fields = [
+            "name",
+            "registered_number",
+            "eori_number",
+            "eori_number_ni",
+            "region_origin",
+            "comments",
+        ]
         widgets = {"comments": Textarea({"rows": 5, "cols": 20})}
-        labels = {"eori_number": LABEL_EORI, "name": LABEL_ORG_NAME}
+        labels = {
+            "eori_number": LABEL_EORI,
+            "eori_number_ni": LABEL_EORI_NI,
+            "name": LABEL_ORG_NAME,
+        }
         help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
 
     def clean(self):
