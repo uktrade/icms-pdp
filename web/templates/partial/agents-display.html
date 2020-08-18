@@ -15,6 +15,16 @@
     {% endwith %}
 </div>
 
+{% if edit %}
+<div class="list-actions">
+  <ul class="menu-out flow-across">
+    <li>
+      <a href="{{ url('importer-agent:create-individual', args=[view.kwargs.pk])  }}" class="small-button icon-user-plus button">Create Agent</a>
+    </li>
+  </ul>
+</div>
+{% endif %}
+
 <div id="tg-agentsARCHIVED" aria-labelledby="tg-agentsARCHIVED" class="tab-content " style="display: none;"
      data-tab-group="tg-agents" data-tab-key="ARCHIVED" aria-hidden="true">
     {% with agent_list = agents.filter(is_active=False).order_by('pk') %}

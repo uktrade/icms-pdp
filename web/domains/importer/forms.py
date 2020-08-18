@@ -1,5 +1,5 @@
 from dal import autocomplete
-from django.forms.fields import ChoiceField, CharField
+from django.forms import ChoiceField, CharField, ModelChoiceField
 from django.forms.widgets import Textarea
 from django_filters import CharFilter, ChoiceFilter
 from web.forms import ModelEditForm, ModelSearchFilter
@@ -113,6 +113,46 @@ class ImporterOrganisationForm(RequiredFieldsMixin, ModelEditForm):
             "name": LABEL_ORG_NAME,
         }
         help_texts = {"eori_number": HELP_TEXT_EORI_NUMBER}
+
+    def clean(self):
+        self.instance.type = Importer.ORGANISATION
+        return super().clean()
+
+
+class AgentFormMixin(ModelEditForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        main_importer = self.initial["main_importer"]
+        self.fields["main_importer"].queryset = Importer.objects.filter(pk=main_importer)
+
+
+class AgentIndividualForm(AgentFormMixin):
+    main_importer = ModelChoiceField(
+        queryset=Importer.objects.none(), label="Importer", disabled=True
+    )
+
+    class Meta(ImporterIndividualForm.Meta):
+        required = ["main_importer", "user"]
+        fields = required + ["comments"]
+
+    def clean(self):
+        self.instance.type = Importer.INDIVIDUAL
+        return super().clean()
+
+
+class AgentOrganisationForm(AgentFormMixin):
+    main_importer = ModelChoiceField(
+        queryset=Importer.objects.none(), label="Importer", disabled=True
+    )
+
+    class Meta(ImporterOrganisationForm.Meta):
+        required = ["name", "main_importer"]
+        fields = [
+            "main_importer",
+            "name",
+            "registered_number",
+            "comments",
+        ]
 
     def clean(self):
         self.instance.type = Importer.ORGANISATION

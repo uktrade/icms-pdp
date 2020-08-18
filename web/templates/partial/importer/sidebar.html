@@ -1,5 +1,24 @@
 {% block sidebar %}
   <h4>Importer</h4>
+  {% if is_agent %}
+  <h5>Create Agent</h5>
+  <ul class="menu-out">
+    <li>
+      <a href="{{ url('importer-agent:create-individual', args=[view.kwargs.pk]) }}">Individual Agent</a>
+    </li>
+    <li>
+      <a href="{{ url('importer-agent:create-organisation', args=[view.kwargs.pk]) }}">Organisation Agent</a>
+    </li>
+  </ul>
+  {% endif %}
+
+  <h5>Search</h5>
+  <ul class="menu-out">
+    <li>
+        <a href="{{ url('importer-list') }}">Access Requests</a>
+    </li>
+  </ul>
+
   <h5>Create</h5>
   <ul class="menu-out">
     <li>
@@ -9,10 +28,5 @@
       <a href="{{ url('importer-new-organisation') }}">Main Organisation Importer</a>
     </li>
   </ul>
-  <h5>Search</h5>
-  <ul class="menu-out">
-    <li>
-        <a href="{{ url('importer-list') }}">Access Requests</a>
-    </li>
-  </ul>
+
 {% endblock %}

@@ -10,6 +10,8 @@ from web.views import ModelCreateView, ModelDetailView, ModelFilterView, ModelUp
 from web.views.actions import Archive, Edit, Unarchive, CreateAgent
 
 from .forms import (
+    AgentIndividualForm,
+    AgentOrganisationForm,
     ImporterOrganisationDisplayForm,
     ImporterOrganisationEditForm,
     ImporterOrganisationForm,
@@ -27,6 +29,7 @@ from django.forms import formset_factory
 
 from web.address.address import find as postcode_lookup
 from web.company.hmrc import api
+
 
 logger = logging.getLogger(__name__)
 
@@ -160,11 +163,13 @@ class ImporterCreateMixin:
         Formset = formset_factory(OfficeEditForm)
         offices_form = Formset()
         self.extra_context = self.extra_context or {}
-        self.extra_context = {
-            "offices": Office.objects.none(),
-            "offices_form": self.extra_context.get("offices_form", offices_form),
-            "show_offices_form": self.extra_context.get("offices_form", False),
-        }
+        self.extra_context.update(
+            {
+                "offices": Office.objects.none(),
+                "offices_form": self.extra_context.get("offices_form", offices_form),
+                "show_offices_form": self.extra_context.get("offices_form", False),
+            }
+        )
         return super().get_context_data(*args, **kwargs)
 
     def post(self, *args, **kwargs):
@@ -187,10 +192,10 @@ class ImporterCreateMixin:
     def form_invalid(self, form, offices_form):
         # required for PageTitleMixin - need to investigate
         self.object = None
-        self.extra_context = {}
+        self.extra_context = self.extra_context or {}
         # if an office form is submitted make sure we include it back
         if len(offices_form) > 0:
-            self.extra_context = {"offices_form": offices_form}
+            self.extra_context.update({"offices_form": offices_form})
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -208,6 +213,44 @@ class ImporterOrganisationCreate(ImporterCreateMixin, ModelCreateView):
 
     def has_permission(self):
         return has_permission(self.request.user)
+
+
+class AgentIndividualCreate(ImporterCreateMixin, ModelCreateView):
+    form_class = AgentIndividualForm
+    page_title = "Create Individual Agent"
+
+    def has_permission(self):
+        return has_permission(self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["is_agent"] = True
+        context["importer"] = Importer.objects.get(pk=self.kwargs["pk"])
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["main_importer"] = self.kwargs["pk"]
+        return initial
+
+
+class AgentOrganisationCreate(ImporterCreateMixin, ModelCreateView):
+    form_class = AgentOrganisationForm
+    page_title = "Create Organisation Agent"
+
+    def has_permission(self):
+        return has_permission(self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["is_agent"] = True
+        context["importer"] = Importer.objects.get(pk=self.kwargs["pk"])
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["main_importer"] = self.kwargs["pk"]
+        return initial
 
 
 class ImporterOrganisationDetailView(ContactsManagementMixin, ModelDetailView):

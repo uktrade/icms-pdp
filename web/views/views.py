@@ -72,12 +72,16 @@ class ModelCreateView(RequireRegisteredMixin, PageTitleMixin, SuccessMessageMixi
 
 class ModelUpdateView(RequireRegisteredMixin, PageTitleMixin, SuccessMessageMixin, UpdateView):
     template_name = "model/edit.html"
+    page_title = None
 
     def get_success_message(self, cleaned_data):
         return f"{self.object} updated successfully"
 
     def get_page_title(self):
-        return f"Editing {self.object}"
+        title = f"Editing {self.object}"
+        if self.page_title:
+            return f"{title} - {self.page_title}"
+        return title
 
 
 class ModelDetailView(RequireRegisteredMixin, PageTitleMixin, DetailView):

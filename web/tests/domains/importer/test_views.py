@@ -166,3 +166,75 @@ class ImporterCreateViewTest(AuthTestCase):
         self.login_with_permissions(ADMIN_PERMISSIONS)
         response = self.client.get(self.url)
         self.assertEqual(response.context_data["page_title"], "Create Importer for Individual")
+
+
+class ImporterAgentCreateViewTest(AuthTestCase):
+    base_url = "/importer/{pk}/agent/new/{agent_type}/"
+    base_redirect_url = "{LOGIN_URL}?next={url}"
+
+    def setUp(self):
+        super().setUp()
+        self.importer = ImporterFactory()
+
+        self.url = self.base_url.format(pk=self.importer.pk, agent_type="individual")
+        self.url_org = self.base_url.format(pk=self.importer.pk, agent_type="organisation")
+
+        self.redirect_url = self.base_redirect_url.format(LOGIN_URL=LOGIN_URL, url=self.url)
+        self.redirect_url_org = self.base_redirect_url.format(LOGIN_URL=LOGIN_URL, url=self.url_org)
+
+    def test_individual_anonymous_access_redirects(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.redirect_url)
+
+    def test_individual_forbidden_access(self):
+        self.login()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_individual_authorized_access(self):
+        self.login_with_permissions(ADMIN_PERMISSIONS)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_indiviual_agent_importer_created(self):
+        self.login_with_permissions(ADMIN_PERMISSIONS)
+        data = {
+            "user": self.user.pk,
+            # no office
+            "form-TOTAL_FORMS": 0,
+            "form-INITIAL_FORMS": 0,
+        }
+
+        response = self.client.post(self.url, data)
+        self.assertRedirects(response, "/importer/")
+        self.assertEqual(self.importer.agents.count(), 1)
+
+    def test_organisation_anonymous_access_redirects(self):
+        response = self.client.get(self.url_org)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.redirect_url_org)
+
+    def test_organisation_forbidden_access(self):
+        self.login()
+        response = self.client.get(self.url_org)
+        self.assertEqual(response.status_code, 403)
+
+    def test_organisation_authorized_access(self):
+        self.login_with_permissions(ADMIN_PERMISSIONS)
+        response = self.client.get(self.url_org)
+        self.assertEqual(response.status_code, 200)
+
+    def test_organisation_agent_importer_created(self):
+        self.login_with_permissions(ADMIN_PERMISSIONS)
+        data = {
+            "name": "agent org",
+            "registered_number": "GB42",
+            # no office
+            "form-TOTAL_FORMS": 0,
+            "form-INITIAL_FORMS": 0,
+        }
+
+        response = self.client.post(self.url, data)
+        self.assertRedirects(response, "/importer/")
+        self.assertEqual(self.importer.agents.count(), 1)

@@ -26,12 +26,17 @@
       {% include "partial/offices-edit.html" %}
     {% endwith %}
 
+    {% if not form.instance.is_agent() %}
+      {% with agents = form.instance.agents %}
+        {% include "partial/agents.html" %}
+      {% endwith %}
+    {% endif %}
+
     {% include "partial/contacts/contacts.html" %}
 
     {#
     {% include "partial/firearms-authorities.html" %}
     {% include "partial/section5-authorities.html" %}
-    {% include "partial/agents.html" %}
     #}
 {% endblock %}
 
