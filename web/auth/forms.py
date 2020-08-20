@@ -11,13 +11,12 @@ from captcha.fields import ReCaptchaField
 from web.domains.user import User
 from web.forms import validators
 from web.forms.fields import PhoneNumberField
-from web.forms.mixins import FormFieldConfigMixin
 from web.forms.widgets import DateInput
 
 logger = logging.get_logger(__name__)
 
 
-class LoginForm(FormFieldConfigMixin, AuthenticationForm):
+class LoginForm(AuthenticationForm):
     username = UsernameField(widget=TextInput(attrs={"autofocus": True}))
     password = CharField(strip=False, widget=PasswordInput)
     error_status = None
@@ -31,7 +30,7 @@ class LoginForm(FormFieldConfigMixin, AuthenticationForm):
             return redirect("set-password")
 
 
-class RegistrationForm(FormFieldConfigMixin, ModelForm):
+class RegistrationForm(ModelForm):
     # Pre-defined security question options
     FIRST_SCHOOL = "What is the name of your first school?"
     BEST_FRIEND = "What is the name of your childhood best friend?"
@@ -101,16 +100,16 @@ class RegistrationForm(FormFieldConfigMixin, ModelForm):
         }
 
 
-class CaptchaForm(FormFieldConfigMixin, Form):
+class CaptchaForm(Form):
     captcha = ReCaptchaField(label="Security Check")
 
 
-class ResetPasswordForm(FormFieldConfigMixin, Form):
+class ResetPasswordForm(Form):
     login_id = CharField()
     captcha = ReCaptchaField()
 
 
-class ResetPasswordSecondForm(FormFieldConfigMixin, Form):
+class ResetPasswordSecondForm(Form):
     question = CharField(widget=TextInput(attrs={"readonly": "readonly"}))
     security_answer = CharField(label="Answer")
     date_of_birth = DateField(widget=DateInput())
@@ -135,7 +134,7 @@ class ResetPasswordSecondForm(FormFieldConfigMixin, Form):
             self.add_error(None, "Invalid details")
 
 
-class PasswordChangeForm(FormFieldConfigMixin, PasswordChangeForm):
+class PasswordChangeForm(PasswordChangeForm):
     new_password1 = CharField(label="New password", strip=False, widget=PasswordInput())
     new_password2 = CharField(label="Confirm New Password", strip=False, widget=PasswordInput())
     old_password = CharField(strip=False, widget=PasswordInput())
