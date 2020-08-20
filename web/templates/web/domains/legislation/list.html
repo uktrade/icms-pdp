@@ -9,7 +9,7 @@
     <h4> Filter </h4>
     {% call forms.form(action=url('product-legislation-list'))%}
       {% for field in filter.form %}
-        {{ fields.field(field, show_optional_indicator=false) }}
+        {{ fields.field(field, show_optional_indicator=false, prompt='north') }}
       {% endfor %}
       <div class="clearBoth"></div>
       <div class="container">

@@ -16,9 +16,7 @@ class PostCodeSearchForm(FormFieldConfigMixin, Form):
     )
 
     class Meta:
-        config = {
-            "__all__": {"label": {"cols": "three", "prompt": "north"}, "input": {"cols": "eight"},}
-        }
+        config = {"__all__": {"input": {"cols": "eight"},}}
 
 
 class ManualAddressEntryForm(FormFieldConfigMixin, Form):

@@ -42,17 +42,17 @@
 {%- endmacro %}
 
 {# Renders a single form field with icms styling #}
-{% macro field(field, tooltip=None, checkbox_label=None, field_description=None, show_errors=True, show_optional_indicator=True) -%}
+{% macro field(field, tooltip=None, checkbox_label=None, field_description=None, show_errors=True, show_optional_indicator=True, prompt='west') -%}
   <div class="row row_{{ field.id_for_label  }}" >
-    {{ inline_field_with_label(field, tooltip, checkbox_label, field_description, show_errors, show_optional_indicator) }}
+    {{ inline_field_with_label(field, tooltip, checkbox_label, field_description, show_errors, show_optional_indicator, prompt) }}
   </div>
 {%- endmacro %}
 
 {# Renders a single INLINE form field with icms styling #}
-{% macro inline_field_with_label(field, tooltip=None, checkbox_label=None, field_description=None, show_errors=True, show_optional_indicator=True) -%}
+{% macro inline_field_with_label(field, tooltip=None, checkbox_label=None, field_description=None, show_errors=True, show_optional_indicator=True, prompt='west') -%}
   {% set config=field.field.config %}
 
-  {{ label(field, show_optional_indicator) }}
+  {{ label(field, show_optional_indicator, prompt) }}
 
   <div class="{{config.input.cols}} columns input-group {% if show_errors and field.errors %}input-error{% endif %}">
     {{_field(field, tooltip=tooltip, checkbox_label=checkbox_label, field_description=field_description, show_errors=show_errors)}}
@@ -62,13 +62,13 @@
   {% endif %}
 {% endmacro %}
 
-{% macro label(field, show_optional_indicator=True) %}
+{% macro label(field, show_optional_indicator=True, prompt='west') %}
   {% set config=field.field.config %}
 
     <div class="{{config.label.cols}} columns">
     {% if 'HiddenInput' not in field.field.widget.__class__.__name__ %}
       {# do not render the label on hidden fields #}
-      <label for="{{ field.id_for_label }}" class="prompt {{config.label.prompt}}">
+      <label for="{{ field.id_for_label }}" class="prompt {{ prompt }}">
         {{field.label}}
         {% if show_optional_indicator and not field.field.required %}
           <span class="mand-label">optional</span>

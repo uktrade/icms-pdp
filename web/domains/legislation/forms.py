@@ -39,11 +39,7 @@ class ProductLegislationFilter(ModelSearchFilter):
         model = ProductLegislation
         fields = []
         config = {
-            "__all__": {
-                "label": {"cols": "twelve", "prompt": "north"},
-                "input": {"cols": "twelve"},
-                "padding": None,
-            }
+            "__all__": {"label": {"cols": "twelve"}, "input": {"cols": "twelve"}, "padding": None,}
         }
 
 

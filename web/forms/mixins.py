@@ -8,7 +8,7 @@ from web.utils import merge_dictionaries as m
 logger = logging.getLogger(__name__)
 
 default_field_config = {
-    "label": {"cols": "three", "prompt": "west"},
+    "label": {"cols": "three"},
     "input": {"cols": "six"},
     "padding": {"right": "three"},
 }
