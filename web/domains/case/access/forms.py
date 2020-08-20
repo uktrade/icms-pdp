@@ -66,7 +66,6 @@ class ExporterAccessRequestForm(ModelEditForm):
             "__all__": {
                 "label": {"cols": "four"},
                 "input": {"cols": "four"},
-                "padding": {"right": "four"},
             }
         }
 

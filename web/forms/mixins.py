@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 default_field_config = {
     "label": {"cols": "three"},
     "input": {"cols": "six"},
-    "padding": {"right": "three"},
 }
 
 default_filter_config = default_field_config.copy()

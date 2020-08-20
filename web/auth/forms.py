@@ -35,7 +35,6 @@ class LoginForm(FormFieldConfigMixin, AuthenticationForm):
             "__all__": {
                 "label": {"cols": "three",},
                 "input": {"cols": "nine"},
-                "padding": {"right": None},
             }
         }
 
@@ -113,7 +112,6 @@ class RegistrationForm(FormFieldConfigMixin, ModelForm):
             "__all__": {
                 "label": {"cols": "four"},
                 "input": {"cols": "six"},
-                "padding": {"right": "two"},
             }
         }
 
@@ -134,7 +132,6 @@ class ResetPasswordForm(FormFieldConfigMixin, Form):
             "__all__": {
                 "label": {"cols": "four",},
                 "input": {"cols": "four"},
-                "padding": {"right": "four"},
             }
         }
 

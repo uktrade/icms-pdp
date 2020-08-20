@@ -66,7 +66,6 @@ class CommodityForm(ModelEditForm):
             "quantity_threshold": {
                 "label": {"cols": "three",},
                 "input": {"cols": "two"},
-                "padding": {"right": "seven"},
             }
         }
 
