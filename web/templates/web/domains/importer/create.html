@@ -1,13 +1,12 @@
 {% extends "model/edit.html" %}
+{% block context_header %}Create Importer{% endblock %}
 {% import "forms/forms.html" as forms %}
 {% import "forms/fields.html" as fields %}
 
 {% block fields %}
   {% call forms.form(method='post', csrf_input=csrf_input) %}
-    {{fields.field(form.type)}}
-    {{fields.field(form.name)}}
-    {{fields.field(form.region_origin)}}
-    {{fields.field(form.comments)}}
-    {% include "partial/offices.html" %}
+    {% for field in form %}
+        {{ fields.field(field) }}
+    {% endfor %}
   {% endcall %}
 {% endblock %}

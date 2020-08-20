@@ -1,10 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.forms import ChoiceField, CharField, ModelForm
 from django_filters import CharFilter, ChoiceFilter, FilterSet
-from web.forms.mixins import ReadonlyFormMixin
 from django.db.models import Q
 
-from .models import Importer
+from web.domains.importer.models import Importer
+from web.forms.mixins import ReadonlyFormMixin
 
 
 class ImporterIndividualForm(ModelForm):
