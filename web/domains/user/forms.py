@@ -8,8 +8,8 @@ from django.forms.widgets import (
     Textarea,
 )
 from django.utils.translation import gettext_lazy as _
-from django_filters import BooleanFilter, CharFilter, MultipleChoiceFilter
-from web.forms import ModelSearchFilter, validators
+from django_filters import BooleanFilter, CharFilter, FilterSet, MultipleChoiceFilter
+from web.forms import validators
 from web.forms.fields import PhoneNumberField
 from web.forms.widgets import DateInput
 
@@ -173,7 +173,7 @@ class PersonalEmailForm(ModelForm):
         }
 
 
-class PeopleFilter(ModelSearchFilter):
+class PeopleFilter(FilterSet):
     email_address = CharFilter(
         field_name="personal_emails__email", lookup_expr="icontains", label="Email"
     )
@@ -190,7 +190,7 @@ class PeopleFilter(ModelSearchFilter):
         fields = []
 
 
-class UserListFilter(ModelSearchFilter):
+class UserListFilter(FilterSet):
     email_address = CharFilter(field_name="email", lookup_expr="icontains", label="Email Address")
     username = CharFilter(field_name="username", lookup_expr="icontains", label="Login Name")
     forename = CharFilter(field_name="first_name", lookup_expr="icontains", label="Forename")

@@ -1,13 +1,13 @@
 from django.db.models import Count
 from django.forms import BaseInlineFormSet, inlineformset_factory, ModelForm
 from django.forms.widgets import CheckboxInput, HiddenInput
-from django_filters import BooleanFilter, CharFilter
-from web.forms import ModelSearchFilter, ModelDisplayForm
+from django_filters import BooleanFilter, CharFilter, FilterSet
+from web.forms import ModelDisplayForm
 
 from .models import ObsoleteCalibre, ObsoleteCalibreGroup
 
 
-class ObsoleteCalibreGroupFilter(ModelSearchFilter):
+class ObsoleteCalibreGroupFilter(FilterSet):
     group_name = CharFilter(
         field_name="name", lookup_expr="icontains", label="Obsolete Calibre Group Name"
     )

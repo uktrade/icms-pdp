@@ -1,6 +1,5 @@
 from django import forms
-from django_filters import CharFilter, ChoiceFilter
-from web.forms import ModelSearchFilter
+from django_filters import CharFilter, ChoiceFilter, FilterSet
 
 from .models import Template
 
@@ -59,7 +58,7 @@ class EndorsementCreateTemplateForm(GenericTemplate):
         self.fields["template_name"].label = "Endorsement Name"
 
 
-class TemplatesFilter(ModelSearchFilter):
+class TemplatesFilter(FilterSet):
     # Fields of the model that can be filtered
     template_name = CharFilter(lookup_expr="icontains", label="Template Name")
     application_domain = ChoiceFilter(

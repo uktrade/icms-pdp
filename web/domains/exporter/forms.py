@@ -1,11 +1,11 @@
 from django.forms import ModelForm
-from django_filters import CharFilter
-from web.forms import ModelDisplayForm, ModelSearchFilter
+from django_filters import CharFilter, FilterSet
+from web.forms import ModelDisplayForm
 
 from .models import Exporter
 
 
-class ExporterFilter(ModelSearchFilter):
+class ExporterFilter(FilterSet):
     exporter_name = CharFilter(field_name="name", lookup_expr="icontains", label="Exporter Name")
 
     agent_name = CharFilter(field_name="agents__name", lookup_expr="icontains", label="Agent Name")

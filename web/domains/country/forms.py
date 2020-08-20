@@ -1,12 +1,11 @@
 from django.forms import ModelForm
 from django.forms.widgets import Select, Textarea
-from django_filters import CharFilter
-from web.forms import ModelSearchFilter
+from django_filters import CharFilter, FilterSet
 
 from .models import Country, CountryGroup, CountryTranslation, CountryTranslationSet
 
 
-class CountryNameFilter(ModelSearchFilter):
+class CountryNameFilter(FilterSet):
     country_name = CharFilter(field_name="name", lookup_expr="icontains", label="Country Name")
 
     @property

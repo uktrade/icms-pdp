@@ -1,11 +1,10 @@
 from django.forms import ModelForm
-from django_filters import CharFilter, ChoiceFilter
-from web.forms import ModelSearchFilter
+from django_filters import CharFilter, ChoiceFilter, FilterSet
 
 from .models import ProductLegislation
 
 
-class ProductLegislationFilter(ModelSearchFilter):
+class ProductLegislationFilter(FilterSet):
     name = CharFilter(field_name="name", lookup_expr="icontains", label="Legislation Name")
 
     is_biocidal = ChoiceFilter(

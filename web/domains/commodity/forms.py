@@ -1,14 +1,20 @@
 from django.forms import CharField, ChoiceField, ModelForm
 from django.forms.widgets import CheckboxInput, Textarea
-from django_filters import BooleanFilter, CharFilter, ChoiceFilter, DateFilter, ModelChoiceFilter
+from django_filters import (
+    BooleanFilter,
+    CharFilter,
+    ChoiceFilter,
+    DateFilter,
+    FilterSet,
+    ModelChoiceFilter,
+)
 from django_filters.fields import ModelChoiceField
-from web.forms import ModelSearchFilter
 from web.forms.widgets import DateInput
 
 from .models import Commodity, CommodityGroup, CommodityType, Unit
 
 
-class CommodityFilter(ModelSearchFilter):
+class CommodityFilter(FilterSet):
     commodity_code = CharFilter(
         field_name="commodity_code", lookup_expr="icontains", label="Commodity Code"
     )
@@ -69,7 +75,7 @@ class CommodityEditForm(CommodityForm):
         self.fields["commodity_code"].disabled = True
 
 
-class CommodityGroupFilter(ModelSearchFilter):
+class CommodityGroupFilter(FilterSet):
     group_type = ChoiceFilter(
         field_name="group_type", choices=CommodityGroup.TYPES, label="Group Type"
     )

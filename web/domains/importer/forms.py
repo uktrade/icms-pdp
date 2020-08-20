@@ -1,13 +1,12 @@
 from django.forms import ChoiceField, CharField, ModelForm
-from django_filters import CharFilter, ChoiceFilter
-from web.forms import ModelSearchFilter
+from django_filters import CharFilter, ChoiceFilter, FilterSet
 from web.forms.mixins import ReadonlyFormMixin
 from django.db.models import Q
 
 from .models import Importer
 
 
-class ImporterFilter(ModelSearchFilter):
+class ImporterFilter(FilterSet):
     importer_entity_type = ChoiceFilter(
         field_name="type", choices=Importer.TYPES, label="Importer Entity Type"
     )
