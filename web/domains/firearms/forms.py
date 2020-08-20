@@ -2,7 +2,7 @@ from django.db.models import Count
 from django.forms import BaseInlineFormSet, inlineformset_factory, ModelForm
 from django.forms.widgets import CheckboxInput, HiddenInput
 from django_filters import BooleanFilter, CharFilter, FilterSet
-from web.forms import ModelDisplayForm
+from web.forms.mixins import ReadonlyFormMixin
 
 from .models import ObsoleteCalibre, ObsoleteCalibreGroup
 
@@ -50,7 +50,7 @@ class ObsoleteCalibreGroupEditForm(ModelForm):
         labels = {"name": "Group Name"}
 
 
-class ObsoleteCalibreGroupDisplayForm(ModelDisplayForm):
+class ObsoleteCalibreGroupDisplayForm(ReadonlyFormMixin, ModelForm):
     class Meta(ObsoleteCalibreGroupEditForm.Meta):
         pass
 

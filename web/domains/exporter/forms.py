@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django_filters import CharFilter, FilterSet
-from web.forms import ModelDisplayForm
+from web.forms.mixins import ReadonlyFormMixin
 
 from .models import Exporter
 
@@ -22,5 +22,5 @@ class ExporterEditForm(ModelForm):
         labels = {"name": "Organisation Name"}
 
 
-class ExporterDisplayForm(ModelDisplayForm):
+class ExporterDisplayForm(ReadonlyFormMixin, ModelForm):
     pass
