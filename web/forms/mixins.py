@@ -7,10 +7,7 @@ from web.utils import merge_dictionaries as m
 
 logger = logging.getLogger(__name__)
 
-default_field_config = {
-    "label": {"cols": "three"},
-    "input": {"cols": "six"},
-}
+default_field_config = {}
 
 default_filter_config = default_field_config.copy()
 

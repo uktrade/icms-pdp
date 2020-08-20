@@ -30,14 +30,6 @@ class LoginForm(FormFieldConfigMixin, AuthenticationForm):
         elif user.password_disposition != "FULL":
             return redirect("set-password")
 
-    class Meta:
-        config = {
-            "__all__": {
-                "label": {"cols": "three",},
-                "input": {"cols": "nine"},
-            }
-        }
-
 
 class RegistrationForm(FormFieldConfigMixin, ModelForm):
     # Pre-defined security question options
@@ -108,32 +100,14 @@ class RegistrationForm(FormFieldConfigMixin, ModelForm):
             "date_of_birth": DateInput(),
         }
 
-        config = {
-            "__all__": {
-                "label": {"cols": "four"},
-                "input": {"cols": "six"},
-            }
-        }
-
 
 class CaptchaForm(FormFieldConfigMixin, Form):
     captcha = ReCaptchaField(label="Security Check")
-
-    class Meta:
-        config = RegistrationForm.Meta.config
 
 
 class ResetPasswordForm(FormFieldConfigMixin, Form):
     login_id = CharField()
     captcha = ReCaptchaField()
-
-    class Meta:
-        config = {
-            "__all__": {
-                "label": {"cols": "four",},
-                "input": {"cols": "four"},
-            }
-        }
 
 
 class ResetPasswordSecondForm(FormFieldConfigMixin, Form):
@@ -160,9 +134,6 @@ class ResetPasswordSecondForm(FormFieldConfigMixin, Form):
         except ValidationError:
             self.add_error(None, "Invalid details")
 
-    class Meta:
-        config = ResetPasswordForm.Meta.config
-
 
 class PasswordChangeForm(FormFieldConfigMixin, PasswordChangeForm):
     new_password1 = CharField(label="New password", strip=False, widget=PasswordInput())
@@ -179,6 +150,3 @@ class PasswordChangeForm(FormFieldConfigMixin, PasswordChangeForm):
 
     def clean_security_answer(self):
         return validators.validate_security_answer(self)
-
-    class Meta:
-        config = ResetPasswordForm.Meta.config

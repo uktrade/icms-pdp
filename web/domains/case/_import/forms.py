@@ -51,7 +51,6 @@ class NewImportApplicationForm(ModelEditForm):
         field = ModelChoiceField(queryset=agents)
         # Add field configuration to agent as it is a dynamic field
         # and configuration won't be applied as the other fields.
-        field.config = self.fields["importer"].config
         self.fields["agent"] = field
         self.Meta.fields.append("agent")
 

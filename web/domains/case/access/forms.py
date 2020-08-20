@@ -62,13 +62,6 @@ class ExporterAccessRequestForm(ModelEditForm):
             "agent_address": Textarea({"rows": 5}),
         }
 
-        config = {
-            "__all__": {
-                "label": {"cols": "four"},
-                "input": {"cols": "four"},
-            }
-        }
-
 
 class ImporterAccessRequestForm(ExporterAccessRequestForm):
     def __init__(self, *args, **kwargs):

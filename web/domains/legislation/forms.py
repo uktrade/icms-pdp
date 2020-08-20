@@ -38,9 +38,6 @@ class ProductLegislationFilter(ModelSearchFilter):
     class Meta:
         model = ProductLegislation
         fields = []
-        config = {
-            "__all__": {"label": {"cols": "twelve"}, "input": {"cols": "twelve"}}
-        }
 
 
 class ProductLegislationForm(ModelEditForm):

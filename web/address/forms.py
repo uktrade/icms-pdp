@@ -15,9 +15,6 @@ class PostCodeSearchForm(FormFieldConfigMixin, Form):
         help_text="Choose a country to begin manually entering the address",
     )
 
-    class Meta:
-        config = {"__all__": {"input": {"cols": "eight"},}}
-
 
 class ManualAddressEntryForm(FormFieldConfigMixin, Form):
     country = CharField(widget=TextInput({"readonly": "readonly"}))
