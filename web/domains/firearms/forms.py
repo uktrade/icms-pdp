@@ -1,8 +1,8 @@
 from django.db.models import Count
-from django.forms import BaseInlineFormSet, inlineformset_factory
+from django.forms import BaseInlineFormSet, inlineformset_factory, ModelForm
 from django.forms.widgets import CheckboxInput, HiddenInput
 from django_filters import BooleanFilter, CharFilter
-from web.forms import ModelEditForm, ModelSearchFilter, ModelDisplayForm
+from web.forms import ModelSearchFilter, ModelDisplayForm
 
 from .models import ObsoleteCalibre, ObsoleteCalibreGroup
 
@@ -43,7 +43,7 @@ class ObsoleteCalibreGroupFilter(ModelSearchFilter):
         fields = []
 
 
-class ObsoleteCalibreGroupEditForm(ModelEditForm):
+class ObsoleteCalibreGroupEditForm(ModelForm):
     class Meta:
         model = ObsoleteCalibreGroup
         fields = ["name"]
@@ -55,7 +55,7 @@ class ObsoleteCalibreGroupDisplayForm(ModelDisplayForm):
         pass
 
 
-class ObsoleteCalibreForm(ModelEditForm):
+class ObsoleteCalibreForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -1,8 +1,8 @@
-from django.forms import CharField, ChoiceField
+from django.forms import CharField, ChoiceField, ModelForm
 from django.forms.widgets import CheckboxInput, Textarea
 from django_filters import BooleanFilter, CharFilter, ChoiceFilter, DateFilter, ModelChoiceFilter
 from django_filters.fields import ModelChoiceField
-from web.forms import ModelEditForm, ModelSearchFilter
+from web.forms import ModelSearchFilter
 from web.forms.widgets import DateInput
 
 from .models import Commodity, CommodityGroup, CommodityType, Unit
@@ -34,7 +34,7 @@ class CommodityFilter(ModelSearchFilter):
         fields = []
 
 
-class CommodityForm(ModelEditForm):
+class CommodityForm(ModelForm):
     commodity_code = CharField(label="Commodity Code")
 
     class Meta:
@@ -100,7 +100,7 @@ class CommodityGroupFilter(ModelSearchFilter):
         fields = []
 
 
-class CommodityGroupForm(ModelEditForm):
+class CommodityGroupForm(ModelForm):
     group_type = ChoiceField(
         choices=CommodityGroup.TYPES,
         help_text="Auto groups will include all commodities beginning with the \

@@ -1,4 +1,4 @@
-from django.forms.fields import CharField
+from django.forms import CharField, ModelForm
 from django.forms.widgets import (
     CheckboxInput,
     CheckboxSelectMultiple,
@@ -9,14 +9,14 @@ from django.forms.widgets import (
 )
 from django.utils.translation import gettext_lazy as _
 from django_filters import BooleanFilter, CharFilter, MultipleChoiceFilter
-from web.forms import ModelEditForm, ModelSearchFilter, validators
+from web.forms import ModelSearchFilter, validators
 from web.forms.fields import PhoneNumberField
 from web.forms.widgets import DateInput
 
 from .models import AlternativeEmail, Email, PersonalEmail, PhoneNumber, User
 
 
-class UserDetailsUpdateForm(ModelEditForm):
+class UserDetailsUpdateForm(ModelForm):
     security_answer_repeat = CharField(
         required=True, label="Re-enter Security Answer", widget=PasswordInput(render_value=True)
     )
@@ -93,7 +93,7 @@ class UserDetailsUpdateForm(ModelEditForm):
         }
 
 
-class PhoneNumberForm(ModelEditForm):
+class PhoneNumberForm(ModelForm):
     telephone_number = CharField(validators=PhoneNumberField().validators)
 
     def __init__(self, *args, **kwargs):
@@ -111,7 +111,7 @@ class PhoneNumberForm(ModelEditForm):
         widgets = {"type": Select(choices=PhoneNumber.TYPES)}
 
 
-class AlternativeEmailsForm(ModelEditForm):
+class AlternativeEmailsForm(ModelForm):
     notifications = CharField(required=False, widget=Select(choices=((True, "Yes"), (False, "No"))))
 
     def __init__(self, *args, **kwargs):
@@ -133,7 +133,7 @@ class AlternativeEmailsForm(ModelEditForm):
         }
 
 
-class PersonalEmailForm(ModelEditForm):
+class PersonalEmailForm(ModelForm):
     PRIMARY = "PRIMARY"
     notifications = CharField(
         required=False, widget=Select(choices=((PRIMARY, "Primary"), (True, "Yes"), (False, "No")))

@@ -1,6 +1,7 @@
+from django.forms import ModelForm
 from django.forms.widgets import Select, CheckboxInput
 from django_filters import CharFilter, ChoiceFilter, BooleanFilter
-from web.forms import ModelEditForm, ModelSearchFilter
+from web.forms import ModelSearchFilter
 
 from .models import Constabulary
 
@@ -30,7 +31,7 @@ class ConstabulariesFilter(ModelSearchFilter):
         fields = []
 
 
-class ConstabularyForm(ModelEditForm):
+class ConstabularyForm(ModelForm):
     class Meta:
         model = Constabulary
         fields = ["name", "region", "email"]

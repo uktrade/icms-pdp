@@ -1,5 +1,6 @@
+from django.forms import ModelForm
 from django_filters import CharFilter
-from web.forms import ModelDisplayForm, ModelEditForm, ModelSearchFilter
+from web.forms import ModelDisplayForm, ModelSearchFilter
 
 from .models import Exporter
 
@@ -14,7 +15,7 @@ class ExporterFilter(ModelSearchFilter):
         fields = []
 
 
-class ExporterEditForm(ModelEditForm):
+class ExporterEditForm(ModelForm):
     class Meta:
         model = Exporter
         fields = ["name", "registered_number", "comments"]

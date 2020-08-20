@@ -1,5 +1,6 @@
+from django.forms import ModelForm
 from django_filters import CharFilter, ChoiceFilter
-from web.forms import ModelEditForm, ModelSearchFilter
+from web.forms import ModelSearchFilter
 
 from .models import ProductLegislation
 
@@ -40,7 +41,7 @@ class ProductLegislationFilter(ModelSearchFilter):
         fields = []
 
 
-class ProductLegislationForm(ModelEditForm):
+class ProductLegislationForm(ModelForm):
     class Meta:
         model = ProductLegislation
         fields = ["name", "is_biocidal", "is_biocidal_claim", "is_eu_cosmetics_regulation"]

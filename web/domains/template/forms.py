@@ -1,11 +1,11 @@
 from django import forms
 from django_filters import CharFilter, ChoiceFilter
-from web.forms import ModelSearchFilter, ModelEditForm
+from web.forms import ModelSearchFilter
 
 from .models import Template
 
 
-class GenericTemplate(ModelEditForm):
+class GenericTemplate(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -1,7 +1,7 @@
-from django.forms.fields import CharField
+from django.forms import CharField, ModelForm
 from django.forms.widgets import Textarea
 from django_filters import CharFilter
-from web.forms import ModelEditForm, ModelSearchFilter
+from web.forms import ModelSearchFilter
 
 from .models import Team
 
@@ -14,7 +14,7 @@ class TeamsFilter(ModelSearchFilter):
         fields = []
 
 
-class TeamEditForm(ModelEditForm):
+class TeamEditForm(ModelForm):
     name = CharField()
 
     class Meta:
