@@ -64,7 +64,6 @@ class ExporterAccessRequestForm(ModelEditForm):
 
         config = {
             "__all__": {
-                "show_optional_indicator": False,
                 "label": {"cols": "four"},
                 "input": {"cols": "four"},
                 "padding": {"right": "four"},
@@ -122,4 +121,3 @@ class ApprovalRequestForm(ModelEditForm):
         labels = {"requested_from": "Contact"}
 
         widgets = {"requested_from": Select()}
-        config = {"__all__": {"show_optional_indicator": False,}}

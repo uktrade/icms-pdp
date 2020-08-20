@@ -11,10 +11,9 @@ default_field_config = {
     "label": {"cols": "three", "prompt": "west"},
     "input": {"cols": "six"},
     "padding": {"right": "three"},
-    "show_optional_indicator": True,
 }
 
-default_filter_config = m(default_field_config, {"__all__": {"show_optional_indicator": False}})
+default_filter_config = default_field_config.copy()
 
 
 class ProcessConfigMixin:

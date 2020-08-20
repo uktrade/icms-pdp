@@ -36,7 +36,6 @@ class LoginForm(FormFieldConfigMixin, AuthenticationForm):
                 "label": {"cols": "three",},
                 "input": {"cols": "nine"},
                 "padding": {"right": None},
-                "show_optional_indicator": False,
             }
         }
 
@@ -136,7 +135,6 @@ class ResetPasswordForm(FormFieldConfigMixin, Form):
                 "label": {"cols": "four",},
                 "input": {"cols": "four"},
                 "padding": {"right": "four"},
-                "show_optional_indicator": False,
             }
         }
 

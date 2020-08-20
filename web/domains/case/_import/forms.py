@@ -88,4 +88,3 @@ class NewImportApplicationForm(ModelEditForm):
     class Meta:
         model = ImportApplication
         fields = ["application_type", "importer", "importer_office"]
-        config = {"__all__": {"show_optional_indicator": False}}

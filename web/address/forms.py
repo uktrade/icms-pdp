@@ -17,11 +17,7 @@ class PostCodeSearchForm(FormFieldConfigMixin, Form):
 
     class Meta:
         config = {
-            "__all__": {
-                "show_optional_indicator": False,
-                "label": {"cols": "three", "prompt": "north"},
-                "input": {"cols": "eight"},
-            }
+            "__all__": {"label": {"cols": "three", "prompt": "north"}, "input": {"cols": "eight"},}
         }
 
 
@@ -33,4 +29,4 @@ class ManualAddressEntryForm(FormFieldConfigMixin, Form):
         return validators.validate_manual_address(self)
 
     class Meta:
-        config = {"__all__": {"show_optional_indicator": False}}
+        """Required by FormFieldConfigMixin otherwise returns a 500"""
