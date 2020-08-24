@@ -21,6 +21,6 @@ def api_get_companies(query_string):
     headers = {"Authorization": f"Basic {TOKEN}"}
     response = requests.get(URL.format(query=query_string), headers=headers)
     if response.status_code != 200:
-        logger.error(f"Company house responded with {response.status_code} - {response.text}")
+        logger.error(f"Companies house responded with {response.status_code} - {response.text}")
         raise CompaniesHouseException("Invalid response from companies house")
     return response.json()
