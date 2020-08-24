@@ -3,6 +3,7 @@ from django.forms import ChoiceField, CharField, ModelForm
 from django_filters import CharFilter, ChoiceFilter, FilterSet
 from django.db.models import Q
 
+from web.domains.importer.fields import PersonWidget
 from web.domains.importer.models import Importer
 from web.forms.mixins import ReadonlyFormMixin
 
@@ -11,6 +12,7 @@ class ImporterIndividualForm(ModelForm):
     class Meta:
         model = Importer
         fields = ["user", "eori_number", "eori_number_ni", "region_origin", "comments"]
+        widgets = {"user": PersonWidget}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
