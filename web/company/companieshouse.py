@@ -17,11 +17,10 @@ class CompaniesHouseException(Exception):
     pass
 
 
-def api(query):
+def api_get_companies(query_string):
     headers = {"Authorization": f"Basic {TOKEN}"}
-    response = requests.get(URL.format(query=query), headers=headers)
+    response = requests.get(URL.format(query=query_string), headers=headers)
     if response.status_code != 200:
         logger.error(f"Company house responded with {response.status_code} - {response.text}")
-        msg = "Invalid response from companies house"
-        raise CompaniesHouseException(msg)
+        raise CompaniesHouseException("Invalid response from companies house")
     return response.json()
