@@ -74,11 +74,9 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
         # should the offices formset be shown on the edit page
         # if we received the form, then we displayed as we want to
         # show the form and errors, otherwise
-        show_offices_form = True
         if not offices_form:
-            Formset = formset_factory(OfficeEditForm)
+            Formset = formset_factory(OfficeEditForm, extra=0)
             offices_form = Formset()
-            show_offices_form = False
         contact_context_data = super().get(request).context_data
         if self.extra_context is not None:
             contact_context_data.update(self.extra_context)
@@ -91,7 +89,6 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
                 "success_url": self.success_url,
                 "cancel_url": self.cancel_url,
                 "view": self,
-                "show_offices_form": show_offices_form,
                 **contact_context_data,
             },
         )
