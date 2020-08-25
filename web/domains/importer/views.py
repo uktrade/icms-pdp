@@ -82,15 +82,7 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
             contact_context_data.update(self.extra_context)
 
         return render(
-            request,
-            self.template_name,
-            {
-                "offices_form": offices_form,
-                "success_url": self.success_url,
-                "cancel_url": self.cancel_url,
-                "view": self,
-                **contact_context_data,
-            },
+            request, self.template_name, {"offices_form": offices_form, **contact_context_data,},
         )
 
     def add_people(self, *args, **kwargs):
