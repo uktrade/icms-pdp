@@ -71,9 +71,8 @@ class ImporterEditView(ContactsManagementMixin, ModelUpdateView):
         return ImporterIndividualEditForm
 
     def get(self, request, pk, offices_form=None, form=None):
-        # should the offices formset be shown on the edit page
-        # if we received the form, then we displayed as we want to
-        # show the form and errors, otherwise
+        # if offices_form is set it means either form or offices form contain errors
+        # if offices_form is not set it is initialised
         if not offices_form:
             Formset = formset_factory(OfficeEditForm, extra=0)
             offices_form = Formset()
