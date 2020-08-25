@@ -204,6 +204,7 @@ class IndividualAgentCreateViewTest(AuthTestCase):
     def test_agent_created(self):
         self.login_with_permissions(ADMIN_PERMISSIONS)
         data = {
+            "main_importer": self.importer.pk,
             "eori_number": "GBPR",
             "user": self.user.pk,
             "form-TOTAL_FORMS": 1,
@@ -213,7 +214,7 @@ class IndividualAgentCreateViewTest(AuthTestCase):
         }
         response = self.client.post(self.url, data)
         self.assertRedirects(response, "/importer/")
-        importer = Importer.objects.first()
+        importer = Importer.objects.filter(main_importer__isnull=False).first()
         self.assertEqual(importer.user, self.user, msg=importer)
 
         office = Office.objects.first()
@@ -247,6 +248,7 @@ class OrganisationAgentCreateViewTest(AuthTestCase):
     def test_agent_created(self):
         self.login_with_permissions(ADMIN_PERMISSIONS)
         data = {
+            "main_importer": self.importer.pk,
             "eori_number": "GB",
             "name": "test importer",
             "form-TOTAL_FORMS": 0,
@@ -254,5 +256,5 @@ class OrganisationAgentCreateViewTest(AuthTestCase):
         }
         response = self.client.post(self.url, data)
         self.assertRedirects(response, "/importer/")
-        importer = Importer.objects.first()
+        importer = Importer.objects.filter(main_importer__isnull=False).first()
         self.assertEqual(importer.name, "test importer", msg=importer)

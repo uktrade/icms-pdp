@@ -173,6 +173,7 @@ class AgentIndividualForm(ModelForm):
         super().__init__(*args, **kwargs)
         importer = Importer.objects.filter(pk=self.initial["main_importer"])
         self.fields["main_importer"].queryset = importer
+        self.fields["main_importer"].required = True
         self.fields["user"].required = True
 
     class Meta(ImporterIndividualForm.Meta):
@@ -193,6 +194,7 @@ class AgentOrganisationForm(ModelForm):
         super().__init__(*args, **kwargs)
         importer = Importer.objects.filter(pk=self.initial["main_importer"])
         self.fields["main_importer"].queryset = importer
+        self.fields["main_importer"].required = True
         self.fields["name"].required = True
 
     class Meta(ImporterOrganisationForm.Meta):
