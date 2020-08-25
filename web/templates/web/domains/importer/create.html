@@ -24,7 +24,9 @@
     {% endfor %}
   {% endcall %}
 
-  {% include "partial/offices-edit.html" %}
+  {% with offices = [] %}
+    {% include "partial/offices-edit.html" %}
+  {% endwith %}
 {% endblock %}
 
 {% block page_js %}

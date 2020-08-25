@@ -150,7 +150,7 @@ class ImporterCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
             offices_form = Formset()
 
         kwargs.update(
-            {"offices": Office.objects.none(), "offices_form": offices_form,}
+            {"offices_form": offices_form,}
         )
         return super().get_context_data(*args, **kwargs)
 
