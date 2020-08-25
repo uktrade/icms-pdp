@@ -23,7 +23,7 @@
 </script>
 
 <script>
-  function updateidx() {
+  function updateIndex() {
       $('#tbl-offices .new-form-row').each(function(idx, el) {
           $(el).find('input, textarea').each(function(i, inp) {
               name = $(inp).attr('name')
@@ -46,7 +46,7 @@
 
       $('#id_form-TOTAL_FORMS').val($('#tbl-offices .new-form-row').length)
 
-      updateidx()
+      updateIndex()
     });
 
   $('#tbl-offices').on('click', '[role=remove-address-row]', function(evt) {
@@ -55,7 +55,7 @@
 
       $('#id_form-TOTAL_FORMS').val($('#tbl-offices .new-form-row').length);
 
-      updateidx();
+      updateIndex();
     });
 
   $('#tbl-offices').on('click', '.icon-search', function(evt) {
@@ -96,6 +96,5 @@
               alert('Invalid Postcode')
             }
         })
-
     });
 </script>
