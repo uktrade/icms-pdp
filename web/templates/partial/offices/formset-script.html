@@ -1,25 +1,25 @@
 <script id="office-postcode-lookup-ui" type="text/html">
   <div class="modal-popover-container">
     <div class="modal-popover small-popover modal-alert-confirm">
-        <div class="modal-popover-content" role="alertdialog">
+      <div class="modal-popover-content" role="alertdialog">
         <div class="modal-popover-icon icon-question"></div>
         <div class="modal-popover-text">
-          <p>Select Address:</p>
+          <label class="prompt north">Select Address:</label>
           <select id="address_list">
-              <option>please wait, fetching addresses ...</option>
+            <option>please wait, fetching addresses ...</option>
           </select>
         </div>
-            <ul class="modal-popover-actions">
-            <li>
-                <button class="primary-button alert-dismiss approve">OK</button>
-            </li>
-            <li>
-                <button class="link-button abort" >Cancel</button>
-            </li>
-            </ul>
-        </div>
+        <ul class="modal-popover-actions">
+          <li>
+            <button class="primary-button alert-dismiss approve">OK</button>
+          </li>
+          <li>
+            <button class="link-button abort" >Cancel</button>
+          </li>
+        </ul>
+      </div>
     </div>
-    </div>
+  </div>
 </script>
 
 <script>
@@ -31,9 +31,9 @@
               arr[1] = idx;
 
               $(inp).attr('name', arr.join('-'))
-          })
-      });
-  }
+            })
+        });
+    }
 
   $('#btn-add-office').on('click', function(evt) {
       evt.preventDefault();
@@ -42,12 +42,12 @@
 
       $('#tbl-offices tbody').append(
           tpl.html().replace('<!--', '').replace('-->', '')
-      );
+        );
 
       $('#id_form-TOTAL_FORMS').val($('#tbl-offices .new-form-row').length)
 
       updateidx()
-  });
+    });
 
   $('#tbl-offices').on('click', '[role=remove-address-row]', function(evt) {
       evt.preventDefault();
@@ -56,7 +56,7 @@
       $('#id_form-TOTAL_FORMS').val($('#tbl-offices .new-form-row').length);
 
       updateidx();
-  });
+    });
 
   $('#tbl-offices').on('click', '.icon-search', function(evt) {
       evt.preventDefault();
@@ -65,7 +65,7 @@
       data = {
           postcode: $(this).closest('tr').find('[name*=postcode]').val(),
           csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
-      }
+        }
 
       $ui = $($('#office-postcode-lookup-ui').html()).clone();
       $('body').append($ui);
@@ -73,12 +73,12 @@
 
       $ui.find('.abort').on('click', function() {
           $ui.remove()
-      })
+        })
       $ui.find('.approve').on('click', function() {
           addr = $('#address_list :selected').val()
           $ta.text(addr)
           $ui.remove()
-      })
+        })
 
       $.ajax({
           method: 'POST',
@@ -89,13 +89,13 @@
               for (row of data) {
                   addr = row['formatted_address'].join(' ')
                   $('#address_list').append('<option value="' + addr + '">' + addr + '</option>')
-              }
-          },
+                }
+            },
           error: function() {
               $ui.remove()
               alert('Invalid Postcode')
-          }
-      })
+            }
+        })
 
-  });
+    });
 </script>
