@@ -11,7 +11,7 @@ django-recaptcha==2.0.6
 django-redis==4.12.1
 django-select2==7.4.2
 django-ses==1.0.2
-django-structlog==1.6.0
+django-structlog==1.6.1
 django-viewflow-pro==1.6.2
 Django==3.1
 elastic-apm==5.8.0
