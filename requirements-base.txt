@@ -24,4 +24,4 @@ psycopg2==2.8.5
 redis==3.5.3
 requests==2.24.0
 s3chunkuploader==0.14
-whitenoise==5.1.0
+whitenoise==5.2.0
