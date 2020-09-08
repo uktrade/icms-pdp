@@ -1,7 +1,7 @@
 import structlog as logging
 
 
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -97,7 +97,8 @@ class ExportApplicationCreateView(ModelCreateView):
             return redirect(reverse("export:com-edit", kwargs={"pk": appl.pk}))
 
 
-@permission_required(permissions)
+@login_required
+@permission_required(permissions, raise_exception=True)
 def edit_com(request, pk):
     process = get_object_or_404(klass=CertificateOfManufactureApplication, pk=pk)
     if request.POST:
@@ -123,7 +124,8 @@ def edit_com(request, pk):
     )
 
 
-@permission_required(permissions)
+@login_required
+@permission_required(permissions, raise_exception=True)
 def submit_com(request, pk):
     if request.POST:
         form = forms.SubmitCertManufactureForm(request, data=request.POST)
