@@ -103,6 +103,16 @@ class User(AbstractUser):
 
         return Exporter.objects.filter(is_active=True, members=self).count() > 0
 
+    def is_ilb_admin(self):
+        # permissions from web/domains/exporter/roles.py
+        permissions = [
+            "IMP_CERT_AGENT_APPROVER",
+            "IMP_CERT_SEARCH_CASES_LHS",
+            "MAILSHOT_RECIPIENT",
+            "view_approvalrequestprocess",
+        ]
+        return self.has_perm(permissions)
+
     def set_temp_password(self, length=8):
         """
         Generates a random alphanumerical password of given length.

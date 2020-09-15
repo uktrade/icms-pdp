@@ -1,11 +1,12 @@
 import structlog as logging
 
-
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views.generic import DetailView, View
 
 from web.views import ModelCreateView
 from web.flow.models import Task
@@ -17,6 +18,7 @@ from .models import ExportApplication, ExportApplicationType, CertificateOfManuf
 logger = logging.get_logger(__name__)
 
 permissions = "web.IMP_CERT_EDIT_APPLICATION"
+ilb_admin_permission = "web.view_approvalrequestprocess"
 
 
 class ExportApplicationCreateView(ModelCreateView):
@@ -168,3 +170,33 @@ def submit_com(request, pk):
         }
 
         return render(request, "web/domains/case/export/submit-com.html", context)
+
+
+class TakeOwnership(PermissionRequiredMixin, View):
+    model = ExportApplication
+    http_method_names = ["get"]
+    permission_required = ilb_admin_permission
+
+    def get(self, request, *args, **kwargs):
+        application = get_object_or_404(ExportApplication, pk=kwargs["pk"])
+        application.case_owner = request.user
+        application.save()
+        return redirect(reverse("workbasket"))
+
+
+class ReleaseOwnership(PermissionRequiredMixin, View):
+    model = ExportApplication
+    http_method_names = ["get"]
+    permission_required = ilb_admin_permission
+
+    def get(self, request, *args, **kwargs):
+        application = get_object_or_404(ExportApplication, pk=kwargs["pk"])
+        application.case_owner = None
+        application.save()
+        return redirect(reverse("workbasket"))
+
+
+class Management(PermissionRequiredMixin, DetailView):
+    model = ExportApplication
+    permission_required = ilb_admin_permission
+    template_name = "web/domains/case/export/management.html"

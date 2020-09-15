@@ -63,5 +63,19 @@
       </table>
     </div>
   </div>
+  {% if request.user.is_ilb_admin() %}
+  <hr/>
+  <div class="row">
+    <div class="six columns break-word">
+      <div class="individual-input" ><span class="text-widget ">Application Processing</span></div>
+    </div>
+    <div class="six columns">
+      {% if not process.case_owner %}
+        <a href="{{ url('export:case-take-ownership', args=[process.pk]) }}">Take ownership</a>
+      {% elif process.case_owner == request.user %}
+        <a href="{{ url('export:case-management', args=[process.pk]) }}">Manage</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 </div>
-<hr/>
