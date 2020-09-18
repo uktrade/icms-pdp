@@ -6,6 +6,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 
 from web.views import ModelCreateView
@@ -174,26 +175,26 @@ def submit_com(request, pk):
 
 @login_required
 @permission_required(export_case_officer_permission, raise_exception=True)
+@require_POST
 def take_ownership(request, pk):
-    if request.POST:
-        with transaction.atomic():
-            application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
-            application.get_task(ExportApplication.SUBMITTED, "process")
-            application.case_owner = request.user
-            application.save()
+    with transaction.atomic():
+        application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
+        application.get_task(ExportApplication.SUBMITTED, "process")
+        application.case_owner = request.user
+        application.save()
 
     return redirect(reverse("workbasket"))
 
 
 @login_required
 @permission_required(export_case_officer_permission, raise_exception=True)
+@require_POST
 def release_ownership(request, pk):
-    if request.POST:
-        with transaction.atomic():
-            application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
-            application.get_task(ExportApplication.SUBMITTED, "process")
-            application.case_owner = None
-            application.save()
+    with transaction.atomic():
+        application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
+        application.get_task(ExportApplication.SUBMITTED, "process")
+        application.case_owner = None
+        application.save()
 
     return redirect(reverse("workbasket"))
 
