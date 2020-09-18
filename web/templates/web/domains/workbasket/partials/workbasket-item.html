@@ -63,7 +63,7 @@
       </table>
     </div>
   </div>
-  {% if request.user.is_ilb_admin() %}
+  {% if process.status == "SUBMITTED" and request.user.is_export_case_officer() %}
   <hr/>
   <div class="row">
     <div class="six columns break-word">
@@ -71,7 +71,10 @@
     </div>
     <div class="six columns">
       {% if not process.case_owner %}
-        <a href="{{ url('export:case-take-ownership', args=[process.pk]) }}">Take ownership</a>
+        <form method="post" action="{{ url('export:case-take-ownership', args=[process.pk]) }}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+            <button type="submit" class="button link-button-no-padding">Take Ownership</button>
+        </form>
       {% elif process.case_owner == request.user %}
         <a href="{{ url('export:case-management', args=[process.pk]) }}">Manage</a>
       {% endif %}

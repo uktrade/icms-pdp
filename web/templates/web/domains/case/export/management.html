@@ -33,10 +33,10 @@ Export case management
 {% endblock %}
 
 {% block content_actions %}
-  <a href="{{ url('export:case-release-ownership', args=[object.pk]) }}"
-     class="button">
-    Release Ownership
-  </a>
+  <form method="post" action="{{ url('export:case-release-ownership', args=[object.pk]) }}" class="form-inline">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+      <button type="submit">Release Ownership</button>
+  </form>
   <a href="#" class="button">Reassign</a>
   <a href="#" class="button primary-button" disabled=disabled>Quick Issue</a>
 {% endblock %}

@@ -8,14 +8,10 @@ urlpatterns = [
     path("create", views.ExportApplicationCreateView.as_view(), name="create"),
     path("com/<int:pk>/edit/", views.edit_com, name="com-edit"),
     path("com/<int:pk>/submit/", views.submit_com, name="com-submit"),
+    path("case/<int:pk>/take_ownership/", views.take_ownership, name="case-take-ownership"),
     path(
-        "<int:pk>/case/take_ownership/", views.TakeOwnership.as_view(), name="case-take-ownership"
+        "case/<int:pk>/release_ownership/", views.release_ownership, name="case-release-ownership",
     ),
-    path(
-        "<int:pk>/case/release_ownership/",
-        views.ReleaseOwnership.as_view(),
-        name="case-release-ownership",
-    ),
-    path("<int:pk>/case/management/", views.Management.as_view(), name="case-management"),
+    path("case/<int:pk>/management/", views.Management.as_view(), name="case-management"),
     # TODO: add certificate of free sale URLs
 ]
