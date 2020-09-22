@@ -205,7 +205,7 @@ def release_ownership(request, pk):
 
 
 @login_required
-@permission_required(permissions, raise_exception=True)
+@permission_required(export_case_officer_permission, raise_exception=True)
 def management(request, pk):
     with transaction.atomic():
         application = get_object_or_404(klass=ExportApplication.objects.select_for_update(), pk=pk)
