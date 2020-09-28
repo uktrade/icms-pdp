@@ -16,7 +16,6 @@ from django_select2 import forms as s2forms
 
 from web.domains.exporter.models import Exporter
 from web.domains.office.models import Office
-from web.domains.user.models import User
 
 from .models import ExportApplication, ExportApplicationType, CertificateOfManufactureApplication
 
@@ -126,6 +125,7 @@ class PrepareCertManufactureForm(ModelForm):
         }
 
         widgets = {
+            "contact": s2forms.Select2Widget,
             "countries": s2forms.Select2MultipleWidget,
         }
 
@@ -135,9 +135,11 @@ class PrepareCertManufactureForm(ModelForm):
         self.fields["contact"].required = True
         self.fields["is_pesticide_on_free_sale_uk"].required = True
         self.fields["is_manufacturer"].required = True
-
-        # TODO: ICMSLST-425 change contact.queryset to be just users who should be listed
-        self.fields["contact"].queryset = User.objects.filter(is_active=True)
+        members = (
+            (m.pk, f"{m.full_name} ({m.email})")
+            for m in self.instance.exporter.members.filter(is_active=True)
+        )
+        self.fields["contact"].choices = members
 
         self.fields[
             "countries"
