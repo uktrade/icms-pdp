@@ -8,6 +8,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from s3chunkuploader.file_handler import s3_client
+from sentry_sdk import capture_exception
 
 from web.domains.case.forms import CaseNoteForm
 from web.domains.case.models import CASE_NOTE_DRAFT
@@ -215,7 +216,7 @@ def release_ownership(request, pk):
 @permission_required(export_case_officer_permission, raise_exception=True)
 def management(request, pk):
     with transaction.atomic():
-        application = get_object_or_404(klass=ExportApplication.objects.select_for_update(), pk=pk)
+        application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
         task = application.get_task(ExportApplication.SUBMITTED, "process")
         form = CloseCaseForm()
         context = {
@@ -250,7 +251,7 @@ def management(request, pk):
 
 
 @login_required
-@permission_required(permissions, raise_exception=True)
+@permission_required(export_case_officer_permission, raise_exception=True)
 def management_notes(request, pk):
     with transaction.atomic():
         application = get_object_or_404(klass=ExportApplication.objects.select_for_update(), pk=pk)
@@ -297,7 +298,7 @@ def unarchive_note(request, pk, note_pk):
     with transaction.atomic():
         application = get_object_or_404(ExportApplication.objects.select_for_update(), pk=pk)
         application.get_task(ExportApplication.SUBMITTED, "process")
-        application.case_notes.filter(pk=note_pk).update(status=True)
+        application.case_notes.filter(pk=note_pk).update(is_active=True)
 
     return redirect(reverse("export:case-notes", kwargs={"pk": pk}))
 
@@ -318,6 +319,7 @@ def handle_uploaded_file(f, created_by, related_file_model):
     except (InvalidFileException, InfectedFileException) as e:
         error_message = str(e)
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
         error_message = "Unknown error uploading file"
     finally:
