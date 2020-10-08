@@ -1,9 +1,16 @@
-from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
 
-from web.views import ModelCreateView, ModelDetailView, ModelFilterView, ModelUpdateView
+from web.domains.user.forms import ContactForm
+from web.domains.user.models import User
+from web.views import ModelFilterView
 from web.views.actions import Archive, Edit, Unarchive
 
-from .forms import ExporterEditForm, ExporterFilter
+from .forms import ExporterForm, ExporterFilter
 from .models import Exporter
 
 
@@ -20,28 +27,79 @@ class ExporterListView(ModelFilterView):
         actions = [Archive(), Unarchive(), Edit()]
 
 
-class ExporterEditView(ModelUpdateView):
-    template_name = "web/domains/exporter/edit.html"
-    form_class = ExporterEditForm
-    success_url = reverse_lazy("exporter-list")
-    cancel_url = success_url
-    model = Exporter
-    permission_required = "web.reference_data_access"
+@login_required
+@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+def edit_exporter(request, pk):
+    exporter = get_object_or_404(Exporter, pk=pk)
+    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
+        raise PermissionDenied
+    form = ExporterForm(instance=exporter)
+
+    if request.POST:
+        form = ExporterForm(request.POST, instance=exporter)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("exporter-edit", kwargs={"pk": pk}))
+
+    exporter_contacts = get_users_with_perms(
+        exporter, only_with_perms_in=["is_contact_of_exporter"]
+    ).filter(user_permissions__codename="exporter_access")
+    available_contacts = (
+        User.objects.account_active()
+        .filter(user_permissions__codename="exporter_access")
+        .exclude(pk__in=exporter_contacts)
+    )
+
+    context = {
+        "object": exporter,
+        "form": form,
+        "contact_form": ContactForm(available_contacts),
+        "contacts": exporter_contacts,
+    }
+    return render(request, "web/domains/exporter/edit.html", context)
 
 
-class ExporterCreateView(ModelCreateView):
-    template_name = "web/domains/exporter/create.html"
-    form_class = ExporterEditForm
-    success_url = reverse_lazy("exporter-list")
-    cancel_url = success_url
-    model = Exporter
-    permission_required = "web.reference_data_access"
-    page_title = "Create Exporter"
+@login_required
+@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+def create_exporter(request):
+    form = ExporterForm()
+    if request.POST:
+        form = ExporterForm(request.POST)
+        if form.is_valid():
+            exporter = form.save()
+            return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
+
+    return render(request, "web/domains/exporter/create.html", {"form": form})
 
 
-class ExporterDetailView(ModelDetailView):
-    template_name = "web/domains/exporter/view.html"
-    form_class = ExporterEditForm
-    cancel_url = reverse_lazy("exporter-list")
-    model = Exporter
-    permission_required = "web.reference_data_access"
+@login_required
+@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@require_POST
+def add_contact(request, pk):
+    exporter = get_object_or_404(Exporter, pk=pk)
+    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
+        raise PermissionDenied
+
+    available_contacts = User.objects.account_active().filter(
+        user_permissions__codename="exporter_access"
+    )
+
+    form = ContactForm(available_contacts, request.POST)
+    if form.is_valid():
+        contact = form.cleaned_data["contact"]
+        assign_perm("web.is_contact_of_exporter", contact, exporter)
+    return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
+
+
+@login_required
+@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@require_POST
+def delete_contact(request, pk, contact_pk):
+    exporter = get_object_or_404(Exporter, pk=pk)
+    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
+        raise PermissionDenied
+
+    contact = get_object_or_404(User, pk=contact_pk)
+
+    remove_perm("web.is_contact_of_exporter", contact, exporter)
+    return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
