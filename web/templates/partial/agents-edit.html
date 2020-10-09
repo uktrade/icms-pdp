@@ -5,16 +5,17 @@
   <ul class="menu-out flow-across">
     <li>
       <a
-        href="{{ url('importer-agent-individual-create', args=[view.kwargs.pk])  }}"
+        href="{{ url('importer-agent-create', kwargs={'entity': 'individual', 'importer_pk': object.pk})  }}"
         class="small-button icon-user-plus button">
         Create Individual Agent
       </a>
       <a
-        href="{{ url('importer-agent-organisation-create', args=[view.kwargs.pk])  }}"
+        href="{{ url('importer-agent-create', kwargs={'entity': 'organisation', 'importer_pk': object.pk})  }}"
         class="small-button icon-user-plus button">
         Create Organisation Agent
       </a>
     </li>
   </ul>
 </div>
+<div class="section-break"></div>
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends "web/domains/offices/create.html" %}
+
+{% block context_header %}
+    Create Office for Importer
+{% endblock %}
+
+{% block sidebar %}
+    {% include "partial/importer/sidebar.html" %}
+{% endblock %}
+
+{% block main_content %}
+  <div class="info-box info-box-info">
+    Create an office for the importer {{ object.display_name }}.
+  </div>
+  {{ super() }}
+{% endblock %}

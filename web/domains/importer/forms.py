@@ -2,21 +2,23 @@ from django.core.exceptions import ValidationError
 from django.forms import ChoiceField, CharField, ModelChoiceField, ModelForm
 from django_filters import CharFilter, ChoiceFilter, FilterSet
 from django.db.models import Q
+from guardian.shortcuts import assign_perm, get_users_with_perms
 
 from web.domains.importer.fields import PersonWidget
 from web.domains.importer.models import Importer
+from web.domains.user.models import User
 from web.forms.mixins import ReadonlyFormMixin
 
 
 class ImporterIndividualForm(ModelForm):
+    user = ModelChoiceField(queryset=User.objects.importer_access(), widget=PersonWidget)
+
     class Meta:
         model = Importer
         fields = ["user", "eori_number", "eori_number_ni", "region_origin", "comments"]
-        widgets = {"user": PersonWidget}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["user"].required = True
         self.fields["eori_number"].required = True
 
     def clean(self):
@@ -164,25 +166,72 @@ class ImporterIndividualDisplayForm(ReadonlyFormMixin, ModelForm):
         fields = ["type", "user", "comments"]
 
 
-class AgentIndividualForm(ModelForm):
+class AgentCreateIndividualForm(ModelForm):
     main_importer = ModelChoiceField(
         queryset=Importer.objects.none(), label="Importer", disabled=True
     )
+    user = ModelChoiceField(queryset=User.objects.importer_access(), widget=PersonWidget)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         importer = Importer.objects.filter(pk=self.initial["main_importer"])
+
         self.fields["main_importer"].queryset = importer
         self.fields["main_importer"].required = True
-        self.fields["user"].required = True
+
+        # Exclude:
+        # - agent's contacts
+        # - importer's user
+        # - agent's user
+        agent_contacts = get_users_with_perms(
+            importer.first(), only_with_perms_in=["is_agent_of_importer"]
+        ).filter(user_permissions__codename="importer_access")
+        qs = User.objects.importer_access().exclude(pk__in=agent_contacts)
+        if importer.first().user:
+            qs = qs.exclude(pk=importer.first().user.pk)
+        if self.instance and self.instance.user:
+            qs = qs.exclude(pk=self.instance.user.pk)
+        self.fields["user"].queryset = qs
 
     class Meta(ImporterIndividualForm.Meta):
         fields = ["main_importer", "user", "comments"]
-        widgets = {"user": PersonWidget}
 
     def clean(self):
         self.instance.type = Importer.INDIVIDUAL
         return super().clean()
+
+    def save(self, commit=True):
+        agent = super().save(commit)
+        if commit:
+            assign_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
+        return agent
+
+
+class AgentEditIndividualForm(ModelForm):
+    main_importer = ModelChoiceField(
+        queryset=Importer.objects.none(), label="Importer", disabled=True
+    )
+    user = ModelChoiceField(queryset=User.objects.importer_access(), disabled=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        importer = Importer.objects.filter(pk=self.instance.main_importer.pk)
+
+        self.fields["main_importer"].queryset = importer
+        self.fields["main_importer"].required = True
+
+    class Meta(ImporterIndividualForm.Meta):
+        fields = ["main_importer", "user", "comments"]
+
+    def clean(self):
+        self.instance.type = Importer.INDIVIDUAL
+        return super().clean()
+
+    def save(self, commit=True):
+        agent = super().save(commit)
+        if commit:
+            assign_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
+        return agent
 
 
 class AgentOrganisationForm(ModelForm):

@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block context_header %}
-    Editing importer {{ object.display_name }}
+  Editing agent {{ form.instance.display_name }} for importer {{ object.display_name }}
 {% endblock %}
 
 {% block sidebar %}
@@ -17,11 +17,9 @@
 
 {% block main_content %}
 
-  {% if object.is_agent() %}
-    <div class="info-box info-box-info">
-      This importer is an agent of {{ object.main_importer.display_name }}.
-    </div>
-  {% endif %}
+  <div class="info-box info-box-info">
+    This importer is an agent of {{ object.display_name }}.
+  </div>
 
   {% include "web/domains/importer/company_list.html" %}
 
@@ -57,22 +55,12 @@
     {% include "partial/offices/list.html" %}
   {% endwith %}
 
-  {% with agents = object.agents %}
-    {% include "partial/agents-edit.html" %}
-  {% endwith %}
-
   {% with
     contact_add_url_name = 'importer-contact-add',
     contact_delete_url_name = 'importer-contact-delete' %}
 
     {% include "partial/contacts/contacts.html" %}
   {% endwith %}
-
-  {#
-  {% include "partial/firearms-authorities.html" %}
-  {% include "partial/section5-authorities.html" %}
-  {% include "partial/agents.html" %}
-  #}
 {% endblock %}
 
 {% block page_js %}

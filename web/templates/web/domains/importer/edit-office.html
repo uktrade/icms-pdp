@@ -1,0 +1,18 @@
+{% extends "web/domains/offices/create.html" %}
+
+{% block context_header %}
+  Edit Office for Importer {{ object.display_name }}
+{% endblock %}
+
+{% block sidebar %}
+    {% include "partial/importer/sidebar.html" %}
+{% endblock %}
+
+{% block main_content %}
+  <div class="info-box info-box-info">
+    Edit office for the importer {{ object.display_name }}.
+  </div>
+  {{ super() }}
+{% endblock %}
+
+{% block submit_button %}Save{% endblock %}

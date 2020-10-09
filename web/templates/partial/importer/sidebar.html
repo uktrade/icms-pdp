@@ -1,29 +1,44 @@
 {% block sidebar %}
+  {% if object %}
+    {% with importer=object.main_importer or object %}
+    <h4>{{ importer.display_name }}</h4>
+    <ul class="menu-out">
+      <li>
+        <a href="{{ url('importer-edit', kwargs={'pk': importer.pk}) }}">Edit</a>
+      </li>
+      <li>
+        <a href="{{ url('importer-office-create', kwargs={'pk': importer.pk}) }}">Add office</a>
+      </li>
+    </ul>
+    {% endwith %}
+  {% endif %}
   <h4>Importer</h4>
-  <h5>Search</h5>
   <ul class="menu-out">
     <li>
-        <a href="{{ url('importer-list') }}">Access Requests</a>
+        <a href="{{ url('importer-list') }}">Search</a>
+    </li>
+    <li>
+      <a href="{{ url('importer-create', kwargs={'entity': 'individual'}) }}">Create Individual Importer</a>
+    </li>
+    <li>
+      <a href="{{ url('importer-create', kwargs={'entity': 'organisation'}) }}">Create Organisation Importer</a>
     </li>
   </ul>
   {% if page_title == "Agent" %}
     <h5>Create Agent</h5>
     <ul class="menu-out">
       <li>
-        <a href="{{ url('importer-agent-individual-create', args=[view.kwargs.importer_id]) }}">Individual Agent</a>
+        <a 
+          href="{{ url('importer-agent-create', kwargs={'entity': 'individual', 'importer_pk': view.kwargs.importer_id}) }}">
+          Individual Agent
+        </a>
       </li>
       <li>
-        <a href="{{ url('importer-agent-organisation-create', args=[view.kwargs.importer_id]) }}">Organisation Agent</a>
+        <a 
+          href="{{ url('importer-agent-create', kwargs={'entity': 'organisation', 'importer_pk': view.kwargs.importer_id}) }}">
+          Organisation Agent
+        </a>
       </li>
     </ul>
   {% endif %}
-  <h5>Create Importer</h5>
-  <ul class="menu-out">
-    <li>
-      <a href="{{ url('importer-individual-create') }}">Main Individual Importer</a>
-    </li>
-    <li>
-      <a href="{{ url('importer-organisation-create') }}">Main Organisation Importer</a>
-    </li>
-  </ul>
 {% endblock %}
