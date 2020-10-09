@@ -1,5 +1,3 @@
-from guardian.shortcuts import assign_perm
-
 from web.domains.exporter.models import Exporter
 from web.tests.auth import AuthTestCase
 from web.tests.domains.exporter.factory import ExporterFactory
@@ -29,12 +27,12 @@ class ExporterListViewTest(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_admin_access(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_page_title(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         assert "Maintain Exporters" in response.content.decode()
 
@@ -48,18 +46,16 @@ class ExporterListViewTest(AuthTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_number_of_pages(self):
-        for i in range(52):
-            ExporterFactory()
+        ExporterFactory.create_batch(52)
 
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         page = response.context_data["page"]
         self.assertEqual(page.paginator.num_pages, 2)
 
     def test_page_results(self):
-        for i in range(53):
-            ExporterFactory(is_active=True)
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        ExporterFactory.create_batch(53, is_active=True)
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url + "?page=2")
         page = response.context_data["page"]
         self.assertEqual(len(page.object_list), 3)
@@ -83,14 +79,12 @@ class ExporterEditViewTest(AuthTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_authorized_access(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
-        assign_perm("web.is_contact_of_exporter", self.user, self.exporter)
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_page_title(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
-        assign_perm("web.is_contact_of_exporter", self.user, self.exporter)
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         assert f"Editing exporter {self.exporter}" in response.content.decode()
 
@@ -110,17 +104,17 @@ class ExporterCreateViewTest(AuthTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_authorized_access(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_exporter_created(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         self.client.post(self.url, {"name": "test exporter"})
         exporter = Exporter.objects.first()
         self.assertEqual(exporter.name, "test exporter")
 
     def test_page_title(self):
-        self.login_with_permissions(["reference_data_access", "exporter_access"])
+        self.login_with_permissions(["reference_data_access"])
         response = self.client.get(self.url)
         assert "Create Exporter" in response.content.decode()

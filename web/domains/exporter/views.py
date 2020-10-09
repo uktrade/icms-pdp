@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -28,11 +27,9 @@ class ExporterListView(ModelFilterView):
 
 
 @login_required
-@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@permission_required("web.reference_data_access", raise_exception=True)
 def edit_exporter(request, pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
-        raise PermissionDenied
     form = ExporterForm(instance=exporter)
 
     if request.POST:
@@ -60,7 +57,7 @@ def edit_exporter(request, pk):
 
 
 @login_required
-@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@permission_required("web.reference_data_access", raise_exception=True)
 def create_exporter(request):
     form = ExporterForm()
     if request.POST:
@@ -73,12 +70,10 @@ def create_exporter(request):
 
 
 @login_required
-@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@permission_required("web.reference_data_access", raise_exception=True)
 @require_POST
 def add_contact(request, pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
-        raise PermissionDenied
 
     available_contacts = User.objects.account_active().filter(
         user_permissions__codename="exporter_access"
@@ -92,13 +87,10 @@ def add_contact(request, pk):
 
 
 @login_required
-@permission_required(["reference_data_access", "web.exporter_access"], raise_exception=True)
+@permission_required("web.reference_data_access", raise_exception=True)
 @require_POST
 def delete_contact(request, pk, contact_pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-    if not request.user.has_perm("web.is_contact_of_exporter", exporter):
-        raise PermissionDenied
-
     contact = get_object_or_404(User, pk=contact_pk)
 
     remove_perm("web.is_contact_of_exporter", contact, exporter)
