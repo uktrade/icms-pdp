@@ -33,4 +33,4 @@ class UserManager(BaseUserManager):
         return self.create_user(username, password, **extra_fields)
 
     def account_active(self):
-        return self.filter(account_status="ACTIVE")
+        return self.filter(account_status=self.model.ACTIVE)

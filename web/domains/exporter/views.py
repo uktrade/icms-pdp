@@ -30,13 +30,14 @@ class ExporterListView(ModelFilterView):
 @permission_required("web.reference_data_access", raise_exception=True)
 def edit_exporter(request, pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-    form = ExporterForm(instance=exporter)
 
     if request.POST:
         form = ExporterForm(request.POST, instance=exporter)
         if form.is_valid():
             form.save()
             return redirect(reverse("exporter-edit", kwargs={"pk": pk}))
+    else:
+        form = ExporterForm(instance=exporter)
 
     exporter_contacts = get_users_with_perms(
         exporter, only_with_perms_in=["is_contact_of_exporter"]
@@ -59,12 +60,13 @@ def edit_exporter(request, pk):
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
 def create_exporter(request):
-    form = ExporterForm()
     if request.POST:
         form = ExporterForm(request.POST)
         if form.is_valid():
             exporter = form.save()
             return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
+    else:
+        form = ExporterForm()
 
     return render(request, "web/domains/exporter/create.html", {"form": form})
 

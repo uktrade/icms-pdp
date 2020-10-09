@@ -229,8 +229,10 @@ class UserListFilter(FilterSet):
 class ContactForm(Form):
     contact = ModelChoiceField(
         label="",
-        help_text="Search a contact to add. Contacts returned are matched against first/last name, \
-            email, job title, organisation and department.",
+        help_text="""
+            Search a contact to add. Contacts returned are matched against first/last name,
+            email, job title, organisation and department.
+        """,
         queryset=User.objects.none(),
         widget=ContactWidget,
     )
