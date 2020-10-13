@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import View
 from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
@@ -253,9 +253,9 @@ def edit_agent(request, pk):
     importer_contacts = get_users_with_perms(
         agent.main_importer, only_with_perms_in=["is_contact_of_importer"]
     ).filter(user_permissions__codename="importer_access")
-    available_contacts = (
-        User.objects.importer_access().exclude(pk__in=importer_contacts).exclude(pk=agent.user.pk)
-    )
+    available_contacts = User.objects.importer_access().exclude(pk__in=importer_contacts)
+    if agent.user:
+        available_contacts = available_contacts.exclude(pk=agent.user.pk)
 
     context = {
         "object": agent.main_importer,
@@ -275,8 +275,9 @@ class AgentArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
         agent = get_object_or_404(self.queryset, pk=kwargs["pk"])
         agent.is_active = False
         agent.save()
-        remove_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
-        return redirect(reverse_lazy("importer-edit", kwargs=kwargs))
+        if not agent.is_organisation():
+            remove_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
+        return redirect(reverse("importer-edit", kwargs={"pk": agent.main_importer.pk}))
 
 
 class AgentUnArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -288,8 +289,9 @@ class AgentUnArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
         agent = get_object_or_404(self.queryset, pk=kwargs["pk"])
         agent.is_active = True
         agent.save()
-        assign_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
-        return redirect(reverse_lazy("importer-edit", kwargs=kwargs))
+        if not agent.is_organisation():
+            assign_perm("web.is_agent_of_importer", agent.user, agent.main_importer)
+        return redirect(reverse("importer-edit", kwargs={"pk": agent.main_importer.pk}))
 
 
 class ImporterOrganisationDetailView(ModelDetailView):
