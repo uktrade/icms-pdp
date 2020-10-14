@@ -268,10 +268,10 @@ def edit_agent(request, pk):
 
 class AgentArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
     queryset = Importer.objects.filter(main_importer__isnull=False)
-    http_method_names = ["get"]
+    http_method_names = ["post"]
     permission_required = "web.reference_data_access"
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         agent = get_object_or_404(self.queryset, pk=kwargs["pk"])
         agent.is_active = False
         agent.save()
@@ -282,10 +282,10 @@ class AgentArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class AgentUnArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
     queryset = Importer.objects.filter(main_importer__isnull=False)
-    http_method_names = ["get"]
+    http_method_names = ["post"]
     permission_required = "web.reference_data_access"
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         agent = get_object_or_404(self.queryset, pk=kwargs["pk"])
         agent.is_active = True
         agent.save()

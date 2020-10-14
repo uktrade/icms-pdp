@@ -134,8 +134,6 @@ class IndividualImporterCreateViewTest(AuthTestCase):
             "user": other_user.pk,
         }
         response = self.client.post(self.url, data)
-        with open("response.html", "wb") as f:
-            f.write(response.content)
         importer = Importer.objects.first()
         self.assertRedirects(response, f"/importer/{importer.pk}/edit/")
         self.assertEqual(importer.user, other_user, msg=importer)

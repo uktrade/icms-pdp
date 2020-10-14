@@ -19,16 +19,19 @@
         </td>
         <td>
           {% if agent.is_active %}
-            <a class="link-button button icon-pencil"
+            <a class="button small-button icon-pencil"
                href="{{ url('importer-agent-edit', args=[agent.pk]) }}">
+              Edit
             </a>
-            <a class="link-button button icon-bin"
-               href="{{ url('importer-agent-archive', args=[agent.pk]) }}">
-            </a>
+            <form method="post" action="{{ url('importer-agent-archive', args=[agent.pk]) }}" class="form-inline">
+              {{ csrf_input }}
+              <button type="submit" class="button small-button icon-bin">Archive</button>
+            </form>
           {% else %}
-            <a class="link-button button icon-undo"
-               href="{{ url('importer-agent-unarchive', args=[agent.pk]) }}">
-            </a>
+            <form method="post" action="{{ url('importer-agent-unarchive', args=[agent.pk]) }}">
+              {{ csrf_input }}
+              <button type="submit" class="button small-button icon-undo">Restore</button>
+            </form>
           {% endif %}
         </td>
     </tr>
