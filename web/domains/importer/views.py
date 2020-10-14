@@ -228,7 +228,7 @@ def create_agent(request, importer_pk, entity):
         "form": form,
     }
 
-    return render(request, "web/domains/importer/create.html", context)
+    return render(request, "web/domains/importer/create-agent.html", context)
 
 
 @login_required

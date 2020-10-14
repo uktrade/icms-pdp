@@ -16,12 +16,6 @@
 {% endblock %}
 
 {% block main_content %}
-  {% if object and object.is_agent() %}
-  <div class="info-box info-box-info">
-    This importer will be an agent of {{ object.main_importer.display_name }}.
-  </div>
-  {% endif %}
-
   {% include "web/domains/importer/company_list.html" %}
 
   {% call forms.form(action='', method='post', csrf_input=csrf_input) -%}

@@ -3952,6 +3952,15 @@ label {
     line-height: 1em;
 }
 
+.helptext {
+    line-height: 0em;
+    margin: 0 0 1em 0;
+}
+
+.select2-container {
+    margin-bottom: 0.8em !important;
+}
+
 .mand-label .mand-label-block {
     display: block;
     margin-top: -0.2em;

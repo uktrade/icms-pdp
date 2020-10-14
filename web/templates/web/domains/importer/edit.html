@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block context_header %}
-    Editing importer {{ object.display_name }}
+    Editing Importer '{{ object.display_name }}'
 {% endblock %}
 
 {% block sidebar %}
@@ -16,13 +16,6 @@
 {% endblock %}
 
 {% block main_content %}
-
-  {% if object.is_agent() %}
-    <div class="info-box info-box-info">
-      This importer is an agent of {{ object.main_importer.display_name }}.
-    </div>
-  {% endif %}
-
   {% include "web/domains/importer/company_list.html" %}
 
   {% call forms.form(action='', method='post', csrf_input=csrf_input) -%}

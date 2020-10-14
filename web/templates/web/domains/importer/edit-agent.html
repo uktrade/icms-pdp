@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block context_header %}
-  Editing agent {{ form.instance.display_name }} for importer {{ object.display_name }}
+  Editing Agent '{{ form.instance.display_name }}' for Importer '{{ object.display_name }}'
 {% endblock %}
 
 {% block sidebar %}
@@ -18,7 +18,7 @@
 {% block main_content %}
 
   <div class="info-box info-box-info">
-    This importer is an agent of {{ object.display_name }}.
+    This importer is an agent of importer '{{ object.display_name }}'.
   </div>
 
   {% include "web/domains/importer/company_list.html" %}
@@ -47,7 +47,7 @@
   {% endcall %}
 
   {% with
-    offices = object.offices.all(),
+    offices = form.instance.offices.all(),
     office_archive_url_name = 'importer-office-archive',
     office_unarchive_url_name = 'importer-office-unarchive',
     office_edit_url_name = 'importer-office-edit' %}

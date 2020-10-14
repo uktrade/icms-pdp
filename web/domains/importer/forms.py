@@ -11,7 +11,14 @@ from web.forms.mixins import ReadonlyFormMixin
 
 
 class ImporterIndividualForm(ModelForm):
-    user = ModelChoiceField(queryset=User.objects.importer_access(), widget=PersonWidget)
+    user = ModelChoiceField(
+        queryset=User.objects.importer_access(),
+        widget=PersonWidget,
+        help_text="""
+            Search a user to link. Users returned are matched against first/last name,
+            email and title.
+        """,
+    )
 
     class Meta:
         model = Importer
@@ -170,7 +177,14 @@ class AgentCreateIndividualForm(ModelForm):
     main_importer = ModelChoiceField(
         queryset=Importer.objects.none(), label="Importer", disabled=True
     )
-    user = ModelChoiceField(queryset=User.objects.importer_access(), widget=PersonWidget)
+    user = ModelChoiceField(
+        queryset=User.objects.importer_access(),
+        widget=PersonWidget,
+        help_text="""
+            Search a user to link. Users returned are matched against first/last name,
+            email and title.
+        """,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
