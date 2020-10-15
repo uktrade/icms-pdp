@@ -68,20 +68,22 @@
         </tbody>
     </table>
     {% endif %}
-    <form 
-      method="post"
-      action="{{ url(contact_add_url_name, kwargs={'pk': object.pk}) }}">
-      {{ csrf_input }}
-      <div class="container setoutForm">
-        <div class="row">
-          <div class="four columns">
-            {{ contact_form.as_p() }}
+    {% if not read_only %}
+      <form 
+        method="post"
+        action="{{ url(contact_add_url_name, kwargs={'pk': object.pk}) }}">
+        {{ csrf_input }}
+        <div class="container setoutForm">
+          <div class="row">
+            <div class="four columns">
+              {{ contact_form.as_p() }}
+            </div>
+            <div class="two columns">
+              <button type="submit" class="button small-button icon-add">Add contact</button>
+            </div>
+            <div class="six columns"></div>
           </div>
-          <div class="two columns">
-            <button type="submit" class="button small-button icon-add">Add contact</button>
-          </div>
-          <div class="six columns"></div>
         </div>
-      </div>
-    </form>
+      </form>
+    {% endif %}
 </div>

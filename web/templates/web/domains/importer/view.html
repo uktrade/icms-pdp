@@ -39,12 +39,12 @@
 
         {% with field=form.comments %} {% include 'partial/single-field-view-mode.html' %} {% endwith %}
 
-        {% with offices = form.instance.offices %}
-        {% include "partial/offices-display.html" %}
+        {% with offices = form.instance.offices, read_only=True %}
+          {% include "partial/offices/edit.html" %}
         {% endwith %}
 
         {% if not form.instance.is_agent() %}
-            {% with agents = form.instance.agents %}
+            {% with agents = form.instance.agents, read_only=true %}
             {% include "partial/agents-display.html" %}
             {% endwith %}
         {% endif %}

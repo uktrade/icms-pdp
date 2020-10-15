@@ -4,7 +4,9 @@
       <th scope="col">Address</th>
       <th scope="col">Postcode</th>
       <th scope="col">EORI Number</th>
-      <th scope="col">Actions</th>
+      {% if not read_only %}
+        <th scope="col">Actions</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -13,28 +15,30 @@
       <td>{{ office.address|nl2br() or '' }}</td>
       <td>{{ office.postcode or '' }}</td>
       <td>{{ office.eori_number or '' }}</td>
-      <td>
-        <a
-          href="{{ url(office_edit_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
-          class="button small-button icon-pencil">
-          Edit
-        </a>
-        {% if office.is_active %}
-          <form method="post"
-                action="{{ url(office_archive_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
-                class="form-inline">
-            {{ csrf_input }}
-            <button type="submit" class="button small-button icon-bin">Archive</button>
-          </form>
-        {% else %}
-          <form method="post"
-                action="{{ url(office_unarchive_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
-                class="form-inline">
-            {{ csrf_input }}
-            <button type="submit" class="button small-button icon-bin">Restore</button>
-          </form>
-        {% endif %}
-      </td>
+      {% if not read_only %}
+        <td>
+          <a
+            href="{{ url(office_edit_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
+            class="button small-button icon-pencil">
+            Edit
+          </a>
+          {% if office.is_active %}
+            <form method="post"
+                  action="{{ url(office_archive_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
+                  class="form-inline">
+              {{ csrf_input }}
+              <button type="submit" class="button small-button icon-bin">Archive</button>
+            </form>
+          {% else %}
+            <form method="post"
+                  action="{{ url(office_unarchive_url_name, kwargs={'pk': object.pk, 'office_pk': office.pk}) }}"
+                  class="form-inline">
+              {{ csrf_input }}
+              <button type="submit" class="button small-button icon-bin">Restore</button>
+            </form>
+          {% endif %}
+        </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
