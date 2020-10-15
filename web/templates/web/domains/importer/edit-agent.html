@@ -55,12 +55,14 @@
     {% include "partial/offices/list.html" %}
   {% endwith %}
 
-  {% with
-    contact_add_url_name = 'importer-contact-add',
-    contact_delete_url_name = 'importer-contact-delete' %}
+  {% if form.instance.is_organisation() %}
+    {% with
+      contact_add_url_name = 'importer-contact-add',
+      contact_delete_url_name = 'importer-contact-delete' %}
 
-    {% include "partial/contacts/contacts.html" %}
-  {% endwith %}
+      {% include "partial/contacts/contacts.html" %}
+    {% endwith %}
+  {% endif %}
 {% endblock %}
 
 {% block page_js %}
