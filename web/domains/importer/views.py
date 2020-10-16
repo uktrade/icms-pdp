@@ -109,6 +109,7 @@ def create_importer(request, entity):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
+# TODO: permissions - importer's contacts should be able to manage contacts
 @require_POST
 def add_contact(request, pk):
     importer = get_object_or_404(Importer, pk=pk)
@@ -123,9 +124,10 @@ def add_contact(request, pk):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
+# TODO: permissions - importer's contacts should be able to manage contacts
 @require_POST
-def delete_contact(request, pk, contact_pk):
-    importer = get_object_or_404(Importer, pk=pk)
+def delete_contact(request, importer_pk, contact_pk):
+    importer = get_object_or_404(Importer, pk=importer_pk)
     contact = get_object_or_404(User, pk=contact_pk)
 
     remove_perm("web.is_contact_of_importer", contact, importer)

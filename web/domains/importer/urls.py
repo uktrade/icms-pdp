@@ -15,7 +15,7 @@ urlpatterns = [
     # contacts
     path("<int:pk>/contacts/add/", views.add_contact, name="importer-contact-add"),
     path(
-        "<int:pk>/contacts/<int:contact_pk>/delete/",
+        "<int:importer_pk>/contacts/<int:contact_pk>/delete/",
         views.delete_contact,
         name="importer-contact-delete",
     ),
