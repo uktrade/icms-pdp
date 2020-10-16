@@ -56,6 +56,7 @@ class ImporterOrganisationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["name"].required = True
+        self.fields["registered_number"].required = True
         self.fields["eori_number"].required = True
 
     def clean(self):
