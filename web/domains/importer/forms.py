@@ -3,6 +3,7 @@ from django.forms import ChoiceField, CharField, ModelChoiceField, ModelForm
 from django_filters import CharFilter, ChoiceFilter, FilterSet
 from django.db.models import Q
 
+from web.company.companieshouse import api_get_company
 from web.domains.importer.fields import PersonWidget
 from web.domains.importer.models import Importer
 from web.domains.user.models import User
@@ -64,6 +65,13 @@ class ImporterOrganisationForm(ModelForm):
         self.instance.type = Importer.ORGANISATION
         return super().clean()
 
+    def clean_registered_number(self):
+        registered_number = self.cleaned_data["registered_number"]
+        self.company = api_get_company(registered_number)
+        if not self.company:
+            raise ValidationError("Company is not present in Companies House records")
+        return registered_number
+
     def clean_eori_number(self):
         """Make sure eori number starts with GB."""
         eori_number = self.cleaned_data["eori_number"]
@@ -71,6 +79,17 @@ class ImporterOrganisationForm(ModelForm):
         if eori_number.startswith(prefix):
             return eori_number
         raise ValidationError(f"'{eori_number}' doesn't start with {prefix}")
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if commit:
+            office_address = self.company.get("registered_office_address", {})
+            address_line_1 = office_address.get("address_line_1")
+            locality = office_address.get("locality")
+            postcode = office_address.get("postal_code")
+            if address_line_1 and postcode:
+                instance.offices.create(address=f"{address_line_1}\n{locality}", postcode=postcode)
+        return instance
 
 
 class ImporterFilter(FilterSet):
