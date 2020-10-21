@@ -154,7 +154,6 @@ class ImporterOrganisationDisplayForm(ReadonlyFormMixin, ModelForm):
     class Meta:
         model = Importer
         fields = ["type", "name", "region_origin", "comments"]
-        labels = {"type": "Entity Type"}
 
 
 class ImporterIndividualDisplayForm(ReadonlyFormMixin, ModelForm):

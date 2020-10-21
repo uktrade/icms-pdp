@@ -22,7 +22,13 @@ from web.domains.office.forms import OfficeForm, OfficeEORIForm
 from web.domains.user.forms import ContactForm
 from web.domains.user.models import User
 from web.views import ModelDetailView, ModelFilterView
-from web.views.actions import Archive, CreateAgent, Edit, Unarchive
+from web.views.actions import (
+    Archive,
+    CreateIndividualAgent,
+    CreateOrganisationAgent,
+    Edit,
+    Unarchive,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +52,13 @@ class ImporterListView(ModelFilterView):
             "offices": {"header": "Addresses", "show_all": True,},
         }
         opts = {"inline": True, "icon_only": True}
-        actions = [Archive(**opts), Unarchive(**opts), CreateAgent(**opts), Edit(**opts)]
+        actions = [
+            Edit(**opts),
+            CreateIndividualAgent(**opts),
+            CreateOrganisationAgent(**opts),
+            Archive(**opts),
+            Unarchive(**opts),
+        ]
 
 
 @login_required
