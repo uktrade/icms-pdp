@@ -2,7 +2,9 @@
     <tr>
         <td>
             <span class="text-widget ">
-              {% if is_importer %}
+              {% if is_importer and read_only %}
+                {{ agent.display_name }}
+              {% elif is_importer %}
                 <a href="{{ url(agent_edit_url_name, args=[agent.id]) }}">
                   {{ agent.display_name }}
                 </a>

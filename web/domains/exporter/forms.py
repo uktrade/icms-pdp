@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelChoiceField, ModelForm
+from django.forms import ModelChoiceField, ModelForm, Textarea
 from django_filters import CharFilter, FilterSet
 
 from web.company.companieshouse import api_get_company
@@ -21,6 +21,7 @@ class ExporterForm(ModelForm):
     class Meta:
         model = Exporter
         fields = ["name", "registered_number", "comments"]
+        widgets = {"name": Textarea(attrs={"rows": 1})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,6 +55,7 @@ class AgentForm(ModelForm):
     class Meta:
         model = Exporter
         fields = ["main_exporter", "name", "registered_number", "comments"]
+        widgets = {"name": Textarea(attrs={"rows": 1})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

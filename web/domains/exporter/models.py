@@ -14,9 +14,7 @@ class Exporter(Archivable, models.Model):
     objects = ExporterManager()
 
     is_active = models.BooleanField(blank=False, null=False, default=True)
-    name = models.CharField(
-        max_length=4000, blank=False, null=False, verbose_name="Organisation Name"
-    )
+    name = models.TextField(verbose_name="Organisation Name")
     registered_number = models.CharField(
         max_length=15, blank=True, null=True, verbose_name="Registered Number"
     )
