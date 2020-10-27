@@ -82,16 +82,20 @@ def create_exporter(request):
 @require_POST
 def add_contact(request, pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-
-    available_contacts = User.objects.account_active().filter(
-        user_permissions__codename="exporter_access"
-    )
+    available_contacts = User.objects.exporter_access()
 
     form = ContactForm(available_contacts, request.POST)
     if form.is_valid():
         contact = form.cleaned_data["contact"]
-        assign_perm("web.is_contact_of_exporter", contact, exporter)
-    return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
+        if exporter.is_agent():
+            assign_perm("web.is_agent_of_exporter", contact, exporter.main_exporter)
+        else:
+            assign_perm("web.is_contact_of_exporter", contact, exporter)
+
+    if exporter.is_agent():
+        return redirect(reverse("exporter-agent-edit", kwargs={"pk": exporter.pk}))
+    else:
+        return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
 
 
 @login_required
@@ -101,8 +105,12 @@ def delete_contact(request, pk, contact_pk):
     exporter = get_object_or_404(Exporter, pk=pk)
     contact = get_object_or_404(User, pk=contact_pk)
 
-    remove_perm("web.is_contact_of_exporter", contact, exporter)
-    return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
+    if exporter.is_agent():
+        remove_perm("web.is_agent_of_exporter", contact, exporter.main_exporter)
+        return redirect(reverse("exporter-agent-edit", kwargs={"pk": exporter.pk}))
+    else:
+        remove_perm("web.is_contact_of_exporter", contact, exporter)
+        return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
 
 
 @login_required
