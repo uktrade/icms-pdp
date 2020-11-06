@@ -1,15 +1,16 @@
 import structlog as logging
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import FormView
 from viewflow.flow.views import FlowMixin, UpdateProcessView
 
 from web.domains.exporter.views import ExporterListView
 from web.domains.importer.views import ImporterListView
-from web.viewflow.mixins import SimpleStartFlowMixin
+from web.flow.models import Task
+from web.notify import notify
 from web.views import ModelCreateView
 from web.views.actions import Edit
 
@@ -21,55 +22,84 @@ from .models import ExporterAccessRequest, ImporterAccessRequest
 logger = logging.get_logger(__name__)
 
 
-def clean_extra_request_data(access_request):
-    if access_request.process_type == ImporterAccessRequest.PROCESS_TYPE:
-        access_request.agent_name = None
-        access_request.agent_address = None
-        if access_request.request_type == ImporterAccessRequest.AGENT_ACCESS:
-            pass
-    elif access_request.process_type == ExporterAccessRequest.PROCESS_TYPE:
-        access_request.agent_name = None
-        access_request.agent_address = None
-        access_request.request_reason = None
-        if access_request.request_type == ExporterAccessRequest.AGENT_ACCESS:
-            access_request.request_reason = None
-    else:
-        raise ValueError("Unknown access request type")
+@login_required
+def importer_access_request(request):
+    with transaction.atomic():
+        if request.POST:
+            form = forms.ImporterAccessRequestForm(data=request.POST)
+            if form.is_valid():
+                application = form.save(commit=False)
+                application.submitted_by = request.user
+                application.last_update_by = request.user
+                application.process_type = ImporterAccessRequest.PROCESS_TYPE
+                application.save()
+
+                notify.access_requested_importer(application.pk)
+                Task.objects.create(process=application, task_type="request", owner=request.user)
+
+                if request.user.is_importer() or request.user.is_exporter():
+                    return redirect(reverse("workbasket"))
+
+                # A new user who is not a member of any importer/exporter
+                # is redirected to a different success page
+                return redirect(reverse("access:requested"))
+        else:
+            form = forms.ImporterAccessRequestForm()
+
+        context = {
+            "form": form,
+            "exporter_access_requests": ExporterAccessRequest.objects.filter(
+                tasks__owner=request.user
+            ),
+            "importer_access_requests": ImporterAccessRequest.objects.filter(
+                tasks__owner=request.user
+            ),
+        }
+
+    return render(request, "web/domains/case/access/request-importer-access.html", context)
 
 
-class ImporterAccessRequestCreateView(SimpleStartFlowMixin, FormView):
-    template_name = "web/domains/case/access/request-importer-access.html"
-    form_class = forms.ImporterAccessRequestForm
+@login_required
+def exporter_access_request(request):
+    with transaction.atomic():
+        form = forms.ExporterAccessRequestForm()
+        if request.POST:
+            form = forms.ExporterAccessRequestForm(data=request.POST)
+            if form.is_valid():
+                application = form.save(commit=False)
+                application.submitted_by = request.user
+                application.last_update_by = request.user
+                application.process_type = ExporterAccessRequest.PROCESS_TYPE
+                application.save()
 
-    def get_success_url(self):
-        user = self.request.user
-        if user.is_importer() or user.is_exporter():
-            return reverse("workbasket")
+                notify.access_requested_exporter(application.pk)
+                Task.objects.create(process=application, task_type="request", owner=request.user)
 
-        # A new user who is not a member of any importer/exporter
-        # is redirected to a different success page
-        return reverse("access:requested")
+                if request.user.is_importer() or request.user.is_exporter():
+                    return redirect(reverse("workbasket"))
 
-    def form_valid(self, form):
-        access_request = form.save(commit=False)
-        access_request.submitted_by = self.request.user
-        clean_extra_request_data(access_request)
-        access_request.save()
+                # A new user who is not a member of any importer/exporter
+                # is redirected to a different success page
+                return redirect(reverse("access:requested"))
 
-        self.activation.process.access_request = access_request
-        return super().form_valid(form)
+        context = {
+            "form": form,
+            "exporter_access_requests": ExporterAccessRequest.objects.filter(
+                tasks__owner=request.user
+            ),
+            "importer_access_requests": ImporterAccessRequest.objects.filter(
+                tasks__owner=request.user
+            ),
+        }
 
-
-class ExporterAccessRequestCreateView(ImporterAccessRequestCreateView):
-    template_name = "web/domains/case/access/request-exporter-access.html"
-    form_class = forms.ExporterAccessRequestForm
+    return render(request, "web/domains/case/access/request-exporter-access.html", context)
 
 
 class AccessRequestCreatedView(TemplateView):
     template_name = "web/domains/case/access/request-access-success.html"
 
 
-class AccessRequestReviewView(FlowMixin, ModelCreateView):
+class AccessRequestReviewView(ModelCreateView):
     template_name = "web/domains/case/access/review.html"
     permission_required = []
     model = ApprovalRequest

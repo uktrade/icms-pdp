@@ -1,8 +1,5 @@
 import pytest
-from django.test import TestCase
 
-from web.domains.case.access.models import ExporterAccessRequest, ImporterAccessRequest
-from web.domains.case.access.views import clean_extra_request_data
 from web.domains.case.fir.flows import FurtherInformationRequestFlow
 from web.tests.auth import AuthTestCase
 from web.tests.domains.case.access import factory as access_factories
@@ -17,47 +14,6 @@ def populate_fields(access_request):
     access_request.agent_name = "Agent Smith"
     access_request.agent_address = "50 VS"
     access_request.request_reason = "Import/Export"
-
-
-class AccessRequestViewsTest(TestCase):
-    def test_missing_request_type(self):
-        access_request = ImporterAccessRequest()
-        access_request.request_type = ""
-        self.assertRaises(ValueError, clean_extra_request_data, access_request)
-
-    def test_unknown_request_type(self):
-        access_request = ImporterAccessRequest()
-        access_request.request_type = "ADMIN_ACCESS"
-        self.assertRaises(ValueError, clean_extra_request_data, access_request)
-
-    def test_importer(self):
-        access_request = access_factories.ImporterAccessRequestFactory.build()
-        populate_fields(access_request)
-
-        clean_extra_request_data(access_request)
-
-        self.assertIsNone(access_request.agent_name)
-        self.assertIsNone(access_request.agent_address)
-
-    def test_exporter(self):
-        access_request = access_factories.ExporterAccessRequestFactory.build()
-        populate_fields(access_request)
-
-        clean_extra_request_data(access_request)
-
-        self.assertIsNone(access_request.request_reason)
-        self.assertIsNone(access_request.agent_name)
-        self.assertIsNone(access_request.agent_address)
-
-    def test_exporter_agent(self):
-        access_request = access_factories.ExporterAccessRequestFactory.build(
-            request_type=ExporterAccessRequest.AGENT_ACCESS
-        )
-        populate_fields(access_request)
-
-        clean_extra_request_data(access_request)
-
-        self.assertIsNone(access_request.request_reason)
 
 
 @pytest.mark.xfail
