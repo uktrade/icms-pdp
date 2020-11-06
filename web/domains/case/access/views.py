@@ -16,23 +16,23 @@ from web.views.actions import Edit
 from . import forms
 from .actions import LinkExporter, LinkImporter
 from .approval.models import ApprovalRequest
-from .models import AccessRequest
+from .models import ExporterAccessRequest, ImporterAccessRequest
 
 logger = logging.get_logger(__name__)
 
 
 def clean_extra_request_data(access_request):
-    if access_request.request_type == AccessRequest.IMPORTER:
+    if access_request.process_type == ImporterAccessRequest.PROCESS_TYPE:
         access_request.agent_name = None
         access_request.agent_address = None
-    elif access_request.request_type == AccessRequest.IMPORTER_AGENT:
-        pass
-    elif access_request.request_type == AccessRequest.EXPORTER:
+        if access_request.request_type == ImporterAccessRequest.AGENT_ACCESS:
+            pass
+    elif access_request.process_type == ExporterAccessRequest.PROCESS_TYPE:
         access_request.agent_name = None
         access_request.agent_address = None
         access_request.request_reason = None
-    elif access_request.request_type == AccessRequest.EXPORTER_AGENT:
-        access_request.request_reason = None
+        if access_request.request_type == ExporterAccessRequest.AGENT_ACCESS:
+            access_request.request_reason = None
     else:
         raise ValueError("Unknown access request type")
 

@@ -25,18 +25,16 @@ def is_valid(form, data, fields):
 
 
 def is_agent_request(request_type):
-    return request_type in [AccessRequest.IMPORTER_AGENT, AccessRequest.EXPORTER_AGENT]
+    return True
 
 
 class ExporterAccessRequestForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["request_type"].widget = Select(choices=AccessRequest.EXPORTER_REQUEST_TYPES)
 
     def clean(self):
         cleaned_data = super().clean()
-        request_type = cleaned_data["request_type"]
-        if is_agent_request(request_type):
+        if is_agent_request():
             logger.debug("Validating agent")
             # Only validate agent_name and agent_address if this is an agent request
             if not is_valid(self, cleaned_data, ["agent_name", "agent_address"]):
@@ -47,14 +45,11 @@ class ExporterAccessRequestForm(ModelForm):
         model = AccessRequest
 
         fields = [
-            "request_type",
             "organisation_name",
             "organisation_address",
             "agent_name",
             "agent_address",
         ]
-
-        labels = {"request_type": "Access Request Type"}
 
         widgets = {
             "organisation_address": Textarea({"rows": 5}),
@@ -65,7 +60,6 @@ class ExporterAccessRequestForm(ModelForm):
 class ImporterAccessRequestForm(ExporterAccessRequestForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["request_type"].widget = Select(choices=AccessRequest.IMPORTER_REQUEST_TYPES)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -74,7 +68,6 @@ class ImporterAccessRequestForm(ExporterAccessRequestForm):
 
     class Meta(ExporterAccessRequestForm.Meta):
         fields = [
-            "request_type",
             "organisation_name",
             "organisation_address",
             "request_reason",
@@ -82,8 +75,7 @@ class ImporterAccessRequestForm(ExporterAccessRequestForm):
             "agent_address",
         ]
 
-        labels = ExporterAccessRequestForm.Meta.labels
-        labels["request_reason"] = "What are you importing and where are you importing it from?"
+        labels = {"request_reason": "What are you importing and where are you importing it from?"}
 
         widgets = ExporterAccessRequestForm.Meta.widgets
         widgets["request_reason"] = Textarea({"rows": 5})
