@@ -27,17 +27,17 @@ class AccessRequest(WorkbasketBase, Process):
         max_length=30, choices=STATUSES, blank=False, null=False, default=SUBMITTED
     )
     organisation_name = models.CharField(max_length=100, blank=False, null=False)
-    organisation_address = models.TextField(blank=False)
+    organisation_address = models.TextField()
     organisation_registered_number = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name="Registered Number"
+        max_length=100, blank=True, default="", verbose_name="Registered Number"
     )
     request_reason = models.TextField(
-        blank=False, verbose_name="What are you importing and where are you importing it from?"
+        verbose_name="What are you importing and where are you importing it from?"
     )
     agent_name = models.CharField(max_length=100, blank=True, null=True)
     agent_address = models.TextField(blank=True, default="")
 
-    submit_datetime = models.DateTimeField(blank=False, null=False, auto_now=True)
+    submit_datetime = models.DateTimeField(auto_now=True)
     submitted_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -83,23 +83,19 @@ class ImporterAccessRequest(AccessRequest):
     eori_number = models.CharField(
         max_length=20,
         blank=True,
-        null=True,
+        default="",
         verbose_name="EORI Number",
         help_text="EORI number should include the GB prefix for organisation or GBPR for individual",
     )
     eori_number_ni = models.CharField(
-        max_length=20, blank=True, null=True, verbose_name="NI EORI Number"
+        max_length=20, blank=True, default="", verbose_name="NI EORI Number"
     )
 
     link = models.ForeignKey(
         Importer, on_delete=models.PROTECT, blank=True, null=True, related_name="access_requests"
     )
     request_type = models.CharField(
-        max_length=30,
-        choices=REQUEST_TYPES,
-        blank=False,
-        null=False,
-        verbose_name="Access Request Type",
+        max_length=30, choices=REQUEST_TYPES, verbose_name="Access Request Type",
     )
 
 
@@ -116,9 +112,5 @@ class ExporterAccessRequest(AccessRequest):
         Exporter, on_delete=models.PROTECT, blank=True, null=True, related_name="access_requests"
     )
     request_type = models.CharField(
-        max_length=30,
-        choices=REQUEST_TYPES,
-        blank=False,
-        null=False,
-        verbose_name="Access Request Type",
+        max_length=30, choices=REQUEST_TYPES, verbose_name="Access Request Type",
     )
