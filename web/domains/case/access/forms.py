@@ -25,6 +25,7 @@ def is_valid(form, data, fields):
 
 
 def is_agent_request(request_type):
+    # TODO: check if access request is for agent to make agent fields required
     return True
 
 
