@@ -1,8 +1,15 @@
 import structlog as logging
-from django.forms import Field, ModelForm, Select
+from django.forms import CharField, Field, ModelChoiceField, ModelForm, Textarea
 
-from .approval.models import ApprovalRequest
-from .models import AccessRequest, ExporterAccessRequest, ImporterAccessRequest
+from web.domains.case.access.models import (
+    AccessRequest,
+    ExporterAccessRequest,
+    ImporterAccessRequest,
+)
+from web.domains.exporter.models import Exporter
+from web.domains.exporter.widgets import ExporterWidget
+from web.domains.importer.models import Importer
+from web.domains.importer.widgets import ImporterWidget
 
 logger = logging.getLogger(__name__)
 
@@ -66,26 +73,55 @@ class ImporterAccessRequestForm(ModelForm):
         return cleaned_data
 
 
+class LinkImporterAccessRequestForm(ModelForm):
+    link = ModelChoiceField(
+        label="Link Importer",
+        help_text="""
+            Search an importer to link. Importers returned are matched against name, registerer number,
+            eori number and user name/email.
+        """,
+        queryset=Importer.objects.filter(is_active=True),
+        widget=ImporterWidget,
+    )
+
+    class Meta:
+        model = ImporterAccessRequest
+        fields = ["link"]
+
+
+class LinkExporterAccessRequestForm(ModelForm):
+    link = ModelChoiceField(
+        label="Link Exporter",
+        help_text="""
+            Search an exporter to link. Exporters returned are matched against name and registerer number.
+        """,
+        queryset=Exporter.objects.filter(is_active=True),
+        widget=ExporterWidget,
+    )
+
+    class Meta:
+        model = ExporterAccessRequest
+        fields = ["link"]
+
+
 class CloseAccessRequestForm(ModelForm):
+    response_reason = CharField(
+        required=False,
+        widget=Textarea,
+        help_text="If refused please write the reason for the decision.",
+    )
+
     class Meta:
         model = AccessRequest
-
         fields = ["response", "response_reason"]
 
-
-class ApprovalRequestForm(ModelForm):
-    def __init__(self, team, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields[
-            "requested_from"
-        ].queryset = team.members.all()  # TODO: All members? Check if certain roles or not
-        self.fields["requested_from"].empty_label = "All"
-
-    class Meta:
-        model = ApprovalRequest
-
-        fields = ["requested_from"]
-
-        labels = {"requested_from": "Contact"}
-
-        widgets = {"requested_from": Select()}
+    def clean(self):
+        cleaned_data = super().clean()
+        if (
+            cleaned_data.get("response") == AccessRequest.REFUSED
+            and cleaned_data.get("response_reason") == ""
+        ):
+            self.add_error(
+                "response_reason", "This field is required when Access Request is refused"
+            )
+        return cleaned_data
