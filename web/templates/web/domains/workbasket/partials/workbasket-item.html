@@ -1,4 +1,4 @@
-{% if process.process_type == "" and process.status == "SUBMITTED" and request.user.is_export_case_officer() %}
+{% if process.process_type == "CertificateOfManufactureApplication" and process.status == "SUBMITTED" and request.user.is_export_case_officer() %}
   {% if not process.case_owner %}
     <form method="post" action="{{ url('export:case-take-ownership', args=[process.pk]) }}">
       <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
