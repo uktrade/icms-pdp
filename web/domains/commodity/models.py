@@ -1,5 +1,6 @@
 from django.db import models
 
+from web.domains.country.models import Country
 from web.models.mixins import Archivable
 
 
@@ -111,3 +112,18 @@ class CommodityGroup(Archivable, models.Model):
             "-is_active",
             "group_code",
         )
+
+
+class Usage(models.Model):
+    application_type = models.ForeignKey("web.ImportApplicationType", on_delete=models.PROTECT)
+    application_subtype = models.CharField(max_length=50)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, blank=False, null=False)
+    commodity_group = models.ForeignKey(
+        CommodityGroup, on_delete=models.PROTECT, related_name="usages"
+    )
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField(blank=True, null=True)
+    maximum_allocation = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ("-start_datetime",)
