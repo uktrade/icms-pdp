@@ -57,10 +57,10 @@ class Commodity(Archivable, models.Model):
             return self.LABEL
 
     def save(self, *args, **kwargs):
-        self.commodity_type = CommodityType.objects.get(
+        self.commodity_type = CommodityType.objects.filter(
             models.Q(type_code=self.commodity_code[:2])
             | models.Q(type_code=self.commodity_code[:4])
-        )
+        ).first()
         super().save(*args, **kwargs)
 
     class Meta:
