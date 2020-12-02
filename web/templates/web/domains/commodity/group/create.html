@@ -12,6 +12,18 @@
   Create Commodity Group
 {% endblock %}
 
+{% block content_actions %}
+  <div class="content-actions">
+    <ul class="menu-out flow-across">
+      <li>
+        <a href="{{ url('commodity-group-list') }}" class="prev-link">
+          Maintain Commodity Groups
+        </a>
+      </li>
+    </ul>
+  </div>
+{% endblock %}
+
 {% block main_content %}
 
   {% call forms.form(action='', method='post', csrf_input=csrf_input) -%}
