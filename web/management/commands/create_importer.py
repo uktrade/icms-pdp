@@ -11,8 +11,8 @@ class Command(BaseCommand):
     help = """Create an importer associated with an Import Company"""
 
     def add_arguments(self, parser):
-        parser.add_argument("--first_name", nargs="?", default="Guido")
-        parser.add_argument("--last_name", nargs="?", default="van Rossum")
+        parser.add_argument("--first-name", dest="first_name", nargs="?", default="Guido")
+        parser.add_argument("--last-name", nargs="?", default="van Rossum")
         parser.add_argument("--title", nargs="?", default="Mr")
 
     def handle(self, *args, **kwargs):
