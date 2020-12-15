@@ -1,6 +1,4 @@
-from django.forms import (
-    ModelForm,
-)
+from django.forms import ModelForm
 from django.forms.widgets import CheckboxInput
 from django_filters import BooleanFilter, CharFilter, ChoiceFilter, FilterSet
 

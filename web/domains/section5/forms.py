@@ -10,7 +10,9 @@ class Section5AuthorityForm(forms.ModelForm):
     files = forms.FileField(
         required=False,
         label="Documents",
-        widget=forms.widgets.ClearableFileInput(attrs={"multiple": True, "onchange": "updateList()"}),
+        widget=forms.widgets.ClearableFileInput(
+            attrs={"multiple": True, "onchange": "updateList()"}
+        ),
     )
     linked_offices = forms.ModelMultipleChoiceField(
         label="Linked Offices",
