@@ -83,8 +83,6 @@ def test_create_firearms_authority():
         "actquantity_set-1-quantity": "1",
     }
     response = client.post(f"/importer/{importer.pk}/firearms-authorities/create/", data=data)
-    with open("response.html", "wb") as f:
-        f.write(response.content)
     assert response.status_code == 302
 
     firearms_authority = FirearmsAuthority.objects.get()
