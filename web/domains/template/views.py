@@ -19,6 +19,10 @@ from .forms import (
 from .models import EndorsementUsage, Template
 
 
+class UnknownTemplateTypeException(Exception):
+    pass
+
+
 class TemplateListView(ModelFilterView):
     template_name = "web/domains/template/list.html"
     model = Template
@@ -107,6 +111,8 @@ def edit_template(request, pk):
         TemplateForm = LetterTemplateForm
     elif template.template_type == Template.LETTER_FRAGMENT:
         TemplateForm = LetterFragmentForm
+    else:
+        raise UnknownTemplateTypeException(f"Unknown template type '{template.template_type}'")
 
     if request.POST:
         form = TemplateForm(request.POST, instance=template)
