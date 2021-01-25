@@ -190,3 +190,18 @@ class ImportContactLegalEntityForm(forms.ModelForm):
             "registration_number": "Registration Number",
             "dealer": "Did you buy from a dealer?",
         }
+
+
+class SubmitOILForm(forms.Form):
+    confirmation = forms.CharField(
+        label='Confirm that you agree to the above by typing "I AGREE", in capitals, in this box'
+    )
+
+    def clean(self):
+        data = super().clean()
+        confirmation = data.get("confirmation")
+
+        if confirmation != "I AGREE":
+            self.add_error(
+                "confirmation", forms.ValidationError("Please agree to the declaration of truth.")
+            )
