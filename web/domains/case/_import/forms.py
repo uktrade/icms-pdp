@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django_select2.forms import ModelSelect2Widget
 from guardian.shortcuts import get_objects_for_user
 
@@ -201,8 +202,6 @@ class SubmitOILForm(forms.Form):
         confirmation = self.cleaned_data["confirmation"]
 
         if confirmation != "I AGREE":
-            self.add_error(
-                "confirmation", forms.ValidationError("Please agree to the declaration of truth.")
-            )
+            raise ValidationError("Please agree to the declaration of truth.")
 
         return confirmation
