@@ -197,11 +197,12 @@ class SubmitOILForm(forms.Form):
         label='Confirm that you agree to the above by typing "I AGREE", in capitals, in this box'
     )
 
-    def clean(self):
-        data = super().clean()
-        confirmation = data.get("confirmation")
+    def clean_confirmation(self):
+        confirmation = self.cleaned_data["confirmation"]
 
         if confirmation != "I AGREE":
             self.add_error(
                 "confirmation", forms.ValidationError("Please agree to the declaration of truth.")
             )
+
+        return confirmation
