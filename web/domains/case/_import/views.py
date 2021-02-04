@@ -468,10 +468,9 @@ def case_oil_view(request, pk):
             OpenIndividualLicenceApplication.objects.select_for_update(), pk=pk
         )
 
-        try:
-            task = application.get_task(ImportApplication.SUBMITTED, "process")
-        except Exception:
-            task = application.get_task(ImportApplication.WITHDRAWN, "process")
+        task = application.get_task(
+            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
+        )
 
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
@@ -493,10 +492,9 @@ def case_oil_withdraw(request, pk):
             OpenIndividualLicenceApplication.objects.select_for_update(), pk=pk
         )
 
-        try:
-            task = application.get_task(ImportApplication.SUBMITTED, "process")
-        except Exception:
-            task = application.get_task(ImportApplication.WITHDRAWN, "process")
+        task = application.get_task(
+            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
+        )
 
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
