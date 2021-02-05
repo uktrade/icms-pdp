@@ -645,7 +645,7 @@ def release_ownership(request, pk):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def management(request, pk):
+def manage_case(request, pk):
     with transaction.atomic():
         application = get_object_or_404(ImportApplication.objects.select_for_update(), pk=pk)
         task = application.get_task(ImportApplication.SUBMITTED, "process")
