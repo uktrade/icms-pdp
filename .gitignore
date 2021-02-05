@@ -114,6 +114,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Pycharm
+.idea
+=======
 /.idea
 
 # Collected static files
@@ -141,3 +144,4 @@ dmypy.json
 
 # test reports
 /test-reports
+
