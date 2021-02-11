@@ -1,4 +1,5 @@
-from web.domains.case._import.models import *  # NOQA
+from web.domains.case._import.firearms.models import *  # NOQA
+from web.domains.case._import.sanctions.models import *  # NOQA
 from web.domains.case.access.approval.models import *  # NOQA
 from web.domains.case.access.models import *  # NOQA
 from web.domains.case.export.models import *  # NOQA

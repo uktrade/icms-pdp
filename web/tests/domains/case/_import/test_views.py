@@ -1,10 +1,8 @@
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 
-from web.domains.case._import.models import (
-    ImportApplicationType,
-    OpenIndividualLicenceApplication,
-)
+from web.domains.case._import.firearms.models import OpenIndividualLicenceApplication
+from web.domains.case._import.models import ImportApplicationType
 from web.tests.auth import AuthTestCase
 from web.tests.domains.case._import.factory import OILApplicationTypeFactory
 from web.tests.domains.importer.factory import ImporterFactory
@@ -14,7 +12,7 @@ LOGIN_URL = "/"
 
 
 class ImportAppplicationCreateViewTest(AuthTestCase):
-    url = "/import/firearms/oil/create/"
+    url = "/import/create/firearms/oil/"
     redirect_url = f"{LOGIN_URL}?next={url}"
 
     def test_anonymous_access_redirects(self):
@@ -34,14 +32,13 @@ class ImportAppplicationCreateViewTest(AuthTestCase):
         importer = ImporterFactory.create(is_active=True, offices=[office])
         assign_perm("web.is_contact_of_importer", self.user, importer)
         self.login_with_permissions(["importer_access"])
-
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            reverse("create-oil"), data={"importer": importer.pk, "importer_office": office.pk}
+        self.client.post(
+            reverse("import:create-oil"),
+            data={"importer": importer.pk, "importer_office": office.pk},
         )
-
         application = OpenIndividualLicenceApplication.objects.get()
         self.assertEqual(application.process_type, OpenIndividualLicenceApplication.PROCESS_TYPE)
 
