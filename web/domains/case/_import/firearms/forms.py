@@ -8,7 +8,11 @@ from web.domains.user.models import User
 from web.forms.widgets import DateInput
 
 from ..forms import CreateImportApplicationForm
-from .models import OpenIndividualLicenceApplication, UserImportCertificate, WithdrawImportApplication
+from .models import (
+    OpenIndividualLicenceApplication,
+    UserImportCertificate,
+    WithdrawImportApplication,
+)
 
 
 class FirearmsForm(CreateImportApplicationForm):

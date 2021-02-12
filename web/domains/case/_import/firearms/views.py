@@ -14,20 +14,14 @@ from web.domains.case._import.firearms.forms import (
     UserImportCertificateForm,
     WithdrawForm,
 )
-from web.domains.case._import.models import (
-    ImportApplication,
-    ImportContact,
-)
+from web.domains.case._import.models import ImportApplication, ImportContact
 from web.domains.case.forms import CloseCaseForm
 from web.domains.file.views import handle_uploaded_file
 from web.domains.template.models import Template
 from web.flow.models import Task
 from web.notify.email import send_email
-# from .firearms.models import OpenIndividualLicenceApplication
-from .models import (
-    OpenIndividualLicenceApplication,
-    UserImportCertificate,
-)
+
+from .models import OpenIndividualLicenceApplication, UserImportCertificate
 
 
 @login_required
@@ -360,8 +354,8 @@ def validate_oil(request, pk):
             know_bought_from = application.importcontact_set.exists()
 
         certificates = (
-                application.userimportcertificate_set.exists()
-                or application.verified_certificates.exists()
+            application.userimportcertificate_set.exists()
+            or application.verified_certificates.exists()
         )
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -392,8 +386,8 @@ def submit_oil(request, pk):
         if know_bought_from == OpenIndividualLicenceApplication.YES:
             know_bought_from = application.importcontact_set.exists()
         certificates = (
-                application.userimportcertificate_set.exists()
-                or application.verified_certificates.exists()
+            application.userimportcertificate_set.exists()
+            or application.verified_certificates.exists()
         )
         if not application.commodity_group or not know_bought_from or not certificates:
             return redirect(reverse("oil-validation", kwargs={"pk": application.pk}))
@@ -485,58 +479,6 @@ def toggle_verified_firearms(request, application_pk, firearms_pk):
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def view_verified_firearms(request, application_pk, firearms_pk):
-    with transaction.atomic():
-        application = get_object_or_404(
-            OpenIndividualLicenceApplication.objects.select_for_update(), pk=application_pk
-        )
-        firearms_authority = get_object_or_404(
-            application.importer.firearms_authorities.active(), pk=firearms_pk
-        )
-
-        task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
-        context = {
-            "process_template": "web/domains/case/import/partials/process.html",
-            "process": application,
-            "task": task,
-            "page_title": "Open Individual Import Licence - Verified Certificate",
-            "firearms_authority": firearms_authority,
-        }
-        return render(
-            request, "web/domains/case/import/firearms/certificates/view-verified.html", context
-        )
-
-
-@login_required
-@permission_required("web.importer_access", raise_exception=True)
-def case_oil_view(request, pk):
-    with transaction.atomic():
-        application = get_object_or_404(
-            OpenIndividualLicenceApplication.objects.select_for_update(), pk=pk
-        )
-
-        task = application.get_task(
-            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
-        )
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
-        context = {
-            "process_template": "web/domains/case/import/partials/process.html",
-            "process": application,
-            "task": task,
-            "page_title": "Open Individual Import Licence",
-        }
-        return render(request, "web/domains/case/import/firearms/oil/view.html", context)
-
-
-@login_required
-@permission_required("web.importer_access", raise_exception=True)
 def case_oil_withdraw(request, pk):
     with transaction.atomic():
         application = get_object_or_404(
@@ -610,32 +552,6 @@ def case_oil_withdraw_archive(request, application_pk, withdrawal_pk):
         Task.objects.create(process=application, task_type="process", previous=task)
 
         return redirect(reverse("withdraw-oil-case", kwargs={"pk": application_pk}))
-
-
-@login_required
-@permission_required("web.importer_access", raise_exception=True)
-@require_POST
-def toggle_verified_firearms(request, application_pk, firearms_pk):
-    with transaction.atomic():
-        application = get_object_or_404(
-            OpenIndividualLicenceApplication.objects.select_for_update(), pk=application_pk
-        )
-        firearms_authority = get_object_or_404(
-            application.importer.firearms_authorities.active(), pk=firearms_pk
-        )
-
-        application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
-        certificate, created = application.verified_certificates.get_or_create(
-            firearms_authority=firearms_authority
-        )
-        if not created:
-            certificate.delete()
-
-        return redirect(reverse("list-user-import-certificates", kwargs={"pk": application_pk}))
 
 
 @login_required

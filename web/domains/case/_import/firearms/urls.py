@@ -57,7 +57,6 @@ urlpatterns = [
         views.edit_import_contact,
         name="edit-import-contact",
     ),
-
     path(
         "case/firearms/oil/<int:pk>/take_ownership/",
         views.take_ownership,
@@ -125,5 +124,4 @@ urlpatterns = [
         views.edit_import_contact,
         name="edit-import-contact",
     ),
-
 ]

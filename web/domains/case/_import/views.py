@@ -4,30 +4,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import TemplateView
-from guardian.shortcuts import get_users_with_perms
-from django.core.exceptions import PermissionDenied
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render, reverse
 
-from django.views.decorators.http import require_POST
-
-from web.domains.case._import.firearms.forms import (
-    ImportContactLegalEntityForm,
-    ImportContactPersonForm,
-    PrepareOILForm,
-    SubmitOILForm,
-    UserImportCertificateForm,
-    WithdrawForm,
-)
-from web.domains.case._import.models import (
-    ImportApplication,
-    ImportContact,
-)
-from web.domains.case.forms import CloseCaseForm
-from web.domains.file.views import handle_uploaded_file
-from web.domains.template.models import Template
 from web.flow.models import Task
-from web.notify.email import send_email
 
 from .firearms.models import OpenIndividualLicenceApplication
 from .forms import CreateImportApplicationForm
@@ -83,4 +61,3 @@ def _create_application(request, import_application_type, model_class, redirect_
 
         context = {"form": form, "import_application_type": import_application_type}
         return render(request, "web/domains/case/import/create.html", context)
-

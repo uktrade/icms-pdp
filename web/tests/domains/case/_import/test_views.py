@@ -3,12 +3,13 @@ from django.test import Client
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 
+from web.domains.case._import.firearms.models import OpenIndividualLicenceApplication
+from web.domains.case._import.models import ImportApplicationType
+
 # from web.domains.case._import.models import (
 #     # OpenIndividualLicenceApplication,
 # )
 from web.domains.importer.models import Importer
-from web.domains.case._import.firearms.models import OpenIndividualLicenceApplication
-from web.domains.case._import.models import ImportApplicationType
 from web.tests.auth import AuthTestCase
 from web.tests.domains.case._import.factory import (
     OILApplicationFactory,
@@ -89,7 +90,9 @@ def test_take_ownership():
     response_workbasket = client.get("/workbasket/")
     assert "Take Ownership" in response_workbasket.content.decode()
 
-    response = client.post(f"/import/firearms/case/firearms/oil/{process.pk}/take_ownership/", follow=True)
+    response = client.post(
+        f"/import/firearms/case/firearms/oil/{process.pk}/take_ownership/", follow=True
+    )
     assert "Manage" in response.content.decode()
 
 

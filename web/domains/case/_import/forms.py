@@ -2,13 +2,6 @@ from django import forms
 from django_select2.forms import ModelSelect2Widget
 from guardian.shortcuts import get_objects_for_user
 
-from web.domains.case._import.models import (
-    ImportApplicationType,
-    ImportContact,
-    # WithdrawImportApplication,
-)
-from web.domains.commodity.models import CommodityGroup, CommodityType
-from web.domains.country.models import Country
 from web.domains.importer.models import Importer
 from web.domains.office.models import Office
 
@@ -57,4 +50,3 @@ class CreateImportApplicationForm(forms.Form):
         self.fields["importer_office"].queryset = Office.objects.filter(
             is_active=True, importer__in=importers
         )
-
