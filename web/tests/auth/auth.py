@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 
 from web.models import User
-from web.tests.domains.user.factory import UserFactory
+from web.tests.domains.user.factory import PhoneNumberFactory, UserFactory
 
 
 class AuthTestCase(TestCase):
@@ -20,6 +20,7 @@ class AuthTestCase(TestCase):
             account_status=User.ACTIVE,
             is_active=True,
         )
+        self.number = PhoneNumberFactory.create(user=self.user)
 
     def grant(self, permission_codename):
         permission = Permission.objects.get(codename=permission_codename)
