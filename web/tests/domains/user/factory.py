@@ -4,7 +4,7 @@ import factory
 import factory.fuzzy
 from django.contrib.auth.models import Permission
 
-from web.domains.user.models import User
+from web.domains.user.models import PhoneNumber, User
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -41,3 +41,12 @@ class ActiveUserFactory(UserFactory):
     is_active = True
     is_staff = False
     password_disposition = User.FULL
+
+
+class PhoneNumberFactory(factory.django.DjangoModelFactory):
+    phone = factory.Faker("phone_number")
+    type = factory.fuzzy.FuzzyChoice(PhoneNumber.TYPES, getter=lambda r: r[0])
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = PhoneNumber

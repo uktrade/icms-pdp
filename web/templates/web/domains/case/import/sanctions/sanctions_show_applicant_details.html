@@ -142,7 +142,7 @@
 
                                             <span id="g42" class="text-widget" aria-describedby="hint51-content">
                                             <ul style="padding: 0;">
-                                            {% for number in process.submitted_by.phone_numbers.all() %}
+                                            {% for number in process.created_by.phone_numbers.all() %}
                                                 <li style="list-style:none;" >{{ number.phone }} - ({{ number.entity_type }}) <span id="hint51" aria-describedby="hint51-content" class="hint icon-info"></span> </li>
                                             {%  endfor %}
                                             </ul>
