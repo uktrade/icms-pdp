@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 
 from web.domains.case._import.models import ImportApplicationType
 from web.domains.case.export.models import ExportApplicationType
-from web.domains.country.models import CountryGroup
+from web.domains.country.models import Country, CountryGroup
 from web.flow.models import Process, Task
 
 from .models import (
@@ -31,6 +31,7 @@ admin.site.register(Importer)
 admin.site.register(ImportApplicationType)
 admin.site.register(ExportApplicationType)
 admin.site.register(CountryGroup)
+admin.site.register(Country)
 
 
 @admin.register(Permission)
