@@ -230,12 +230,14 @@ def load_country_group_data_certificate_of_free_sale_countries(apps, schema_edit
     CountryGroup = apps.get_model("web", "CountryGroup")
     group = CountryGroup.objects.create(name="Certificate of Free Sale Countries")
     group.comments = textwrap.dedent(
-        """ Added Maldives 22/11/16
+        """\
+            Added Maldives 22/11/16
             Added Zambia 14/03/2017
             Added Aruba 10/05/2017
             Added Mali 21/09/2018
             Added Rwanda 27/09/18
-            Added Uganda 26/02/19"""
+            Added Uganda 26/02/19
+            """
     )
 
     countries = [
@@ -575,7 +577,8 @@ def load_country_group_data_firearms_and_ammunition_SIL_COCs(apps, schema_editor
     CountryGroup = apps.get_model("web", "CountryGroup")
     group = CountryGroup.objects.create(name="Firearms and Ammunition (SIL) COCs")
     group.comments = textwrap.dedent(
-        """Removed 'any EU country' 29/08/19
+        """\
+        Removed 'any EU country' 29/08/19
         Potential for breach of sanctions - removed Any Country and Any non-EU Country. 14/12/15
         Sanctions - Removed Iran, North Korea, Libya and Syria.
         Removed UK.
@@ -748,11 +751,13 @@ def load_country_group_data_firearms_and_ammunition_SIL_COOs(apps, schema_editor
     CountryGroup = apps.get_model("web", "CountryGroup")
     group = CountryGroup.objects.create(name="Firearms and Ammunition (SIL) COOs")
     group.comments = textwrap.dedent(
-        """Removed 'any EU country' 29/08/19
+        """\
+        Removed 'any EU country' 29/08/19
         Potential for breach of sanctions - removed Any Country and Any non-EU Country. 15/12/15
         Sanctions - Removed Iran, North Korea, Libya and Syria.
         Removed Russian Federation 01/08/14.
-        Added Bolivia, Costa Rica, El Salvador, Nicaragua, Occupied Palestinian Territories, Paraguay - 28/04/15"""
+        Added Bolivia, Costa Rica, El Salvador, Nicaragua, Occupied Palestinian Territories, Paraguay - 28/04/15
+        """
     )
     countries = [
         "Afghanistan",
