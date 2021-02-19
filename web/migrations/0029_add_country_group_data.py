@@ -586,8 +586,6 @@ def load_country_group_data_firearms_and_ammunition_SIL_COCs(apps, schema_editor
         Added Bolivia, Costa Rica, El Salvador, Nicaragua, Occupied Palestinian Territories, Paraguay - 28/04/15"""
     )
     countries = [
-        "Any Country",
-        "Any Country",
         "Afghanistan",
         "Albania",
         "Algeria",
