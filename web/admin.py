@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 
 from web.domains.case._import.firearms.models import VerifiedCertificate
 from web.domains.case._import.models import ImportApplication, ImportApplicationType
-from web.domains.case.export.models import ExportApplicationType
+from web.domains.case.export.models import ExportApplication, ExportApplicationType
 from web.domains.country.models import Country, CountryGroup
 from web.flow.models import Process, Task
 
@@ -35,6 +35,7 @@ admin.site.register(CountryGroup)
 admin.site.register(Country)
 admin.site.register(ImportApplication)
 admin.site.register(VerifiedCertificate)
+admin.site.register(ExportApplication)
 
 
 @admin.register(Permission)

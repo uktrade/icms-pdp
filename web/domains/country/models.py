@@ -16,10 +16,7 @@ class Country(models.Model):
     hmrc_code = models.CharField(max_length=20, blank=False, null=False)
 
     def __str__(self):
-        if self.id:
-            return f"{self.name}"
-        else:
-            return "(new)"
+        return self.name
 
     @property
     def name_slug(self):
@@ -27,18 +24,16 @@ class Country(models.Model):
 
     class Meta:
         ordering = ("name",)
+        unique_together = ["name", "is_active"]
 
 
 class CountryGroup(models.Model):
-    name = models.CharField(max_length=4000, blank=False, null=False)
-    comments = models.CharField(max_length=4000, blank=True, null=True)
+    name = models.CharField(max_length=4000, blank=False, null=False, unique=True)
+    comments = models.TextField(blank=True, null=True)
     countries = models.ManyToManyField(Country, blank=True, related_name="country_groups")
 
     def __str__(self):
-        if self.id:
-            return f"Country Group ({self.name})"
-        else:
-            return "Country Group (new) "
+        return f"{self.name} - ({self.countries.count()} countries)"
 
     class Meta:
         ordering = ("name",)
