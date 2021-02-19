@@ -24,12 +24,14 @@ class Country(models.Model):
 
     class Meta:
         ordering = ("name",)
-        unique_together = ["name", "is_active"]
+        constraints = [
+            models.UniqueConstraint(fields=["name", "is_active"], name="country_group_unique")
+        ]
 
 
 class CountryGroup(models.Model):
     name = models.CharField(max_length=4000, blank=False, null=False, unique=True)
-    comments = models.TextField(blank=True, null=True)
+    comments = models.CharField(max_length=4000, blank=True, null=True)
     countries = models.ManyToManyField(Country, blank=True, related_name="country_groups")
 
     def __str__(self):

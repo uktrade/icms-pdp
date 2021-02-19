@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission
@@ -19,6 +20,19 @@ from .models import (
     User,
 )
 
+
+class CountryGroupModelForm(forms.ModelForm):
+    comments = forms.CharField(widget=forms.Textarea)
+
+    class Meta:
+        model = CountryGroup
+        fields = ["name", "comments", "countries"]
+
+
+class CountryGroupAdmin(admin.ModelAdmin):
+    form = CountryGroupModelForm
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(CommodityType)
 admin.site.register(Commodity)
@@ -31,7 +45,7 @@ admin.site.register(PersonalEmail)
 admin.site.register(Importer)
 admin.site.register(ImportApplicationType)
 admin.site.register(ExportApplicationType)
-admin.site.register(CountryGroup)
+admin.site.register(CountryGroup, CountryGroupAdmin)
 admin.site.register(Country)
 admin.site.register(ImportApplication)
 admin.site.register(VerifiedCertificate)

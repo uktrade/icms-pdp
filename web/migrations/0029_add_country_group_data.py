@@ -1090,7 +1090,7 @@ def load_country_group_data_non_EU_single_countries(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("web", "0027_add_country_data"),
+        ("web", "0028_alter_country_and_country_group"),
     ]
 
     operations = [
