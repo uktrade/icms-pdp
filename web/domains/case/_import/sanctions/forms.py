@@ -45,11 +45,9 @@ class SanctionsAndAdhocLicenseForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        application = kwargs.get("application")
-        del kwargs["application"]
         super().__init__(*args, **kwargs)
         users = get_users_with_perms(
-            application.importer, only_with_perms_in=["is_contact_of_importer"]
+            self.instance.importer, only_with_perms_in=["is_contact_of_importer"]
         )
         self.fields["contact"].queryset = users.filter(is_active=True)
         self.fields["origin_country"].queryset = CountryGroup.objects.get(

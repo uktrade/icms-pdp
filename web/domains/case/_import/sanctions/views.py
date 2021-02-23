@@ -24,29 +24,35 @@ def edit_sanctions_and_adhoc_licence_application(request, pk):
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-    form = SanctionsAndAdhocLicenseForm(application=application)
+        if request.method == "POST":
+            form = SanctionsAndAdhocLicenseForm(data=request.POST, instance=application)
 
-    if request.POST:
-        form = SanctionsAndAdhocLicenseForm(data=request.POST, application=application)
+            if form.is_valid():
+                form.save()
 
-        if form.is_valid():
-            form.save()
-            return redirect(
-                reverse("import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk})
+                return redirect(
+                    reverse(
+                        "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk}
+                    )
+                )
+
+        else:
+            form = SanctionsAndAdhocLicenseForm(
+                instance=application, initial={"contact": request.user}
             )
 
-    context = {
-        "process_template": "web/domains/case/import/partials/process.html",
-        "process": application,
-        "task": task,
-        "form": form,
-        "page_title": "Sanctions and Adhoc License Application",
-    }
-    return render(
-        request,
-        "web/domains/case/import/sanctions/edit_sanctions_and_adhoc_licence_application.html",
-        context,
-    )
+        context = {
+            "process_template": "web/domains/case/import/partials/process.html",
+            "process": application,
+            "task": task,
+            "form": form,
+            "page_title": "Sanctions and Adhoc License Application",
+        }
+        return render(
+            request,
+            "web/domains/case/import/sanctions/edit_sanctions_and_adhoc_licence_application.html",
+            context,
+        )
 
 
 @login_required
