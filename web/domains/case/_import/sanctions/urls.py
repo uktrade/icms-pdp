@@ -4,14 +4,9 @@ from . import views
 
 urlpatterns = [
     re_path(
-        "applicant-details/(?P<pk>[0-9]+)/",
-        views.sanctions_show_applicant_details,
-        name="sanctions-show-applicant-details",
-    ),
-    re_path(
-        "sanctions-and-adhoc-licence-application-details/(?P<pk>[0-9]+)/",
-        views.sanctions_and_adhoc_licence_application_details,
-        name="sanctions-and-adhoc-licence-application-details",
+        "(?P<pk>[0-9]+)/edit",
+        views.edit_sanctions_and_adhoc_licence_application,
+        name="edit-sanctions-and-adhoc-licence-application",
     ),
     re_path(
         "validation-summary/(?P<pk>[0-9]+)/",
