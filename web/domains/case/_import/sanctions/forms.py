@@ -1,7 +1,7 @@
 from django import forms
 from guardian.shortcuts import get_users_with_perms
 
-from web.domains.country.models import Country, CountryGroup
+from web.domains.country.models import Country
 from web.domains.user.models import User
 
 from .models import SanctionsAndAdhocApplication
@@ -55,10 +55,3 @@ class SanctionsAndAdhocLicenseForm(forms.ModelForm):
             self.instance.importer, only_with_perms_in=["is_contact_of_importer"]
         )
         self.fields["contact"].queryset = users.filter(is_active=True)
-        self.fields["origin_country"].queryset = CountryGroup.objects.get(
-            name="Sanctions and Adhoc License"
-        ).countries.all()
-
-        self.fields["consignment_country"].queryset = CountryGroup.objects.get(
-            name="Sanctions and Adhoc License"
-        ).countries.all()

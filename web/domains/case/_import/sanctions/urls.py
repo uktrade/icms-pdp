@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path(
-        "<int:pk>/edit",
+        "<int:pk>/edit/",
         views.edit_sanctions_and_adhoc_licence_application,
         name="edit-sanctions-and-adhoc-licence-application",
     ),
