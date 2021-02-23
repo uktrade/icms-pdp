@@ -19,10 +19,15 @@ class SanctionsAndAdhocLicenseForm(forms.ModelForm):
         required=False,
     )
     origin_country = forms.ModelChoiceField(
-        label="Country Of Origin", empty_label=None, queryset=Country.objects.none()
+        label="Country Of Origin",
+        empty_label=None,
+        queryset=Country.objects.filter(country_groups__name="Sanctions and Adhoc License"),
     )
+
     consignment_country = forms.ModelChoiceField(
-        label="Country Of Consignment", empty_label=None, queryset=Country.objects.none()
+        label="Country Of Consignment",
+        empty_label=None,
+        queryset=Country.objects.filter(country_groups__name="Sanctions and Adhoc License"),
     )
     exporter_name = forms.CharField(
         label="Exporter Name",
@@ -53,6 +58,7 @@ class SanctionsAndAdhocLicenseForm(forms.ModelForm):
         self.fields["origin_country"].queryset = CountryGroup.objects.get(
             name="Sanctions and Adhoc License"
         ).countries.all()
+
         self.fields["consignment_country"].queryset = CountryGroup.objects.get(
             name="Sanctions and Adhoc License"
         ).countries.all()

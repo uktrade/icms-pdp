@@ -1,20 +1,20 @@
-from django.urls import re_path
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    re_path(
-        "(?P<pk>[0-9]+)/edit",
+    path(
+        "<int:pk>/edit",
         views.edit_sanctions_and_adhoc_licence_application,
         name="edit-sanctions-and-adhoc-licence-application",
     ),
-    re_path(
-        "validation-summary/(?P<pk>[0-9]+)/",
+    path(
+        "validation-summary/<int:pk>/",
         views.sanctions_validation_summary,
         name="sanctions-validation-summary",
     ),
-    re_path(
-        "application-submit/(?P<pk>[0-9]+)/",
+    path(
+        "application-submit/<int:pk>/",
         views.sanctions_application_submit,
         name="sanctions-submit",
     ),
