@@ -4,28 +4,15 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission
 
 from web.domains.case._import.firearms.models import VerifiedCertificate
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-from web.domains.case._import.models import ImportApplication
-from web.domains.case._import.models import ImportApplicationType
-from web.domains.case.export.models import ExportApplication
-from web.domains.case.export.models import ExportApplicationType
+from web.domains.case._import.models import ImportApplication, ImportApplicationType
 from web.domains.case.export.models import (
+    ExportApplication,
+    ExportApplicationType,
     Exporter,
 )
-=======
-from web.domains.case._import.models import ImportApplication, ImportApplicationType
-from web.domains.case.export.models import ExportApplication, ExportApplicationType
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
-from web.domains.case._import.models import ImportApplication, ImportApplicationType
-from web.domains.case.export.models import ExportApplication, ExportApplicationType
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 from web.domains.country.models import Country, CountryGroup
 from web.flow.models import Process, Task
+
 from .models import (
     Commodity,
     CommodityGroup,
