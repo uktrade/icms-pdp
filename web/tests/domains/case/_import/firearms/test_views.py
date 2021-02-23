@@ -1,14 +1,6 @@
 import pytest
-
 from django.test import Client
 from django.urls import reverse
-
-
-@pytest.mark.django_db
-def test_manage_checklist():
-    pass
-
-
 from guardian.shortcuts import assign_perm
 
 from web.domains.case._import.firearms.models import OpenIndividualLicenceApplication
@@ -25,6 +17,11 @@ from web.tests.domains.user.factory import ActiveUserFactory
 from web.tests.flow.factories import TaskFactory
 
 LOGIN_URL = "/"
+
+
+@pytest.mark.django_db
+def test_manage_checklist():
+    pass
 
 
 class ImportAppplicationCreateViewTest(AuthTestCase):
