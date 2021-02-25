@@ -11,15 +11,14 @@ services:
             - POSTGRES_PASSWORD=password
         ports:
             - "5432:5432"
+
     web:
-        # stdin_open: true
-        restart: unless-stopped
         build:
             context: .
-        # user: ${UID}
         entrypoint: dockerize -wait tcp://db:5432 -timeout 20s
         command: scripts/entry.sh
         environment:
+            - PYTHONUNBUFFERED=1
             - ICMS_WEB_PORT
             - ICMS_DEBUG
             - ICMS_NUM_WORKERS # Gunicorn workers number
@@ -44,12 +43,13 @@ services:
             - CLAM_AV_USERNAME
             - CLAM_AV_PASSWORD
             - CLAM_AV_URL
-        # tty: true
         ports:
-            - "8080:8080"
+            - "${ICMS_WEB_PORT}:${ICMS_WEB_PORT}"
         depends_on:
             - db
             - redis
+        stdin_open: true
+        tty: true
         volumes:
             - ./test-reports:/code/test-reports # needed for ci
             - .:/code
@@ -87,26 +87,6 @@ services:
             - ls_data:/tmp/localstack
             - "/var/run/docker.sock:/var/run/docker.sock"
 
-    selenium-hub:
-        image: selenium/hub:3.141.59-vanadium
-        container_name: selenium-hub
-        ports:
-            - "4444:4444"
-            - "49154:49154"
-        depends_on:
-            - web
-
-    chrome:
-        image: selenium/node-chrome-debug:3.141.59-vanadium
-        volumes:
-            - /dev/shm:/dev/shm
-        depends_on:
-            - selenium-hub
-        environment:
-            - HUB_HOST=selenium-hub
-            - HUB_PORT=4444
-        ports:
-            - "5900:5900"
 
 volumes:
     pgdata:
