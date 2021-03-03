@@ -56,7 +56,14 @@
           </div>
           <div class="four columns"></div>
         </div>
+
+        <div class="row">
+        {% block subtasks %}
+        {% endblock subtasks %}
+        </div>
+
       </div>
     </div>
   {% endcall %}
+
 {% endblock %}
