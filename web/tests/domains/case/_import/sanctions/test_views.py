@@ -334,12 +334,11 @@ class SanctionsAndAdhocImportAppplicationAddEditGoods(AuthTestCase):
         data = {"action": "delete", "item": goods.pk}
         response = self.client.post(
             reverse(
-                "import:edit-sanctions-and-adhoc-licence-application",
-                kwargs={"pk": self.process.pk},
+                "import:delete-goods",
+                kwargs={"application_pk": self.process.pk, "goods_pk": goods.pk},
             ),
             data=data,
         )
-
         assert response.status_code == 302
         assert response.url == reverse(
             "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": self.process.pk}

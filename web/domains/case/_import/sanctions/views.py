@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.views.decorators.http import require_POST
 
 from web.domains.case._import.models import ImportApplication
 
@@ -28,13 +29,6 @@ def edit_sanctions_and_adhoc_licence_application(request, pk):
         application_started = False
         if application.origin_country is not None and application.consignment_country is not None:
             application_started = True
-
-        if request.method == "POST" and "delete" in request.POST.get("action", []):
-            goods_pk = request.POST.get("item")
-            SanctionsAndAdhocApplicationGoods.objects.get(pk=str(goods_pk)).delete()
-            return redirect(
-                reverse("import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk})
-            )
 
         if request.method == "POST":
             form = SanctionsAndAdhocLicenseForm(data=request.POST, instance=application)
@@ -135,7 +129,7 @@ def edit_goods(request, application_pk, goods_pk):
                     )
                 )
         else:
-            form = GoodsForm(instance=SanctionsAndAdhocApplicationGoods.objects.get(pk=goods_pk))
+            form = GoodsForm(instance=goods)
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -153,25 +147,22 @@ def edit_goods(request, application_pk, goods_pk):
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
+@require_POST
 def delete_goods(request, application_pk, goods_pk):
-    if request.method == "POST":
-
-        with transaction.atomic():
-            application = get_object_or_404(
-                SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
-            )
-            if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-                raise PermissionDenied
-
-            get_object_or_404(
-                application.sanctionsandadhocapplicationgoods_set, pk=goods_pk
-            ).delete()
-
-        return redirect(
-            reverse(
-                "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": application_pk}
-            )
+    with transaction.atomic():
+        application = get_object_or_404(
+            SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
+        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
+            raise PermissionDenied
+
+        get_object_or_404(application.sanctionsandadhocapplicationgoods_set, pk=goods_pk).delete()
+
+    return redirect(
+        reverse(
+            "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": application_pk}
+        )
+    )
 
 
 @login_required
