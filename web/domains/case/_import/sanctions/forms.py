@@ -57,6 +57,7 @@ class SanctionsAndAdhocLicenseForm(forms.ModelForm):
 
 class GoodsForm(forms.ModelForm):
     class Meta:
+        # TODO restrict commodities to group when it becomes known
         model = SanctionsAndAdhocApplicationGoods
         fields = ["commodity_code", "goods_description", "quantity_amount", "value"]
         widgets = {

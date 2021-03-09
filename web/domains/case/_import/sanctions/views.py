@@ -80,10 +80,6 @@ def add_goods(request, pk):
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        application_started = False
-        if application.origin_country is not None and application.consignment_country is not None:
-            application_started = True
-
         if request.method == "POST":
             goods_form = GoodsForm(request.POST)
             if goods_form.is_valid():
@@ -103,7 +99,6 @@ def add_goods(request, pk):
             "process": application,
             "task": task,
             "form": goods_form,
-            "application_started": application_started,
             "page_title": "Sanctions and Adhoc License Application",
         }
         return render(
@@ -115,31 +110,32 @@ def add_goods(request, pk):
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def edit_goods(request, pk, goodspk):
+def edit_goods(request, application_pk, goods_pk):
     with transaction.atomic():
         application = get_object_or_404(
-            SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
+            SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
+
+        goods = get_object_or_404(application.sanctionsandadhocapplicationgoods_set, pk=goods_pk)
 
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
         if request.method == "POST":
-            form = GoodsForm(
-                request.POST, instance=SanctionsAndAdhocApplicationGoods.objects.get(pk=goodspk)
-            )
+            form = GoodsForm(request.POST, instance=goods)
             if form.is_valid():
                 obj = form.save(commit=False)
                 obj.import_application = application
                 obj.save()
                 return redirect(
                     reverse(
-                        "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk}
+                        "import:edit-sanctions-and-adhoc-licence-application",
+                        kwargs={"pk": application_pk},
                     )
                 )
         else:
-            form = GoodsForm(instance=SanctionsAndAdhocApplicationGoods.objects.get(pk=goodspk))
+            form = GoodsForm(instance=SanctionsAndAdhocApplicationGoods.objects.get(pk=goods_pk))
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -152,6 +148,29 @@ def edit_goods(request, pk, goodspk):
             request,
             "web/domains/case/import/sanctions/add_or_edit_goods.html",
             context,
+        )
+
+
+@login_required
+@permission_required("web.importer_access", raise_exception=True)
+def delete_goods(request, application_pk, goods_pk):
+    if request.method == "POST":
+
+        with transaction.atomic():
+            application = get_object_or_404(
+                SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
+            )
+            if not request.user.has_perm("web.is_contact_of_importer", application.importer):
+                raise PermissionDenied
+
+            get_object_or_404(
+                application.sanctionsandadhocapplicationgoods_set, pk=goods_pk
+            ).delete()
+
+        return redirect(
+            reverse(
+                "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": application_pk}
+            )
         )
 
 

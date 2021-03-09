@@ -190,7 +190,7 @@ class SanctionsAndAdhocImportAppplicationAddEditGoods(AuthTestCase):
         )
 
         self.add_url = f"/import/sanctions/{self.process.pk}/add-goods/"
-        self.edit_url = f"/import/sanctions/{self.process.pk}/edit-goods/{self.goods.pk}/"
+        self.edit_url = f"/import/sanctions/{self.process.pk}/goods/{self.goods.pk}/edit/"
         self.add_redirect_url = f"{LOGIN_URL}?next={self.add_url}"
         self.edit_redirect_url = f"{LOGIN_URL}?next={self.edit_url}"
 
@@ -250,6 +250,7 @@ class SanctionsAndAdhocImportAppplicationAddEditGoods(AuthTestCase):
 
     def test_edit_anonymous_access_redirects(self):
         response = self.client.get(self.edit_url)
+
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, self.edit_redirect_url)
 
@@ -300,7 +301,10 @@ class SanctionsAndAdhocImportAppplicationAddEditGoods(AuthTestCase):
             "value": new_num,
         }
         response = self.client.post(
-            reverse("import:edit-goods", kwargs={"pk": self.process.pk, "goodspk": goods.pk}),
+            reverse(
+                "import:edit-goods",
+                kwargs={"application_pk": self.process.pk, "goods_pk": goods.pk},
+            ),
             data=data,
         )
 

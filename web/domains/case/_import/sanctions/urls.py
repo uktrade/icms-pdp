@@ -14,9 +14,14 @@ urlpatterns = [
         name="add-goods",
     ),
     path(
-        "<int:pk>/edit-goods/<int:goodspk>/",
+        "<int:application_pk>/goods/<int:goods_pk>/edit/",
         views.edit_goods,
         name="edit-goods",
+    ),
+    path(
+        "<int:application_pk>/goods/<int:goods_pk>/delete/",
+        views.delete_goods,
+        name="delete-goods",
     ),
     path(
         "validation-summary/<int:pk>/",

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("web", "0037_add_template_data"),
+        ("web", "0039_woodquotaapplication"),
     ]
 
     operations = [
