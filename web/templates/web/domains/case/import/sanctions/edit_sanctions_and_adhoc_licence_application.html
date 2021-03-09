@@ -60,12 +60,10 @@
                                href="{{ url('import:edit-goods', kwargs={'application_pk': process.pk, 'goods_pk': row.pk}) }}"></a>
 
                             <form action="{{ url('import:delete-goods', kwargs={'application_pk': process.pk, 'goods_pk': row.pk}) }}", method="POST">
+                                {{ csrf_input }}
                                 <button role="action-button"
                                         class="link-button button no-prompt-action tooltipstered icon-bin"
                                         aria-label="Delete"
-                                        data-input_action="delete"
-                                        data-input_csrfmiddlewaretoken="{{ csrf_token }}"
-                                        data-input_item="{{ row.pk }}"
                                         data-confirm="Are you sure you want to delete this record?">
                                 </button>
                             </form>
