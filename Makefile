@@ -129,8 +129,8 @@ psql: ## Starts psql
 all: requirements-web
 
 local_s3: ## creates s3 buckets on localstack container
-	aws --endpoint-url=http://localhost:4572 s3 mb s3://icms.local
-	aws --endpoint-url=http://localhost:4572 s3api put-bucket-acl --bucket icms.local --acl public-read
+	aws --endpoint-url=http://localhost:4566 s3 mb s3://icms.local
+	aws --debug --endpoint-url=http://localhost:4566 s3api put-bucket-acl --bucket icms.local --acl public-read
 
 ##@ Server
 debug: ## runs system in debug mode

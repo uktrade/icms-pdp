@@ -203,7 +203,7 @@ if "redis" in VCAP_SERVICES:
     REDIS_URL = VCAP_SERVICES["redis"][0]["credentials"]["uri"]
 else:
     REDIS_URL = env.str("REDIS_URL", "redis://redis:6379")
-
+AWS_S3_ENDPOINT_URL = "http://localstack:4566/"
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = REDIS_URL

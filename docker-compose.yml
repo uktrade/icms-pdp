@@ -113,8 +113,7 @@ services:
             - HUB_PORT=4444
         ports:
             - "5900:5900"
-
 volumes:
-    pgdata:
-    ls_data:
-    redis_data:
+  pgdata:
+  ls_data:
+  redis_data:
