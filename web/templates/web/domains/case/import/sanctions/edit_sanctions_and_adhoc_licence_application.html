@@ -107,6 +107,7 @@
                         <td>
 
                             <form action="{{ icms_url('import:delete-document', kwargs={'application_pk': process.pk, 'document_pk': row.pk}) }}", method="POST">
+                            <form action="{{ url('import:delete-document', kwargs={'application_pk': process.pk, 'document_pk': row.pk}) }}", method="POST">
                                 {{ csrf_input }}
                                 <button role="action-button"
                                         type="submit"
