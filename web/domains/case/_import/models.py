@@ -268,7 +268,7 @@ class ImportApplication(WorkbasketBase, Process):
 
     @property
     def licence_issue_date(self):
-        return self.issue_date or timezone.now()
+        return self.issue_date or timezone.now().date()
 
 
 class ImportContact(models.Model):

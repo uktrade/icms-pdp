@@ -1,3 +1,4 @@
+import weasyprint
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -11,7 +12,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 from guardian.shortcuts import get_users_with_perms
-from weasyprint import HTML
 
 from web.domains.case.forms import CloseCaseForm
 from web.domains.importer.models import Importer
@@ -723,11 +723,11 @@ def preview_cover_letter(request, pk):
             context=context,
         )
 
-        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
         pdf_file = html.write_pdf()
 
-        response = HttpResponse(pdf_file, content_type="application/pdf;")
-        response["Content-Disposition"] = "filename=Cover Letter.pdf"
+        response = HttpResponse(pdf_file, content_type="application/pdf")
+        response["Content-Disposition"] = "filename=CoverLetter.pdf"
         return response
 
 
@@ -753,9 +753,9 @@ def preview_licence(request, pk):
             context=context,
         )
 
-        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
         pdf_file = html.write_pdf()
 
-        response = HttpResponse(pdf_file, content_type="application/pdf;")
+        response = HttpResponse(pdf_file, content_type="application/pdf")
         response["Content-Disposition"] = "filename=Licence.pdf"
         return response
