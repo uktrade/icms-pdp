@@ -4,7 +4,11 @@ from guardian.shortcuts import get_users_with_perms
 from web.domains.country.models import Country
 from web.domains.user.models import User
 
-from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
+from .models import (
+    SanctionsAndAdhocApplication,
+    SanctionsAndAdhocApplicationGoods,
+    SanctionsDocument,
+)
 
 
 class SanctionsAndAdhocLicenseForm(forms.ModelForm):
@@ -64,3 +68,11 @@ class GoodsForm(forms.ModelForm):
             "goods_description": forms.Textarea(attrs={"cols": 80, "rows": 20}),
         }
         labels = {"value": "Value (GBP CIF)"}
+
+
+class DocumentForm(forms.ModelForm):
+    file = forms.FileField(required=True, widget=forms.ClearableFileInput())
+
+    class Meta:
+        model = SanctionsDocument
+        fields = ["file"]

@@ -24,6 +24,16 @@ urlpatterns = [
         name="delete-goods",
     ),
     path(
+        "<int:pk>/add-document/",
+        views.add_document,
+        name="add-document",
+    ),
+    path(
+        "<int:application_pk>/documents/<int:document_pk>/delete/",
+        views.delete_document,
+        name="delete-document",
+    ),
+    path(
         "validation-summary/<int:pk>/",
         views.sanctions_validation_summary,
         name="sanctions-validation-summary",
