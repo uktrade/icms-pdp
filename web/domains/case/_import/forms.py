@@ -132,8 +132,7 @@ class LicenceDateForm(forms.ModelForm):
             return
         today = timezone.now().date()
 
-        error_message = "Date must be in the future."
         if start_date < today:
-            self.add_error("licence_start_date", error_message)
+            self.add_error("licence_start_date", "Date must be in the future.")
         if start_date > end_date:
-            self.add_error("licence_end_date", error_message)
+            self.add_error("licence_end_date", "End Date must be after Start Date.")
