@@ -34,6 +34,11 @@ def test_preview_cover_letter():
     assert response["Content-Type"] == "application/pdf"
     assert response["Content-Disposition"] == "filename=CoverLetter.pdf"
 
+    pdf = response.content
+    assert pdf.startswith(b"%PDF-")
+    # ensure the pdf generated has some content
+    assert 20000 < len(pdf) < 30000
+
 
 @pytest.mark.django_db
 def test_preview_licence():
@@ -59,3 +64,8 @@ def test_preview_licence():
     assert response.status_code == 200
     assert response["Content-Type"] == "application/pdf"
     assert response["Content-Disposition"] == "filename=Licence.pdf"
+
+    pdf = response.content
+    assert pdf.startswith(b"%PDF-")
+    # ensure the pdf generated has some content
+    assert 20000 < len(pdf) < 30000
