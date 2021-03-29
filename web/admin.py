@@ -60,7 +60,6 @@ admin.site.register(ExportApplication)
 admin.site.register(Exporter)
 admin.site.register(SanctionsAndAdhocApplicationGoods)
 admin.site.register(DerogationsApplication)
-admin.site.register(SanctionsDocument)
 
 
 @admin.register(Permission)
