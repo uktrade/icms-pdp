@@ -3,51 +3,18 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from s3chunkuploader.file_handler import s3_client
-from sentry_sdk import capture_exception
 
 from web.domains.case._import.models import ImportApplication
-from web.utils import FilevalidationService
-from web.utils.s3upload import InvalidFileException, S3UploadService
-from web.utils.virus import ClamAV, InfectedFileException
+from web.domains.file.views import handle_uploaded_file
 
-from .forms import DocumentForm, GoodsForm, SanctionsAndAdhocLicenseForm
+from .forms import GoodsForm, SanctionsAndAdhocLicenseForm, SupportingDocumentForm
 from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
 
 logger = logging.getLogger(__name__)
-
-
-def handle_uploaded_file(f, created_by, related_file_model):
-    file_path = None
-    error_message = None
-    try:
-        upload_service = S3UploadService(
-            s3_client=s3_client(),
-            virus_scanner=ClamAV(
-                settings.CLAM_AV_USERNAME, settings.CLAM_AV_PASSWORD, settings.CLAM_AV_URL
-            ),
-            file_validator=FilevalidationService(),
-        )
-
-        file_path = upload_service.process_uploaded_file(settings.AWS_STORAGE_BUCKET_NAME, f)
-    except (InvalidFileException, InfectedFileException) as e:
-        error_message = str(e)
-    except Exception as e:
-        capture_exception(e)
-        logger.exception(e)
-        error_message = "Unknown error uploading file"
-    finally:
-        return related_file_model.create(
-            filename=f.original_name,
-            file_size=f.file_size,
-            content_type=f.content_type,
-            browser_content_type=f.content_type,
-            error_message=error_message,
-            path=file_path,
-            created_by=created_by,
-        )
 
 
 @login_required
@@ -72,13 +39,16 @@ def edit_sanctions_and_adhoc_licence_application(request, pk):
                 form.save()
                 return redirect(
                     reverse(
-                        "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk}
+                        "import:sanctions:edit-sanctions-and-adhoc-licence-application",
+                        kwargs={"pk": pk},
                     )
                 )
         else:
             form = SanctionsAndAdhocLicenseForm(
                 instance=application, initial={"contact": request.user}
             )
+
+        supporting_documents = application.supporting_documents.filter(is_active=True)
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -90,6 +60,7 @@ def edit_sanctions_and_adhoc_licence_application(request, pk):
             "goods_list": SanctionsAndAdhocApplicationGoods.objects.filter(
                 import_application=application
             ),
+            "supporting_documents": supporting_documents,
         }
         return render(
             request,
@@ -118,7 +89,8 @@ def add_goods(request, pk):
                 obj.save()
                 return redirect(
                     reverse(
-                        "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk}
+                        "import:sanctions:edit-sanctions-and-adhoc-licence-application",
+                        kwargs={"pk": pk},
                     )
                 )
         else:
@@ -160,7 +132,7 @@ def edit_goods(request, application_pk, goods_pk):
                 obj.save()
                 return redirect(
                     reverse(
-                        "import:edit-sanctions-and-adhoc-licence-application",
+                        "import:sanctions:edit-sanctions-and-adhoc-licence-application",
                         kwargs={"pk": application_pk},
                     )
                 )
@@ -196,14 +168,15 @@ def delete_goods(request, application_pk, goods_pk):
 
     return redirect(
         reverse(
-            "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": application_pk}
+            "import:sanctions:edit-sanctions-and-adhoc-licence-application",
+            kwargs={"pk": application_pk},
         )
     )
 
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def add_document(request, pk):
+def add_supporting_document(request, pk):
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
@@ -213,23 +186,18 @@ def add_document(request, pk):
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
         if request.method == "POST":
-            documents_form = DocumentForm(request.POST, request.FILES)
+            documents_form = SupportingDocumentForm(request.POST, request.FILES)
+            document = request.FILES.get("document")
             if documents_form.is_valid():
-
-                files = request.FILES.getlist("files")
-                for f in files:
-                    handle_uploaded_file(f, request.user, files)
-
-                obj = documents_form.save(commit=False)
-                obj.import_application = application
-                obj.save()
+                handle_uploaded_file(document, request.user, application.supporting_documents)
                 return redirect(
                     reverse(
-                        "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": pk}
+                        "import:sanctions:edit-sanctions-and-adhoc-licence-application",
+                        kwargs={"pk": pk},
                     )
                 )
         else:
-            documents_form = DocumentForm()
+            documents_form = SupportingDocumentForm()
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -245,24 +213,64 @@ def add_document(request, pk):
         )
 
 
+@require_GET
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
-@require_POST
-def delete_document(request, application_pk, goods_pk):
+def view_supporting_document(request, application_pk, document_pk):
+    has_perm_importer = request.user.has_perm("web.importer_access")
+    has_perm_reference_data = request.user.has_perm("web.reference_data_access")
+
+    if not has_perm_importer and not has_perm_reference_data:
+        raise PermissionDenied
+
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
+
+        # first check is for case managers (who are not marked as contacts of
+        # importers), second is for people submitting applications
+        if not has_perm_reference_data and not request.user.has_perm(
+            "web.is_contact_of_importer", application.importer
+        ):
+            raise PermissionDenied
+
+        document = application.supporting_documents.get(pk=document_pk)
+
+        client = s3_client()
+
+        s3_file = client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=document.path)
+        s3_file_content = s3_file["Body"].read()
+
+        response = HttpResponse(content=s3_file_content, content_type=document.content_type)
+        response["Content-Disposition"] = f'attachment; filename="{document.filename}"'
+
+        return response
+
+
+@require_POST
+@login_required
+@permission_required("web.importer_access", raise_exception=True)
+def delete_supporting_document(request, application_pk, document_pk):
+    with transaction.atomic():
+        application = get_object_or_404(
+            SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
+        )
+
+        application.get_task(ImportApplication.IN_PROGRESS, "prepare")
+
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        # get_object_or_404(application.sanctionsandadhocapplicationgoods_set, pk=goods_pk).delete()
+        document = application.supporting_documents.get(pk=document_pk)
+        document.is_active = False
+        document.save()
 
-    return redirect(
-        reverse(
-            "import:edit-sanctions-and-adhoc-licence-application", kwargs={"pk": application_pk}
+        return redirect(
+            reverse(
+                "import:sanctions:edit-sanctions-and-adhoc-licence-application",
+                kwargs={"pk": application_pk},
+            )
         )
-    )
 
 
 @login_required

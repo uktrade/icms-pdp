@@ -1,7 +1,7 @@
 from django.db import models
 
 from web.domains.commodity.models import Commodity
-from web.domains.user.models import User
+from web.domains.file.models import File
 
 from ..models import ImportApplication
 
@@ -11,6 +11,7 @@ class SanctionsAndAdhocApplication(ImportApplication):
 
     exporter_name = models.CharField(max_length=4096, blank=True, null=True)
     exporter_address = models.CharField(max_length=4096, blank=True, null=True)
+    supporting_documents = models.ManyToManyField(File)
 
 
 class SanctionsAndAdhocApplicationGoods(models.Model):
@@ -27,12 +28,3 @@ class SanctionsAndAdhocApplicationGoods(models.Model):
             f"{self.quantity_amount} - "
             f"{self.value}"
         )
-
-
-class SanctionsDocument(models.Model):
-    import_application = models.ForeignKey(ImportApplication, on_delete=models.PROTECT)
-    file = models.FileField()
-    uploaded_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-    )
