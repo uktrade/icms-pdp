@@ -141,7 +141,3 @@ dmypy.json
 
 # test reports
 /test-reports
-
-# localstack
-.localstack/
-documents/

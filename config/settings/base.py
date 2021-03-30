@@ -168,8 +168,6 @@ S3_GENERATE_OBJECT_KEY_FUNCTION = "web.utils.s3upload.random_file_name"
 S3_DOCUMENT_ROOT_DIRECTORY = "documents"
 # END TODO
 
-AWS_BASE_URL = "http://localhost:4566/"  # base url used for file downloads
-
 FILE_UPLOAD_HANDLERS = ("s3chunkuploader.file_handler.S3FileUploadHandler",)
 
 # Anti virus settings
@@ -205,7 +203,7 @@ if "redis" in VCAP_SERVICES:
     REDIS_URL = VCAP_SERVICES["redis"][0]["credentials"]["uri"]
 else:
     REDIS_URL = env.str("REDIS_URL", "redis://redis:6379")
-AWS_S3_ENDPOINT_URL = "http://localstack:4566/"
+
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = REDIS_URL
