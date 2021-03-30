@@ -1,9 +1,9 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from guardian.shortcuts import get_users_with_perms
 
 from web.domains.country.models import Country
 from web.domains.user.models import User
-
 from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
 
 
@@ -68,3 +68,17 @@ class GoodsForm(forms.ModelForm):
 
 class SupportingDocumentForm(forms.Form):
     document = forms.FileField(required=True, widget=forms.ClearableFileInput())
+
+
+class SubmitSanctionsForm(forms.Form):
+    confirmation = forms.CharField(
+        label='Confirm that you agree to the above by typing "I AGREE", in capitals, in this box'
+    )
+
+    def clean_confirmation(self):
+        confirmation = self.cleaned_data["confirmation"]
+
+        if confirmation != "I AGREE":
+            raise ValidationError("Please agree to the declaration of truth.")
+
+        return confirmation
