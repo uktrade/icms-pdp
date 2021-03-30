@@ -4,11 +4,7 @@ from guardian.shortcuts import get_users_with_perms
 from web.domains.country.models import Country
 from web.domains.user.models import User
 
-from .models import (
-    SanctionsAndAdhocApplication,
-    SanctionsAndAdhocApplicationGoods,
-    SanctionsDocument,
-)
+from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
 
 
 class SanctionsAndAdhocLicenseForm(forms.ModelForm):
@@ -70,9 +66,5 @@ class GoodsForm(forms.ModelForm):
         labels = {"value": "Value (GBP CIF)"}
 
 
-class DocumentForm(forms.ModelForm):
-    file = forms.FileField(required=True, widget=forms.ClearableFileInput())
-
-    class Meta:
-        model = SanctionsDocument
-        fields = ["file"]
+class SupportingDocumentForm(forms.Form):
+    document = forms.FileField(required=True, widget=forms.ClearableFileInput())
