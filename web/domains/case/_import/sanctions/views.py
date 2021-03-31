@@ -4,16 +4,21 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
-from django.views.decorators.http import require_GET
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from web.domains.case._import.models import ImportApplication
 from web.domains.file.views import handle_uploaded_file
 from web.domains.template.models import Template
 from web.flow.models import Task
-from .forms import GoodsForm, SanctionsAndAdhocLicenseForm, SubmitSanctionsForm, SupportingDocumentForm
-from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
+
 from .. import views as import_views
+from .forms import (
+    GoodsForm,
+    SanctionsAndAdhocLicenseForm,
+    SubmitSanctionsForm,
+    SupportingDocumentForm,
+)
+from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
 
 logger = logging.getLogger(__name__)
 

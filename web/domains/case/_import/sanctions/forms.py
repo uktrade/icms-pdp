@@ -4,6 +4,7 @@ from guardian.shortcuts import get_users_with_perms
 
 from web.domains.country.models import Country
 from web.domains.user.models import User
+
 from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
 
 
