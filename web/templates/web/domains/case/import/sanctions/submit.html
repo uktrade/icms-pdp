@@ -21,6 +21,10 @@
     By filling in the field below and clicking Submit, you agree to the following:
   </p>
 
+  <p>
+    {{ declaration.template_content }}
+  </p>
+
   <form method="post" action="" class="form-inline">
     {{ csrf_input }}
     {{ fields.field(form.confirmation, padding='one', input_cols='one', label_cols='six') }}

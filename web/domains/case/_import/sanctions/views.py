@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 
 from web.domains.case._import.models import ImportApplication
 from web.domains.file.views import handle_uploaded_file
+from web.domains.template.models import Template
 from web.flow.models import Task
 from .forms import GoodsForm, SanctionsAndAdhocLicenseForm, SubmitSanctionsForm, SupportingDocumentForm
 from .models import SanctionsAndAdhocApplication, SanctionsAndAdhocApplicationGoods
@@ -300,11 +301,19 @@ def submit_sanctions(request, pk):
         else:
             form = SubmitSanctionsForm()
 
+    declaration = Template.objects.filter(
+        is_active=True,
+        template_type=Template.DECLARATION,
+        application_domain=Template.IMPORT_APPLICATION,
+        template_code="IMA_GEN_DECLARATION",
+    ).first()
+
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
         "task": task,
         "form": form,
         "application_title": "Sanctions and Adhoc License Application",
+        "declaration": declaration,
     }
     return render(request, "web/domains/case/import/sanctions/submit.html", context)
