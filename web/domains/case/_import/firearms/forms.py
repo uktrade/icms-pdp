@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django_select2 import forms as s2forms
@@ -205,7 +206,9 @@ class ConstabularyEmailForm(forms.ModelForm):
         ]
         self.fields["email_to"].choices = choices
 
-        initial = [("firearms@homeoffice.gsi.gov.uk", "firearms@homeoffice.gsi.gov.uk")]
+        initial = [
+            (settings.ICMS_FIREARMS_HOMEOFFICE_EMAIL, settings.ICMS_FIREARMS_HOMEOFFICE_EMAIL)
+        ]
         self.fields["email_cc_address_list"].choices = initial + choices
 
         files = File.objects.filter(

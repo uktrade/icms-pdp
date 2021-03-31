@@ -595,7 +595,7 @@ commodity code, other than those falling under Section 5 of the Firearms Act 196
             status=ConstabularyEmail.DRAFT,
             email_subject=template.template_title,
             email_body=body,
-            email_cc_address_list=settings.FIREARMS_HOMEOFFICE_EMAIL,
+            email_cc_address_list=settings.ICMS_FIREARMS_HOMEOFFICE_EMAIL,
         )
 
         return redirect(
