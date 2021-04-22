@@ -87,7 +87,7 @@ class UserImportCertificateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.files.active().exists():
+        if self.instance.pk and self.instance.is_active:
             self.fields["document"].required = False
 
     def clean(self):
@@ -217,6 +217,7 @@ class ConstabularyEmailForm(forms.ModelForm):
             )
             | Q(userimportcertificate__import_application=self.instance.application)
         ).filter(is_active=True)
+
         self.fields["attachments"].queryset = files
         # set files and process on the widget to make them available in the widget's template
         self.fields["attachments"].widget.qs = files

@@ -14,8 +14,7 @@
       {% for widget in options %}
         {% with file = qs[index],
                 verified = qs[index].firearmsauthority_set.first(),
-                user = qs[index].userimportcertificate_set.first() %}
-
+                user = qs[index].userimportcertificate %}
           <tr>
             <td>
               {% include widget.template_name %}
@@ -44,9 +43,10 @@
               </td>
             {% elif user %}
               <td>
+                {# TODO: Decide which url to use #}
                 <a
                   href="{{ icms_url(
-                            'import:firearms:view-user-certificate-file',
+                            'import:firearms:view-user-import-certificate-file',
                              args=[process.pk, user.pk, file.pk]) }}">
                   {{ file.filename}}
                 </a>
