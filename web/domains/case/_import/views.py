@@ -379,7 +379,7 @@ def _view_derogations(request: HttpRequest, application: DerogationsApplication)
     return render(request, "web/domains/case/import/view_derogations.html", context)
 
 
-def _view_case(request: HttpRequest, application: ImportApplication) -> HttpRequest:
+def _view_case(request: HttpRequest, application: ImportApplication) -> HttpResponse:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
