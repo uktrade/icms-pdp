@@ -345,14 +345,14 @@ def archive_withdrawal(request, application_pk, withdrawal_pk):
 
 
 @login_required
-def view_case(request, pk):
+def view_case(request: HttpRequest, pk: int) -> HttpResponse:
     has_perm_importer = request.user.has_perm("web.importer_access")
     has_perm_reference_data = request.user.has_perm("web.reference_data_access")
 
     if not has_perm_importer and not has_perm_reference_data:
         raise PermissionDenied
 
-    application = get_object_or_404(ImportApplication, pk=pk)
+    application: ImportApplication = get_object_or_404(ImportApplication, pk=pk)
 
     # first check is for case managers (who are not marked as contacts of
     # importers), second is for people submitting applications
@@ -365,11 +365,15 @@ def view_case(request, pk):
         return _view_firearms_oil_case(request, application.openindividuallicenceapplication)
     elif application.process_type == SanctionsAndAdhocApplication.PROCESS_TYPE:
         return _view_sanctions_and_adhoc_case(request, application.sanctionsandadhocapplication)
+    elif application.process_type == DerogationsApplication.PROCESS_TYPE:
+        return _view_derogations(request, application.derogationsapplication)
     else:
-        return _view_case(application)
+        return _view_case(request, application)
 
 
-def _view_firearms_oil_case(request, application):
+def _view_firearms_oil_case(
+    request: HttpRequest, application: OpenIndividualLicenceApplication
+) -> HttpResponse:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
@@ -383,7 +387,9 @@ def _view_firearms_oil_case(request, application):
     return render(request, "web/domains/case/import/view_firearms_oil_case.html", context)
 
 
-def _view_sanctions_and_adhoc_case(request, application):
+def _view_sanctions_and_adhoc_case(
+    request: HttpRequest, application: SanctionsAndAdhocApplication
+) -> HttpRequest:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
@@ -394,7 +400,17 @@ def _view_sanctions_and_adhoc_case(request, application):
     return render(request, "web/domains/case/import/view_sanctions_and_adhoc_case.html", context)
 
 
-def _view_case(request, application):
+def _view_derogations(request: HttpRequest, application: DerogationsApplication) -> HttpResponse:
+    context = {
+        "process_template": "web/domains/case/import/partials/process.html",
+        "process": application,
+        "page_title": application.application_type.get_type_description(),
+        "supporting_documents": application.supporting_documents.filter(is_active=True),
+    }
+    return render(request, "web/domains/case/import/view_derogations.html", context)
+
+
+def _view_case(request: HttpRequest, application: ImportApplication) -> HttpResponse:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
