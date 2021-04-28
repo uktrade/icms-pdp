@@ -337,10 +337,12 @@ def view_case(request: HttpRequest, pk: int) -> HttpResponse:
     elif application.process_type == DerogationsApplication.PROCESS_TYPE:
         return _view_derogations(request, application.derogationsapplication)
     else:
-        return _view_case(application)
+        return _view_case(request, application)
 
 
-def _view_firearms_oil_case(request, application):
+def _view_firearms_oil_case(
+    request: HttpRequest, application: OpenIndividualLicenceApplication
+) -> HttpResponse:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
@@ -354,7 +356,9 @@ def _view_firearms_oil_case(request, application):
     return render(request, "web/domains/case/import/view_firearms_oil_case.html", context)
 
 
-def _view_sanctions_and_adhoc_case(request, application):
+def _view_sanctions_and_adhoc_case(
+    request: HttpRequest, application: SanctionsAndAdhocApplication
+) -> HttpRequest:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
@@ -375,7 +379,7 @@ def _view_derogations(request: HttpRequest, application: DerogationsApplication)
     return render(request, "web/domains/case/import/view_derogations.html", context)
 
 
-def _view_case(request, application):
+def _view_case(request: HttpRequest, application: ImportApplication) -> HttpRequest:
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
         "process": application,
