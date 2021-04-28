@@ -321,7 +321,7 @@ def view_case(request: HttpRequest, pk: int) -> HttpResponse:
     if not has_perm_importer and not has_perm_reference_data:
         raise PermissionDenied
 
-    application = get_object_or_404(ImportApplication, pk=pk)
+    application: ImportApplication = get_object_or_404(ImportApplication, pk=pk)
 
     # first check is for case managers (who are not marked as contacts of
     # importers), second is for people submitting applications
