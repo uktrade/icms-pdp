@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -314,7 +314,7 @@ def archive_withdrawal(request, application_pk, withdrawal_pk):
 
 
 @login_required
-def view_case(request, pk):
+def view_case(request: HttpRequest, pk: int) -> HttpResponse:
     has_perm_importer = request.user.has_perm("web.importer_access")
     has_perm_reference_data = request.user.has_perm("web.reference_data_access")
 
@@ -334,6 +334,8 @@ def view_case(request, pk):
         return _view_firearms_oil_case(request, application.openindividuallicenceapplication)
     elif application.process_type == SanctionsAndAdhocApplication.PROCESS_TYPE:
         return _view_sanctions_and_adhoc_case(request, application.sanctionsandadhocapplication)
+    elif application.process_type == DerogationsApplication.PROCESS_TYPE:
+        return _view_derogations(request, application.derogationsapplication)
     else:
         return _view_case(application)
 
@@ -361,6 +363,16 @@ def _view_sanctions_and_adhoc_case(request, application):
         "supporting_documents": application.supporting_documents.filter(is_active=True),
     }
     return render(request, "web/domains/case/import/view_sanctions_and_adhoc_case.html", context)
+
+
+def _view_derogations(request: HttpRequest, application: DerogationsApplication) -> HttpResponse:
+    context = {
+        "process_template": "web/domains/case/import/partials/process.html",
+        "process": application,
+        "page_title": application.application_type.get_type_description(),
+        "supporting_documents": application.supporting_documents.filter(is_active=True),
+    }
+    return render(request, "web/domains/case/import/view_derogations.html", context)
 
 
 def _view_case(request, application):
