@@ -14,7 +14,12 @@ from web.flow.models import Task
 from web.utils.validation import ApplicationErrors, PageErrors, create_page_errors
 
 from .. import views as import_views
-from .forms import DerogationsForm, SubmitDerogationsForm, SupportingDocumentForm
+from .forms import (
+    DerogationsChecklistForm,
+    DerogationsForm,
+    SubmitDerogationsForm,
+    SupportingDocumentForm,
+)
 from .models import DerogationsApplication
 
 
@@ -185,6 +190,36 @@ def submit_derogations(request, pk: int) -> HttpResponse:
         }
 
         return render(request, "web/domains/case/import/derogations/submit.html", context)
+
+
+@login_required
+@permission_required("web.reference_data_access", raise_exception=True)
+def manage_checklist(request, pk):
+    with transaction.atomic():
+        application = get_object_or_404(DerogationsApplication.objects.select_for_update(), pk=pk)
+        task = application.get_task(ImportApplication.SUBMITTED, "process")
+        checklist, _ = application.checklists.get_or_create()
+
+        if request.POST:
+            form = DerogationsChecklistForm(request.POST, instance=checklist)
+            if form.is_valid():
+                form.save()
+                return redirect(reverse("import:derogations:manage-checklist", kwargs={"pk": pk}))
+        else:
+            form = DerogationsChecklistForm(instance=checklist)
+
+        context = {
+            "process": application,
+            "task": task,
+            "page_title": get_page_title("Checklist"),
+            "form": form,
+        }
+
+        return render(
+            request=request,
+            template_name="web/domains/case/import/management/checklist.html",
+            context=context,
+        )
 
 
 def get_page_title(page: str) -> str:

@@ -22,4 +22,5 @@ urlpatterns = [
         name="delete-supporting-document",
     ),
     path("<int:pk>/submit/", views.submit_derogations, name="submit-derogations"),
+    path("<int:pk>/checklist/", views.manage_checklist, name="manage-checklist"),
 ]
