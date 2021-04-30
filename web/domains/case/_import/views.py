@@ -8,8 +8,9 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
@@ -140,6 +141,8 @@ def take_ownership(request: HttpRequest, pk: int) -> HttpResponse:
         )
         application.get_task([ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process")
         application.case_owner = request.user
+        # Licence start date is set when ILB Admin takes the case
+        application.licence_start_date = timezone.now().date()
         application.save()
 
         return redirect(reverse("import:case-management", kwargs={"pk": application.pk}))
