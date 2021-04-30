@@ -437,6 +437,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
                 )
                 application.save()
 
+                # TODO: replace with Endorsement Usage Template (ICMSLST-638)
                 endorsement = Template.objects.get(
                     is_active=True,
                     template_type=Template.ENDORSEMENT,
