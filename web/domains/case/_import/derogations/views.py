@@ -134,7 +134,7 @@ def delete_supporting_document(
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def submit_derogations(request, pk: int) -> HttpResponse:
+def submit_derogations(request: HttpRequest, pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(DerogationsApplication.objects.select_for_update(), pk=pk)
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
@@ -160,6 +160,20 @@ def submit_derogations(request, pk: int) -> HttpResponse:
                 application.status = ImportApplication.SUBMITTED
                 application.submit_datetime = timezone.now()
                 application.save()
+
+                # TODO: replace with Endorsement Usage Template (ICMSLST-638)
+                first_endorsement = Template.objects.get(
+                    is_active=True,
+                    template_type=Template.ENDORSEMENT,
+                    template_name="Endorsement 1 (must be updated each year)",
+                )
+                application.endorsements.create(content=first_endorsement.template_content)
+                second_endorsement = Template.objects.get(
+                    is_active=True,
+                    template_type=Template.ENDORSEMENT,
+                    template_name="Endorsement 15",
+                )
+                application.endorsements.create(content=second_endorsement.template_content)
 
                 task.is_active = False
                 task.finished = timezone.now()
