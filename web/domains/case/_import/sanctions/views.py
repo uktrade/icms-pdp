@@ -1,3 +1,5 @@
+from typing import Type
+
 import structlog as logging
 from django import forms
 from django.conf import settings
@@ -127,11 +129,13 @@ def edit_goods(request: HttpRequest, application_pk: int, goods_pk: int) -> Http
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        Form = GoodsForm
+        form_class = GoodsForm
         success_url = reverse("import:sanctions:edit-application", kwargs={"pk": application_pk})
         template_name = "web/domains/case/import/sanctions/add_or_edit_goods.html"
 
-        return _edit_goods(request, application, task, Form, goods_pk, success_url, template_name)
+        return _edit_goods(
+            request, application, task, form_class, goods_pk, success_url, template_name
+        )
 
 
 @login_required
@@ -145,18 +149,20 @@ def edit_goods_licence(request: HttpRequest, application_pk: int, goods_pk: int)
             [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
         )
 
-        Form = GoodsSanctionsLicenceForm
+        form_class = GoodsSanctionsLicenceForm
         success_url = reverse("import:prepare-response", kwargs={"pk": application.pk})
         template_name = "web/domains/case/import/manage/edit-goods-licence.html"
 
-        return _edit_goods(request, application, task, Form, goods_pk, success_url, template_name)
+        return _edit_goods(
+            request, application, task, form_class, goods_pk, success_url, template_name
+        )
 
 
 def _edit_goods(
     request: HttpRequest,
     application: SanctionsAndAdhocApplication,
     task: Task,
-    Form: forms.ModelForm,
+    form_class: Type[forms.ModelForm],
     goods_pk: int,
     success_url: str,
     template_name: str,
@@ -164,14 +170,14 @@ def _edit_goods(
     goods = get_object_or_404(application.sanctionsandadhocapplicationgoods_set, pk=goods_pk)
 
     if request.POST:
-        form = Form(request.POST, instance=goods)
+        form = form_class(request.POST, instance=goods)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.import_application = application
             obj.save()
             return redirect(success_url)
     else:
-        form = Form(instance=goods)
+        form = form_class(instance=goods)
 
     context = {
         "process_template": "web/domains/case/import/partials/process.html",
