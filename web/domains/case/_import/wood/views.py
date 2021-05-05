@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.forms.models import model_to_dict
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
@@ -17,6 +17,7 @@ from .. import views as import_views
 from .forms import (
     AddContractDocumentForm,
     EditContractDocumentForm,
+    GoodsWoodQuotaLicenceForm,
     PrepareWoodQuotaForm,
     SubmitWoodQuotaForm,
     SupportingDocumentForm,
@@ -294,3 +295,37 @@ def submit_wood_quota(request, pk: int) -> HttpResponse:
         }
 
         return render(request, "web/domains/case/import/wood/submit.html", context)
+
+
+@login_required
+@permission_required("web.reference_data_access", raise_exception=True)
+def edit_goods(request: HttpRequest, pk: int) -> HttpResponse:
+    with transaction.atomic():
+        application: WoodQuotaApplication = get_object_or_404(
+            WoodQuotaApplication.objects.select_for_update(), pk=pk
+        )
+        task = application.get_task(
+            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
+        )
+
+        if request.POST:
+            form = GoodsWoodQuotaLicenceForm(request.POST, instance=application)
+            if form.is_valid():
+                form.save()
+                return redirect(reverse("import:prepare-response", kwargs={"pk": application.pk}))
+        else:
+            form = GoodsWoodQuotaLicenceForm(instance=application)
+
+        context = {
+            "process_template": "web/domains/case/import/partials/process.html",
+            "process": application,
+            "task": task,
+            "page_title": "Edit Goods",
+            "form": form,
+        }
+
+        return render(
+            request=request,
+            template_name="web/domains/case/import/manage/edit-goods-licence.html",
+            context=context,
+        )
