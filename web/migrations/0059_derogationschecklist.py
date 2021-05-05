@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("web", "0057_add_constabulary_data"),
+        ("web", "0058_woodquotachecklist"),
     ]
 
     operations = [

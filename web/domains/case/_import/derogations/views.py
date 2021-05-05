@@ -17,6 +17,7 @@ from .. import views as import_views
 from .forms import (
     DerogationsChecklistForm,
     DerogationsForm,
+    GoodsDerogationsLicenceForm,
     SubmitDerogationsForm,
     SupportingDocumentForm,
 )
@@ -160,18 +161,19 @@ def submit_derogations(request: HttpRequest, pk: int) -> HttpResponse:
                 application.save()
 
                 # TODO: replace with Endorsement Usage Template (ICMSLST-638)
-                first_endorsement = Template.objects.get(
-                    is_active=True,
-                    template_type=Template.ENDORSEMENT,
-                    template_name="Endorsement 1 (must be updated each year)",
-                )
-                application.endorsements.create(content=first_endorsement.template_content)
-                second_endorsement = Template.objects.get(
-                    is_active=True,
-                    template_type=Template.ENDORSEMENT,
-                    template_name="Endorsement 15",
-                )
-                application.endorsements.create(content=second_endorsement.template_content)
+                # endorsements are active on ICMS1 but inactive in our db
+                # first_endorsement = Template.objects.get(
+                #     is_active=True,
+                #     template_type=Template.ENDORSEMENT,
+                #     template_name="Endorsement 1 (must be updated each year)",
+                # )
+                # application.endorsements.create(content=first_endorsement.template_content)
+                # second_endorsement = Template.objects.get(
+                #     is_active=True,
+                #     template_type=Template.ENDORSEMENT,
+                #     template_name="Endorsement 15",
+                # )
+                # application.endorsements.create(content=second_endorsement.template_content)
 
                 task.is_active = False
                 task.finished = timezone.now()
@@ -230,6 +232,40 @@ def manage_checklist(request, pk):
         return render(
             request=request,
             template_name="web/domains/case/import/management/checklist.html",
+            context=context,
+        )
+
+
+@login_required
+@permission_required("web.reference_data_access", raise_exception=True)
+def edit_goods_licence(request: HttpRequest, pk: int) -> HttpResponse:
+    with transaction.atomic():
+        application: DerogationsApplication = get_object_or_404(
+            DerogationsApplication.objects.select_for_update(), pk=pk
+        )
+        task = application.get_task(
+            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
+        )
+
+        if request.POST:
+            form = GoodsDerogationsLicenceForm(request.POST, instance=application)
+            if form.is_valid():
+                form.save()
+                return redirect(reverse("import:prepare-response", kwargs={"pk": application.pk}))
+        else:
+            form = GoodsDerogationsLicenceForm(instance=application)
+
+        context = {
+            "process_template": "web/domains/case/import/partials/process.html",
+            "process": application,
+            "task": task,
+            "page_title": "Edit Goods",
+            "form": form,
+        }
+
+        return render(
+            request=request,
+            template_name="web/domains/case/import/manage/edit-goods-licence.html",
             context=context,
         )
 

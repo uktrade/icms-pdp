@@ -135,3 +135,24 @@ class DerogationsChecklistForm(forms.ModelForm):
 
         for field in self.fields:
             self.fields[field].required = True
+
+
+class GoodsDerogationsLicenceForm(forms.ModelForm):
+    quantity = forms.DecimalField()
+    unit = forms.ChoiceField(
+        label="Unit",
+        choices=[(x, x) for x in ["kilos"]],
+    )
+
+    value = forms.CharField(
+        label="Value (euro CIF)",
+        required=True,
+    )
+
+    class Meta:
+        model = DerogationsApplication
+        fields = ("commodity_code", "goods_description", "quantity", "unit", "value")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["commodity_code"].widget.attrs["readonly"] = True

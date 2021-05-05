@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Any, Dict, Type
 
 import weasyprint
 from django.conf import settings
@@ -371,10 +371,13 @@ def view_case(request: HttpRequest, pk: int) -> HttpResponse:
 
     elif application.process_type == SanctionsAndAdhocApplication.PROCESS_TYPE:
         return _view_sanctions_and_adhoc_case(request, application.sanctionsandadhocapplication)
+
     elif application.process_type == WoodQuotaApplication.PROCESS_TYPE:
         return _view_wood_quota_application(request, application.woodquotaapplication)
+
     elif application.process_type == DerogationsApplication.PROCESS_TYPE:
         return _view_derogations(request, application.derogationsapplication)
+
     else:
         return _view_case(request, application)
 
@@ -657,9 +660,11 @@ def respond_fir(request, application_pk, fir_pk):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def prepare_response(request, pk):
+def prepare_response(request: HttpRequest, pk: int) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(ImportApplication.objects.select_for_update(), pk=pk)
+        application: ImportApplication = get_object_or_404(
+            ImportApplication.objects.select_for_update(), pk=pk
+        )
         task = application.get_task(
             [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
         )
@@ -674,21 +679,74 @@ def prepare_response(request, pk):
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
-            "process": application,
             "task": task,
             "page_title": "Response Preparation",
             "form": form,
-            "goods_template": "web/domains/case/import/partials/firearms/oil-goods.html",
-            "documents_template": "web/domains/case/import/partials/firearms/oil-documents.html",
             "cover_letter_flag": application.application_type.cover_letter_flag,
-            "electronic_licence_flag": application.application_type.electronic_licence_flag,
         }
 
-        return render(
-            request=request,
-            template_name="web/domains/case/import/manage/prepare-response.html",
-            context=context,
+    if application.process_type == OpenIndividualLicenceApplication.PROCESS_TYPE:
+        return _prepare_response_oil(request, application.openindividuallicenceapplication, context)
+    elif application.process_type == SanctionsAndAdhocApplication.PROCESS_TYPE:
+        return _prepare_sanctions_and_adhoc_response(
+            request, application.sanctionsandadhocapplication, context
         )
+    elif application.process_type == DerogationsApplication.PROCESS_TYPE:
+        return _prepare_derogations_response(request, application.derogationsapplication, context)
+    elif application.process_type == WoodQuotaApplication.PROCESS_TYPE:
+        return _prepare_wood_quota_response(request, application.woodquotaapplication, context)
+    else:
+        raise NotImplementedError
+
+
+def _prepare_response_oil(
+    request: HttpRequest, application: OpenIndividualLicenceApplication, context: Dict[str, Any]
+) -> HttpResponse:
+    context.update({"process": application})
+
+    return render(
+        request=request,
+        template_name="web/domains/case/import/manage/prepare-firearms-oil-response.html",
+        context=context,
+    )
+
+
+def _prepare_sanctions_and_adhoc_response(
+    request: HttpRequest, application: SanctionsAndAdhocApplication, context: Dict[str, Any]
+) -> HttpResponse:
+    context.update(
+        {"process": application, "goods": application.sanctionsandadhocapplicationgoods_set.all()}
+    )
+
+    return render(
+        request=request,
+        template_name="web/domains/case/import/manage/prepare-sanctions-response.html",
+        context=context,
+    )
+
+
+def _prepare_derogations_response(
+    request: HttpRequest, application: DerogationsApplication, context: Dict[str, Any]
+) -> HttpResponse:
+    context.update({"process": application})
+
+    return render(
+        request=request,
+        template_name="web/domains/case/import/manage/prepare-derogations-response.html",
+        context=context,
+    )
+
+
+def _prepare_wood_quota_response(
+    request: HttpRequest, application: WoodQuotaApplication, context: Dict[str, Any]
+) -> HttpResponse:
+    context.update({"process": application})
+
+    return render(
+        request=request,
+        template_name="web/domains/case/import/manage/prepare-wood-quota-response.html",
+        context=context,
+    )
 
 
 @login_required
