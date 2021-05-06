@@ -39,7 +39,7 @@ class ImportAppplicationCreateViewTest(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
         self.client.post(
-            reverse("import:create-oil"),
+            reverse("import:create-fa-oil"),
             data={"importer": importer.pk, "importer_office": office.pk},
         )
         application = OpenIndividualLicenceApplication.objects.get()
@@ -63,10 +63,7 @@ class ImportAppplicationCreateViewTest(AuthTestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            reverse("import:create-oil"),
-            data={"importer": importer.pk},
-        )
+        response = self.client.post(reverse("import:create-fa-oil"), data={"importer": importer.pk})
         self.assertEqual(response.status_code, 200)
         self.assertInHTML(
             '<div class="error-message">You must enter this item', response.content.decode("utf-8")
