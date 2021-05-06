@@ -73,7 +73,7 @@ def edit_oil(request: HttpRequest, pk: int) -> HttpResponse:
             "page_title": "Open Individual Import Licence - Edit",
         }
 
-        return render(request, "web/domains/case/import/firearms/oil/edit.html", context)
+        return render(request, "web/domains/case/import/fa-oil/edit.html", context)
 
 
 @login_required
@@ -98,7 +98,7 @@ def list_user_import_certificates(request: HttpRequest, pk: int) -> HttpResponse
             "page_title": "Open Individual Import Licence - Certificates",
         }
 
-        return render(request, "web/domains/case/import/firearms/certificates/list.html", context)
+        return render(request, "web/domains/case/import/fa-oil/certificates/list.html", context)
 
 
 @login_required
@@ -146,7 +146,7 @@ def create_user_import_certificate(request: HttpRequest, pk: int) -> HttpRespons
             "page_title": "Open Individual Import Licence - Create Certificate",
         }
 
-        return render(request, "web/domains/case/import/firearms/certificates/create.html", context)
+        return render(request, "web/domains/case/import/fa-oil/certificates/create.html", context)
 
 
 @login_required
@@ -190,7 +190,7 @@ def edit_user_import_certificate(
             "certificate": certificate,
         }
 
-        return render(request, "web/domains/case/import/firearms/certificates/edit.html", context)
+        return render(request, "web/domains/case/import/fa-oil/certificates/edit.html", context)
 
 
 @require_GET
@@ -253,9 +253,7 @@ def list_import_contacts(request, pk):
             "page_title": "Open Individual Import Licence - Contacts",
         }
 
-        return render(
-            request, "web/domains/case/import/firearms/import-contacts/list.html", context
-        )
+        return render(request, "web/domains/case/import/fa-oil/import-contacts/list.html", context)
 
 
 @login_required
@@ -312,7 +310,7 @@ def create_import_contact(request, pk, entity):
         }
 
         return render(
-            request, "web/domains/case/import/firearms/import-contacts/create.html", context
+            request, "web/domains/case/import/fa-oil/import-contacts/create.html", context
         )
 
 
@@ -363,9 +361,7 @@ def edit_import_contact(request, application_pk, entity, contact_pk):
             "page_title": "Open Individual Import Licence - Edit Import Contact",
         }
 
-        return render(
-            request, "web/domains/case/import/firearms/import-contacts/edit.html", context
-        )
+        return render(request, "web/domains/case/import/fa-oil/import-contacts/edit.html", context)
 
 
 @login_required
@@ -474,7 +470,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
             "errors": errors if errors.has_errors() else None,
         }
 
-        return render(request, "web/domains/case/import/firearms/oil/submit.html", context)
+        return render(request, "web/domains/case/import/fa-oil/submit.html", context)
 
 
 @login_required
@@ -529,7 +525,7 @@ def view_verified_firearms(request, application_pk, authority_pk):
             "firearms_authority": firearms_authority,
         }
         return render(
-            request, "web/domains/case/import/firearms/certificates/view-verified.html", context
+            request, "web/domains/case/import/fa-oil/certificates/view-verified.html", context
         )
 
 
@@ -584,7 +580,7 @@ def manage_constabulary_emails(request, pk):
 
         return render(
             request=request,
-            template_name="web/domains/case/import/firearms/manage-constabulary-emails.html",
+            template_name="web/domains/case/import/fa-oil/manage-constabulary-emails.html",
             context=context,
         )
 
@@ -699,7 +695,7 @@ def edit_constabulary_email(request, application_pk, constabulary_email_pk):
 
         return render(
             request=request,
-            template_name="web/domains/case/import/firearms/edit-constabulary-email.html",
+            template_name="web/domains/case/import/fa-oil/edit-constabulary-email.html",
             context=context,
         )
 
@@ -771,7 +767,7 @@ def add_response_constabulary_email(request, application_pk, constabulary_email_
 
         return render(
             request=request,
-            template_name="web/domains/case/import/firearms/add-response-constabulary-email.html",
+            template_name="web/domains/case/import/fa-oil/add-response-constabulary-email.html",
             context=context,
         )
 
