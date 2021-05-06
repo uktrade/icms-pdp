@@ -9,16 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from web.domains.case._import.firearms.forms import (
-    ChecklistFirearmsOILApplicationForm,
-    ConstabularyEmailForm,
-    ConstabularyEmailResponseForm,
-    ImportContactLegalEntityForm,
-    ImportContactPersonForm,
-    PrepareOILForm,
-    SubmitOILForm,
-    UserImportCertificateForm,
-)
 from web.domains.case._import.models import ImportApplication, ImportContact
 from web.domains.file.utils import create_file_model
 from web.domains.template.models import Template
@@ -33,6 +23,16 @@ from web.utils.validation import (
 )
 
 from .. import views as import_views
+from .forms import (
+    ChecklistFirearmsOILApplicationForm,
+    ConstabularyEmailForm,
+    ConstabularyEmailResponseForm,
+    ImportContactLegalEntityForm,
+    ImportContactPersonForm,
+    PrepareOILForm,
+    SubmitOILForm,
+    UserImportCertificateForm,
+)
 from .models import (
     ConstabularyEmail,
     OpenIndividualLicenceApplication,
@@ -60,7 +60,7 @@ def edit_oil(request: HttpRequest, pk: int) -> HttpResponse:
             if form.is_valid():
                 form.save()
 
-                return redirect(reverse("import:firearms:edit-oil", kwargs={"pk": pk}))
+                return redirect(reverse("import:fa-oil:edit-oil", kwargs={"pk": pk}))
 
         else:
             form = PrepareOILForm(instance=application, initial={"contact": request.user})
@@ -133,7 +133,7 @@ def create_user_import_certificate(request: HttpRequest, pk: int) -> HttpRespons
                 )
 
                 return redirect(
-                    reverse("import:firearms:list-user-import-certificates", kwargs={"pk": pk})
+                    reverse("import:fa-oil:list-user-import-certificates", kwargs={"pk": pk})
                 )
         else:
             form = UserImportCertificateForm()
@@ -173,7 +173,7 @@ def edit_user_import_certificate(
 
                 return redirect(
                     reverse(
-                        "import:firearms:list-user-import-certificates",
+                        "import:fa-oil:list-user-import-certificates",
                         kwargs={"pk": application_pk},
                     )
                 )
@@ -228,7 +228,7 @@ def delete_user_import_certificate(
         document.save()
 
         return redirect(
-            reverse("import:firearms:list-user-import-certificates", kwargs={"pk": application_pk})
+            reverse("import:fa-oil:list-user-import-certificates", kwargs={"pk": application_pk})
         )
 
 
@@ -292,7 +292,7 @@ def create_import_contact(request, pk, entity):
 
                 return redirect(
                     reverse(
-                        "import:firearms:edit-import-contact",
+                        "import:fa-oil:edit-import-contact",
                         kwargs={
                             "application_pk": pk,
                             "entity": entity,
@@ -343,7 +343,7 @@ def edit_import_contact(request, application_pk, entity, contact_pk):
 
                 return redirect(
                     reverse(
-                        "import:firearms:edit-import-contact",
+                        "import:fa-oil:edit-import-contact",
                         kwargs={
                             "application_pk": application_pk,
                             "entity": entity,
@@ -385,7 +385,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
 
         page_errors = PageErrors(
             page_name="Application details",
-            url=reverse("import:firearms:edit-oil", kwargs={"pk": pk}),
+            url=reverse("import:fa-oil:edit-oil", kwargs={"pk": pk}),
         )
         create_page_errors(
             PrepareOILForm(data=model_to_dict(application), instance=application), page_errors
@@ -400,7 +400,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
         if not has_certificates:
             page_errors = PageErrors(
                 page_name="Certificates",
-                url=reverse("import:firearms:list-user-import-certificates", kwargs={"pk": pk}),
+                url=reverse("import:fa-oil:list-user-import-certificates", kwargs={"pk": pk}),
             )
 
             page_errors.add(
@@ -414,7 +414,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
         if application.know_bought_from and not application.importcontact_set.exists():
             page_errors = PageErrors(
                 page_name="Details of who bought from",
-                url=reverse("import:firearms:list-import-contacts", kwargs={"pk": pk}),
+                url=reverse("import:fa-oil:list-import-contacts", kwargs={"pk": pk}),
             )
 
             page_errors.add(
@@ -501,7 +501,7 @@ def toggle_verified_firearms(request, application_pk, authority_pk):
             certificate.delete()
 
         return redirect(
-            reverse("import:firearms:list-user-import-certificates", kwargs={"pk": application_pk})
+            reverse("import:fa-oil:list-user-import-certificates", kwargs={"pk": application_pk})
         )
 
 
@@ -547,7 +547,7 @@ def manage_checklist(request, pk):
             form = ChecklistFirearmsOILApplicationForm(request.POST, instance=checklist)
             if form.is_valid():
                 form.save()
-                return redirect(reverse("import:firearms:manage-checklist", kwargs={"pk": pk}))
+                return redirect(reverse("import:fa-oil:manage-checklist", kwargs={"pk": pk}))
         else:
             form = ChecklistFirearmsOILApplicationForm(instance=checklist)
 
@@ -623,7 +623,7 @@ commodity code, other than those falling under Section 5 of the Firearms Act 196
 
         return redirect(
             reverse(
-                "import:firearms:edit-constabulary-email",
+                "import:fa-oil:edit-constabulary-email",
                 kwargs={
                     "application_pk": application.pk,
                     "constabulary_email_pk": constabulary_email.pk,
@@ -671,7 +671,7 @@ def edit_constabulary_email(request, application_pk, constabulary_email_pk):
 
                     return redirect(
                         reverse(
-                            "import:firearms:manage-constabulary-emails",
+                            "import:fa-oil:manage-constabulary-emails",
                             kwargs={
                                 "pk": application_pk,
                             },
@@ -680,7 +680,7 @@ def edit_constabulary_email(request, application_pk, constabulary_email_pk):
 
                 return redirect(
                     reverse(
-                        "import:firearms:edit-constabulary-email",
+                        "import:fa-oil:edit-constabulary-email",
                         kwargs={
                             "application_pk": application_pk,
                             "constabulary_email_pk": constabulary_email_pk,
@@ -722,7 +722,7 @@ def delete_constabulary_email(request, application_pk, constabulary_email_pk):
 
         return redirect(
             reverse(
-                "import:firearms:manage-constabulary-emails",
+                "import:fa-oil:manage-constabulary-emails",
                 kwargs={
                     "pk": application_pk,
                 },
@@ -752,7 +752,7 @@ def add_response_constabulary_email(request, application_pk, constabulary_email_
 
                 return redirect(
                     reverse(
-                        "import:firearms:manage-constabulary-emails",
+                        "import:fa-oil:manage-constabulary-emails",
                         kwargs={
                             "pk": application_pk,
                         },

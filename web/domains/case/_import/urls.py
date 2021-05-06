@@ -12,7 +12,7 @@ urlpatterns = [
     path("create/wood/quota/", views.create_wood_quota, name="create-wood-quota"),
     # Applications
     path("sanctions/", include("web.domains.case._import.sanctions.urls")),
-    path("firearms/", include("web.domains.case._import.firearms.urls")),
+    path("firearms/", include("web.domains.case._import.fa_oil.urls")),
     path("wood/", include("web.domains.case._import.wood.urls")),
     path("derogations/", include("web.domains.case._import.derogations.urls")),
     # Importer case management

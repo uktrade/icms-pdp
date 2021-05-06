@@ -2,7 +2,7 @@ from django.urls import path, re_path
 
 from . import views
 
-app_name = "firearms"
+app_name = "fa-oil"
 urlpatterns = [
     # Firearms and Ammunition - Open Individual Licence
     path("oil/<int:pk>/edit/", views.edit_oil, name="edit-oil"),
