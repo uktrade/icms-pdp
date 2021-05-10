@@ -8,7 +8,7 @@ class SILApplication(ImportApplication):
 
     PROCESS_TYPE = "SILApplication"
 
-    # firearms licence for
+    # Select one or more sections related to the firearms licence
     section1 = models.BooleanField(null=True)
     section2 = models.BooleanField(null=True)
     section5 = models.BooleanField(null=True)
