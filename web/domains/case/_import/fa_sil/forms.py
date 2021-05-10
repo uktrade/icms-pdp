@@ -27,20 +27,20 @@ class PrepareSILForm(forms.ModelForm):
     other_description = forms.CharField(
         required=False,
         label="Other Section Description",
-        help_text="""
-            If you have selected Other in Firearms Act Sections. Please explain why you are making
-            this request under this 'Other' section.
-        """,
+        help_text=(
+            "If you have selected Other in Firearms Act Sections. Please explain why you are making"
+            " this request under this 'Other' section."
+        ),
     )
 
     commodity_code = forms.ChoiceField(
         label="Commodity Code",
-        help_text="""
-            You must pick the commodity code group that applies to the items that you wish to
-            import. Please note that "ex Chapter 97" is only relevant to collectors pieces and
-            items over 100 years old. Please contact HMRC classification advisory service,
-            01702 366077, if you are unsure of the correct code.
-        """,
+        help_text=(
+            "You must pick the commodity code group that applies to the items that you wish to"
+            ' import. Please note that "ex Chapter 97" is only relevant to collectors pieces and'
+            " items over 100 years old. Please contact HMRC classification advisory service,"
+            " 01702 366077, if you are unsure of the correct code."
+        ),
         choices=[(x, x) for x in [None, "ex Chapter 93", "ex Chapter 97"]],
     )
 
@@ -102,7 +102,7 @@ class PrepareSILForm(forms.ModelForm):
 
         # At least one section should be selected
         licence_for = ["section1", "section2", "section5", "section58_obsolete", "section58_other"]
-        sections = [cleaned_data.get(section) for section in licence_for]
+        sections = (cleaned_data.get(section) for section in licence_for)
         if not any(sections):
             # The sections are grouped together, error message is added to the last element of the group.
             # Having empty strings will highlight the fields in red.
