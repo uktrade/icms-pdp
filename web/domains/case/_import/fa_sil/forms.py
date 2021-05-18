@@ -28,11 +28,13 @@ class PrepareSILForm(forms.ModelForm):
         help_text="Select the main point of contact for the case. This will usually be the person who created the application.",
     )
 
-    section1 = forms.BooleanField(required=False, label="Firearms Licence for")
-    section2 = forms.BooleanField(required=False, label="")
-    section5 = forms.BooleanField(required=False, label="")
-    section58_obsolete = forms.BooleanField(required=False, label="")
-    section58_other = forms.BooleanField(required=False, label="")
+    section1 = forms.BooleanField(required=False, label="Section 1")
+    section2 = forms.BooleanField(required=False, label="Section 2")
+    section5 = forms.BooleanField(required=False, label="Section 5")
+    section58_obsolete = forms.BooleanField(
+        required=False, label="Section 58(2) - Obsolete Calibre"
+    )
+    section58_other = forms.BooleanField(required=False, label="Section 58(2) - Other")
     other_description = forms.CharField(
         required=False,
         label="Other Section Description",
@@ -81,6 +83,7 @@ class PrepareSILForm(forms.ModelForm):
             "military_police",
             "eu_single_market",
             "manufactured",
+            "commodity_code",
             "know_bought_from",
             "additional_comments",
         )
@@ -113,13 +116,11 @@ class PrepareSILForm(forms.ModelForm):
         licence_for = ["section1", "section2", "section5", "section58_obsolete", "section58_other"]
         sections = (cleaned_data.get(section) for section in licence_for)
         if not any(sections):
-            # The sections are grouped together, error message is added to the last element of the group.
-            # Having empty strings will highlight the fields in red.
-            self.add_error("section1", "")
-            self.add_error("section2", "")
-            self.add_error("section5", "")
-            self.add_error("section58_obsolete", "")
-            self.add_error("section58_other", "You must select at least one item")
+            self.add_error("section1", "You must select at least one 'section'")
+            self.add_error("section2", "You must select at least one 'section'")
+            self.add_error("section5", "You must select at least one 'section'")
+            self.add_error("section58_obsolete", "You must select at least one 'section'")
+            self.add_error("section58_other", "You must select at least one 'section'")
 
         if cleaned_data.get("section58_other") and not cleaned_data.get("other_description"):
             self.add_error("other_description", "You must enter this item")
@@ -497,3 +498,17 @@ class SILGoodsSection582OtherForm(forms.ModelForm):
 
         if bore and not cleaned_data.get("bore_details"):
             self.add_error("bore_details", "You must enter this item")
+
+
+class SubmitSILForm(forms.Form):
+    confirmation = forms.CharField(
+        label='Confirm that you agree to the above by typing "I AGREE", in capitals, in this box'
+    )
+
+    def clean_confirmation(self):
+        confirmation = self.cleaned_data["confirmation"]
+
+        if confirmation != "I AGREE":
+            raise forms.ValidationError("Please agree to the declaration of truth.")
+
+        return confirmation
