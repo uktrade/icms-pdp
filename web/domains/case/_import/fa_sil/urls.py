@@ -6,7 +6,7 @@ app_name = "fa-sil"
 urlpatterns = [
     path("<int:pk>/edit/", views.edit, name="edit"),
     # Goods
-    path("<int:pk>/sections/choice/", views.choose_goods_section, name="choose-goods-section"),
+    path("<int:pk>/sections/choose/", views.choose_goods_section, name="choose-goods-section"),
     path(
         "<int:application_pk>/section1/",
         include(

@@ -59,7 +59,9 @@ def edit(request: HttpRequest, pk: int) -> HttpResponse:
 @permission_required("web.importer_access", raise_exception=True)
 def choose_goods_section(request: HttpRequest, *, pk: int) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(models.SILApplication.objects.select_for_update(), pk=pk)
+        application: models.SILApplication = get_object_or_404(
+            models.SILApplication.objects.select_for_update(), pk=pk
+        )
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -120,7 +122,7 @@ def _add_goods(
     request: HttpRequest, application_pk: int, form_class: Type[ModelForm], template: str
 ) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
 
@@ -208,7 +210,7 @@ def _edit_goods(
     template: str,
 ) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
         goods: Goods = get_object_or_404(goods_class, pk=goods_pk)
@@ -288,7 +290,7 @@ def _delete_goods(
     goods_class: GoodsT,
 ) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
         goods: Goods = get_object_or_404(goods_class, pk=goods_pk)
