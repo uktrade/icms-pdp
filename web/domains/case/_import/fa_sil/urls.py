@@ -8,68 +8,12 @@ urlpatterns = [
     # Goods
     path("<int:pk>/sections/choose/", views.choose_goods_section, name="choose-goods-section"),
     path(
-        "<int:application_pk>/section1/",
+        "<int:application_pk>/<silsectiontype:sil_section_type>/",
         include(
             [
-                path("add/", views.add_section1, name="add-section1"),
-                path("<int:goods_pk>/edit/", views.edit_section1, name="edit-section1"),
-                path("<int:goods_pk>/delete/", views.delete_section1, name="delete-section1"),
-            ]
-        ),
-    ),
-    path(
-        "<int:application_pk>/section2/",
-        include(
-            [
-                path("add/", views.add_section2, name="add-section2"),
-                path("<int:goods_pk>/edit/", views.edit_section2, name="edit-section2"),
-                path("<int:goods_pk>/delete/", views.delete_section2, name="delete-section2"),
-            ]
-        ),
-    ),
-    path(
-        "<int:application_pk>/section5/",
-        include(
-            [
-                path("add/", views.add_section5, name="add-section5"),
-                path("<int:goods_pk>/edit/", views.edit_section5, name="edit-section5"),
-                path("<int:goods_pk>/delete/", views.delete_section5, name="delete-section5"),
-            ]
-        ),
-    ),
-    path(
-        "<int:application_pk>/section582-obsolete/",
-        include(
-            [
-                path("add/", views.add_section582_obsolete, name="add-section582-obsolete"),
-                path(
-                    "<int:goods_pk>/edit/",
-                    views.edit_section582_obsolete,
-                    name="edit-section582-obsolete",
-                ),
-                path(
-                    "<int:goods_pk>/delete/",
-                    views.delete_section582_obsolete,
-                    name="delete-section582-obsolete",
-                ),
-            ]
-        ),
-    ),
-    path(
-        "<int:application_pk>/section582-other/",
-        include(
-            [
-                path("add/", views.add_section582_other, name="add-section582-other"),
-                path(
-                    "<int:goods_pk>/edit/",
-                    views.edit_section582_other,
-                    name="edit-section582-other",
-                ),
-                path(
-                    "<int:goods_pk>/delete/",
-                    views.delete_section582_other,
-                    name="delete-section582-other",
-                ),
+                path("add/", views.add_goods, name="add-section"),
+                path("<int:goods_pk>/edit/", views.edit_goods, name="edit-section"),
+                path("<int:goods_pk>/delete/", views.delete_goods, name="delete-section"),
             ]
         ),
     ),

@@ -2,13 +2,13 @@
   <div class="container setoutForm">
     <h5>Section 1 - {{ section.description }}</h5>
     <a
-      href="{{ icms_url('import:fa-sil:edit-section1', kwargs={'application_pk': process.pk, 'goods_pk': section.pk}) }}"
+      href="{{ icms_url('import:fa-sil:edit-section', kwargs={'application_pk': process.pk, 'sil_section_type': 'section1', 'goods_pk': section.pk}) }}"
       class="link-button icon-pencil button">
       Edit
     </a>
     <form
       method="POST"
-      action="{{ icms_url('import:fa-sil:delete-section1', kwargs={'application_pk': process.pk, 'goods_pk': section.pk}) }}"
+      action="{{ icms_url('import:fa-sil:delete-section', kwargs={'application_pk': process.pk, 'sil_section_type': 'section1', 'goods_pk': section.pk}) }}"
       class="form-inline">
       {{ csrf_input }}
       <button

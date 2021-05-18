@@ -221,7 +221,7 @@ class SILGoodsSection582ObsoleteForm(forms.ModelForm):
         self.fields["original_chambering"].required = True
 
 
-class SILGoodsSection582Other(forms.ModelForm):
+class SILGoodsSection582OtherForm(forms.ModelForm):
     class Meta:
         model = models.SILGoodsSection582Other
         fields = (
