@@ -30,6 +30,50 @@ GoodsForm = Union[
 GoodsFormT = Type[GoodsForm]
 
 
+class CreateSILSectionConfig(NamedTuple):
+    model_class: GoodsModelT
+    form_class: GoodsFormT
+    template: str
+
+
+def _get_sil_section_app_config(sil_section_type: str) -> CreateSILSectionConfig:
+    if sil_section_type == "section1":
+        return CreateSILSectionConfig(
+            model_class=models.SILGoodsSection1,
+            form_class=forms.SILGoodsSection1Form,
+            template="web/domains/case/import/fa-sil/goods/section1.html",
+        )
+
+    elif sil_section_type == "section2":
+        return CreateSILSectionConfig(
+            model_class=models.SILGoodsSection2,
+            form_class=forms.SILGoodsSection2Form,
+            template="web/domains/case/import/fa-sil/goods/section2.html",
+        )
+
+    elif sil_section_type == "section5":
+        return CreateSILSectionConfig(
+            model_class=models.SILGoodsSection5,
+            form_class=forms.SILGoodsSection5Form,
+            template="web/domains/case/import/fa-sil/goods/section5.html",
+        )
+
+    elif sil_section_type == "section582-obsolete":
+        return CreateSILSectionConfig(
+            model_class=models.SILGoodsSection582Obsolete,
+            form_class=forms.SILGoodsSection582ObsoleteForm,
+            template="web/domains/case/import/fa-sil/goods/section582-obsolete.html",
+        )
+
+    elif sil_section_type == "section582-other":
+        return CreateSILSectionConfig(
+            model_class=models.SILGoodsSection582Other,
+            form_class=forms.SILGoodsSection582OtherForm,
+            template="web/domains/case/import/fa-sil/goods/section582-other.html",
+        )
+    raise NotImplementedError(f"sil_section_type is not supported: {sil_section_type}")
+
+
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
 def edit(request: HttpRequest, pk: int) -> HttpResponse:
@@ -86,53 +130,9 @@ def choose_goods_section(request: HttpRequest, *, pk: int) -> HttpResponse:
         return render(request, "web/domains/case/import/fa-sil/choose-goods-section.html", context)
 
 
-class CreateSILSectionConfig(NamedTuple):
-    model_class: GoodsModelT
-    form_class: GoodsFormT
-    template: str
-
-
-def _get_sil_section_app_config(sil_section_type: str) -> CreateSILSectionConfig:
-    if sil_section_type == "section1":
-        return CreateSILSectionConfig(
-            model_class=models.SILGoodsSection1,
-            form_class=forms.SILGoodsSection1Form,
-            template="web/domains/case/import/fa-sil/goods/section1.html",
-        )
-
-    elif sil_section_type == "section2":
-        return CreateSILSectionConfig(
-            model_class=models.SILGoodsSection2,
-            form_class=forms.SILGoodsSection2Form,
-            template="web/domains/case/import/fa-sil/goods/section2.html",
-        )
-
-    elif sil_section_type == "section5":
-        return CreateSILSectionConfig(
-            model_class=models.SILGoodsSection5,
-            form_class=forms.SILGoodsSection5Form,
-            template="web/domains/case/import/fa-sil/goods/section5.html",
-        )
-
-    elif sil_section_type == "section582-obsolete":
-        return CreateSILSectionConfig(
-            model_class=models.SILGoodsSection582Obsolete,
-            form_class=forms.SILGoodsSection582ObsoleteForm,
-            template="web/domains/case/import/fa-sil/goods/section582-obsolete.html",
-        )
-
-    elif sil_section_type == "section582-other":
-        return CreateSILSectionConfig(
-            model_class=models.SILGoodsSection582Other,
-            form_class=forms.SILGoodsSection582OtherForm,
-            template="web/domains/case/import/fa-sil/goods/section582-other.html",
-        )
-    raise NotImplementedError("sil_section_type is not supported: {sil_section_type}")
-
-
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def add_goods(request: HttpRequest, application_pk: int, sil_section_type: str) -> HttpResponse:
+def add_section(request: HttpRequest, application_pk: int, sil_section_type: str) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
@@ -168,18 +168,18 @@ def add_goods(request: HttpRequest, application_pk: int, sil_section_type: str) 
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def edit_goods(
+def edit_section(
     request: HttpRequest,
     application_pk: int,
     sil_section_type: str,
-    goods_pk: int,
+    section_pk: int,
 ) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
         config = _get_sil_section_app_config(sil_section_type)
-        goods: GoodsModel = get_object_or_404(config.model_class, pk=goods_pk)
+        goods: GoodsModel = get_object_or_404(config.model_class, pk=section_pk)
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -208,15 +208,15 @@ def edit_goods(
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
 @require_POST
-def delete_goods(
-    request: HttpRequest, application_pk: int, sil_section_type: str, goods_pk: int
+def delete_section(
+    request: HttpRequest, application_pk: int, sil_section_type: str, section_pk: int
 ) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
         config = _get_sil_section_app_config(sil_section_type)
-        goods: GoodsModel = get_object_or_404(config.model_class, pk=goods_pk)
+        goods: GoodsModel = get_object_or_404(config.model_class, pk=section_pk)
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 

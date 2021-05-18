@@ -11,9 +11,9 @@ urlpatterns = [
         "<int:application_pk>/<silsectiontype:sil_section_type>/",
         include(
             [
-                path("add/", views.add_goods, name="add-section"),
-                path("<int:goods_pk>/edit/", views.edit_goods, name="edit-section"),
-                path("<int:goods_pk>/delete/", views.delete_goods, name="delete-section"),
+                path("add/", views.add_section, name="add-section"),
+                path("<int:section_pk>/edit/", views.edit_section, name="edit-section"),
+                path("<int:section_pk>/delete/", views.delete_section, name="delete-section"),
             ]
         ),
     ),
