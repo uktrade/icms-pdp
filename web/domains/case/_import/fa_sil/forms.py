@@ -4,6 +4,7 @@ from django_select2 import forms as s2forms
 from guardian.shortcuts import get_users_with_perms
 
 from web.domains.country.models import Country
+from web.domains.file.utils import ICMSFileField
 from web.domains.firearms.models import ObsoleteCalibre
 from web.domains.user.models import User
 
@@ -512,3 +513,22 @@ class SubmitSILForm(forms.Form):
             raise forms.ValidationError("Please agree to the declaration of truth.")
 
         return confirmation
+
+
+class Section5DocumentForm(forms.ModelForm):
+    document = ICMSFileField(required=True)
+
+    class Meta:
+        model = models.SILUserSection5
+        fields = ("document",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.is_active:
+            self.fields["document"].required = False
+
+    def clean(self):
+        data = super().clean()
+
+        # document is handled in the view
+        data.pop("document", None)

@@ -1,6 +1,13 @@
 from django.db import models
 
+from web.domains.file.models import File
+from web.domains.section5.models import Section5Authority
+
 from ..models import ImportApplication
+
+
+class SILUserSection5(File):
+    updated_datetime = models.DateTimeField(auto_now=True)
 
 
 class SILApplication(ImportApplication):
@@ -36,6 +43,9 @@ class SILApplication(ImportApplication):
 
     # misc
     additional_comments = models.CharField(max_length=4000, blank=True, null=True)
+
+    # section 5
+    user_section5 = models.ManyToManyField(SILUserSection5, related_name="import_application")
 
 
 class SILGoodsSection1(models.Model):
@@ -175,3 +185,15 @@ class SILGoodsSection582Other(models.Model):
     description = models.CharField(max_length=4096)
 
     quantity = models.IntegerField()
+
+
+class SILVerifiedSection5(models.Model):
+    import_application = models.ForeignKey(
+        SILApplication, on_delete=models.PROTECT, related_name="verified_section5"
+    )
+    section5_authority = models.ForeignKey(
+        Section5Authority, on_delete=models.PROTECT, related_name="verified_section5"
+    )
+
+    created_datetime = models.DateTimeField(auto_now_add=True)
+    updated_datetime = models.DateTimeField(auto_now=True)

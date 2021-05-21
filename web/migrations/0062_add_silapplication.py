@@ -71,4 +71,58 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
+        migrations.CreateModel(
+            name="SILUserSection5",
+            fields=[
+                (
+                    "file_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="web.file",
+                    ),
+                ),
+                ("updated_datetime", models.DateTimeField(auto_now=True)),
+            ],
+            bases=("web.file",),
+        ),
+        migrations.CreateModel(
+            name="SILVerifiedSection5",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_datetime", models.DateTimeField(auto_now_add=True)),
+                ("updated_datetime", models.DateTimeField(auto_now=True)),
+                (
+                    "import_application",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="verified_section5",
+                        to="web.silapplication",
+                    ),
+                ),
+                (
+                    "section5_authority",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="verified_section5",
+                        to="web.section5authority",
+                    ),
+                ),
+            ],
+        ),
+        migrations.AddField(
+            model_name="silapplication",
+            name="user_section5",
+            field=models.ManyToManyField(
+                related_name="import_application", to="web.SILUserSection5"
+            ),
+        ),
     ]
