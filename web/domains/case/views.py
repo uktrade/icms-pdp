@@ -431,9 +431,7 @@ def manage_update_requests(
         application: ImpOrExp = get_object_or_404(
             model_class.objects.select_for_update(), pk=application_pk
         )
-        task = application.get_task(
-            [ImportApplication.SUBMITTED, ImportApplication.WITHDRAWN], "process"
-        )
+        task = application.get_task([model_class.SUBMITTED, model_class.WITHDRAWN], "process")
 
         update_requests = application.update_requests.filter(is_active=True)
         current_update_request = update_requests.filter(
@@ -458,8 +456,6 @@ def manage_update_requests(
                 "EXPORTER_NAME": application.exporter.name,
                 "CASE_OFFICER_NAME": request.user,
             }
-        else:
-            raise NotImplementedError(f"Unknown case_type {case_type}")
 
         # TODO: replace with case reference ICMSLST-348
         template = Template.objects.get(template_code=template_code, is_active=True)
@@ -475,7 +471,7 @@ def manage_update_requests(
                 update_request.status = models.UpdateRequest.OPEN
                 update_request.save()
 
-                application.status = ImportApplication.UPDATE_REQUESTED
+                application.status = model_class.UPDATE_REQUESTED
                 application.save()
                 application.update_requests.add(update_request)
 
@@ -493,8 +489,6 @@ def manage_update_requests(
                     contacts = get_users_with_perms(
                         application.exporter, only_with_perms_in=["is_contact_of_exporter"]
                     ).filter(user_permissions__codename="exporter_access")
-                else:
-                    raise NotImplementedError(f"Unknown case_type {case_type}")
 
                 notify.update_request(
                     update_request.request_subject,
@@ -513,14 +507,13 @@ def manage_update_requests(
             )
 
         context = {
-            "process_template": f"web/domains/case/{case_type}/partials/process.html",
             "process": application,
             "task": task,
             "page_title": f"{application.application_type.get_type_description()} - Update Requests",
             "form": form,
             "update_requests": update_requests,
             "current_update_request": current_update_request,
-            "case_type": case_type,  # TODO: ICMSLST-670 remove
+            "case_type": case_type,
         }
 
         return render(

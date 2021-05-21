@@ -82,8 +82,15 @@ further_information_requests_urls = [
 ]
 
 update_requests_urls = [
-    path("", views.manage_update_requests, name="manage-update-requests"),
-    path("<int:update_request_pk>/close/", views.close_update_request, name="close-update-request"),
+    path("manage/", views.manage_update_requests, name="manage-update-requests"),
+    path(
+        "<int:update_request_pk>/",
+        include(
+            [
+                path("close/", views.close_update_request, name="close-update-request"),
+            ]
+        ),
+    ),
 ]
 
 urlpatterns = [
