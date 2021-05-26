@@ -1,7 +1,6 @@
 from typing import NamedTuple, Type, Union
 
-from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms.models import model_to_dict
 from django.http import HttpRequest, HttpResponse
@@ -260,17 +259,14 @@ def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def choose_goods_section(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -283,19 +279,18 @@ def choose_goods_section(request: HttpRequest, *, application_pk: int) -> HttpRe
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
-def add_section(request: HttpRequest, application_pk: int, sil_section_type: str) -> HttpResponse:
+def add_section(
+    request: HttpRequest, *, application_pk: int, sil_section_type: str
+) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
         config = _get_sil_section_app_config(sil_section_type)
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         if request.POST:
             form = config.form_class(request.POST)
@@ -323,9 +318,9 @@ def add_section(request: HttpRequest, application_pk: int, sil_section_type: str
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def edit_section(
     request: HttpRequest,
+    *,
     application_pk: int,
     sil_section_type: str,
     section_pk: int,
@@ -334,13 +329,11 @@ def edit_section(
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         config = _get_sil_section_app_config(sil_section_type)
         goods: GoodsModel = get_object_or_404(config.model_class, pk=section_pk)
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         if request.POST:
             form = config.form_class(request.POST, instance=goods)
@@ -362,22 +355,19 @@ def edit_section(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 @require_POST
 def delete_section(
-    request: HttpRequest, application_pk: int, sil_section_type: str, section_pk: int
+    request: HttpRequest, *, application_pk: int, sil_section_type: str, section_pk: int
 ) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         config = _get_sil_section_app_config(sil_section_type)
         goods: GoodsModel = get_object_or_404(config.model_class, pk=section_pk)
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         goods.is_active = False
         goods.save()
@@ -386,17 +376,14 @@ def delete_section(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
-def submit(request: HttpRequest, application_pk: int) -> HttpResponse:
+def submit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         errors = _get_sil_errors(application)
 
@@ -456,11 +443,7 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
             if form.is_valid():
                 document = form.cleaned_data.get("document")
 
-                create_file_model(
-                    document,
-                    request.user,
-                    application.user_section5,
-                )
+                create_file_model(document, request.user, application.user_section5)
 
                 return redirect(
                     reverse("import:fa-sil:edit", kwargs={"application_pk": application_pk})
