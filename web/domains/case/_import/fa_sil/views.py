@@ -226,9 +226,6 @@ def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
         if request.POST:
             form = forms.PrepareSILForm(data=request.POST, instance=application)
 
@@ -453,9 +450,6 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
         if request.POST:
             form = case_forms.DocumentForm(data=request.POST, files=request.FILES)
 
@@ -497,9 +491,6 @@ def archive_section5_document(
         case_views.check_application_permission(application, request.user, "import")
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
         document = application.user_section5.get(pk=section5_pk)
         document.is_active = False
         document.save()
@@ -536,9 +527,6 @@ def add_verified_section5(
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
         application.verified_section5.add(section5)
 
         return redirect(reverse("import:fa-sil:edit", kwargs={"application_pk": application_pk}))
@@ -557,9 +545,6 @@ def delete_verified_section5(
         section5 = get_object_or_404(application.verified_section5, pk=section5_pk)
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         application.verified_section5.remove(section5)
 
@@ -580,9 +565,6 @@ def view_verified_section5(
         )
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",

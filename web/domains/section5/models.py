@@ -11,7 +11,7 @@ from web.models.mixins import Archivable
 class Section5AuthorityManager(models.Manager):
     def active(self):
         today = timezone.now().date()
-        return self.filter(is_active=True).filter(start_date__gte=today).filter(end_date__lte=today)
+        return self.filter(is_active=True, start_date__gte=today, end_date__lte=today)
 
 
 class Section5Authority(models.Model):
