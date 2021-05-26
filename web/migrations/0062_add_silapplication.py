@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                         to="web.file",
                     ),
                 ),
-                ("updated_datetime", models.DateTimeField(auto_now=True)),
             ],
             bases=("web.file",),
         ),
@@ -74,15 +73,11 @@ class Migration(migrations.Migration):
                 ("additional_comments", models.CharField(blank=True, max_length=4000, null=True)),
                 (
                     "user_section5",
-                    models.ManyToManyField(
-                        related_name="import_application", to="web.SILUserSection5"
-                    ),
+                    models.ManyToManyField(related_name="+", to="web.SILUserSection5"),
                 ),
                 (
                     "verified_section5",
-                    models.ManyToManyField(
-                        related_name="import_application", to="web.Section5Authority"
-                    ),
+                    models.ManyToManyField(related_name="+", to="web.Section5Authority"),
                 ),
             ],
             bases=("web.importapplication",),

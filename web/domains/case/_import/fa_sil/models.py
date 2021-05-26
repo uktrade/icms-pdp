@@ -7,7 +7,7 @@ from ..models import ImportApplication
 
 
 class SILUserSection5(File):
-    updated_datetime = models.DateTimeField(auto_now=True)
+    """User uploaded section 5 documents."""
 
 
 class SILApplication(ImportApplication):
@@ -45,8 +45,8 @@ class SILApplication(ImportApplication):
     additional_comments = models.CharField(max_length=4000, blank=True, null=True)
 
     # section 5
-    user_section5 = models.ManyToManyField(SILUserSection5, related_name="import_application")
-    verified_section5 = models.ManyToManyField(Section5Authority, related_name="import_application")
+    user_section5 = models.ManyToManyField(SILUserSection5, related_name="+")
+    verified_section5 = models.ManyToManyField(Section5Authority, related_name="+")
 
 
 class SILGoodsSection1(models.Model):

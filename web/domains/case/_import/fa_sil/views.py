@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from web.domains.case import forms as case_forms
+from web.domains.case import views as case_views
 from web.domains.file.utils import create_file_model
 from web.domains.template.models import Template
 from web.flow.models import Task
@@ -21,7 +22,6 @@ from web.utils.validation import (
     create_page_errors,
 )
 
-from .. import views as import_views
 from ..models import ImportApplication
 from . import forms, models
 
@@ -167,22 +167,13 @@ def _get_sil_errors(application: models.SILApplication) -> ApplicationErrors:
         )
         errors.add(section_errors)
 
-    today = timezone.now().date()
-    importer_has_section5 = application.importer.section5_authorities.filter(
-        is_active=True, start_date__lte=today, end_date__gte=today
-    )
-    selected_section5 = application.verified_section5.filter(
-        is_active=True, start_date__lte=today, end_date__gte=today
-    ).exists()
+    importer_has_section5 = application.importer.section5_authorities.currently_active().exists()
+    selected_section5 = application.verified_section5.currently_active().exists()
 
     # Verified Section 5
     if application.section5 and importer_has_section5 and not selected_section5:
-        url = reverse(
-            "import:fa-sil:edit",
-            kwargs={"application_pk": application.pk},
-        )
         section_errors = PageErrors(
-            page_name="Application Details - Certificates - Section 5", url=url
+            page_name="Application Details - Certificates - Section 5", url=edit_url
         )
         section_errors.add(
             FieldError(
@@ -200,12 +191,8 @@ def _get_sil_errors(application: models.SILApplication) -> ApplicationErrors:
         and not importer_has_section5
         and not application.user_section5.filter(is_active=True).exists()
     ):
-        url = reverse(
-            "import:fa-sil:edit",
-            kwargs={"application_pk": application.pk},
-        )
         section_errors = PageErrors(
-            page_name="Application Details - Documents - Section 5", url=url
+            page_name="Application Details - Documents - Section 5", url=edit_url
         )
         section_errors.add(
             FieldError(
@@ -230,12 +217,12 @@ def _get_sil_errors(application: models.SILApplication) -> ApplicationErrors:
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -255,10 +242,7 @@ def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
         else:
             form = forms.PrepareSILForm(instance=application, initial={"contact": request.user})
 
-        today = timezone.now().date()
-        verified_section5 = application.importer.section5_authorities.filter(
-            is_active=True, start_date__lte=today, end_date__gte=today
-        )
+        verified_section5 = application.importer.section5_authorities.currently_active()
         available_verified_section5 = verified_section5.exclude(
             pk__in=application.verified_section5.all()
         )
@@ -280,10 +264,10 @@ def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def choose_goods_section(request: HttpRequest, *, pk: int) -> HttpResponse:
+def choose_goods_section(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
-            models.SILApplication.objects.select_for_update(), pk=pk
+            models.SILApplication.objects.select_for_update(), pk=application_pk
         )
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
@@ -406,9 +390,11 @@ def delete_section(
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def submit(request: HttpRequest, pk: int) -> HttpResponse:
+def submit(request: HttpRequest, application_pk: int) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(models.SILApplication.objects.select_for_update(), pk=pk)
+        application = get_object_or_404(
+            models.SILApplication.objects.select_for_update(), pk=application_pk
+        )
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -458,12 +444,12 @@ def submit(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -472,20 +458,14 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
 
         if request.POST:
             form = case_forms.DocumentForm(data=request.POST, files=request.FILES)
-            document = request.FILES.get("document")
 
             if form.is_valid():
-                extra_args = {
-                    field: value
-                    for (field, value) in form.cleaned_data.items()
-                    if field not in ["document"]
-                }
+                document = form.cleaned_data.get("document")
 
                 create_file_model(
                     document,
                     request.user,
                     application.user_section5,
-                    extra_args=extra_args,
                 )
 
                 return redirect(
@@ -507,7 +487,6 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
 
 @require_POST
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def archive_section5_document(
     request: HttpRequest, *, application_pk: int, section5_pk: int
 ) -> HttpResponse:
@@ -515,6 +494,7 @@ def archive_section5_document(
         application: models.SILApplication = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
@@ -535,11 +515,12 @@ def view_section5_document(
     application: models.SILApplication = get_object_or_404(models.SILApplication, pk=application_pk)
     get_object_or_404(application.user_section5, pk=section5_pk)
 
-    return import_views.view_file(request, application, application.user_section5, section5_pk)
+    return case_views.view_application_file(
+        request.user, application, application.user_section5, section5_pk, "import"
+    )
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 @require_POST
 def add_verified_section5(
     request: HttpRequest, *, application_pk: int, section5_pk: int
@@ -548,6 +529,7 @@ def add_verified_section5(
         application = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         section5 = get_object_or_404(
             application.importer.section5_authorities.filter(is_active=True), pk=section5_pk
         )
@@ -563,7 +545,6 @@ def add_verified_section5(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 @require_POST
 def delete_verified_section5(
     request: HttpRequest, *, application_pk: int, section5_pk: int
@@ -572,6 +553,7 @@ def delete_verified_section5(
         application = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         section5 = get_object_or_404(application.verified_section5, pk=section5_pk)
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
@@ -585,7 +567,6 @@ def delete_verified_section5(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def view_verified_section5(
     request: HttpRequest, *, application_pk: int, section5_pk: int
 ) -> HttpResponse:
@@ -593,6 +574,7 @@ def view_verified_section5(
         application = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
+        case_views.check_application_permission(application, request.user, "import")
         section5 = get_object_or_404(
             application.importer.section5_authorities.filter(is_active=True), pk=section5_pk
         )
@@ -625,4 +607,6 @@ def view_verified_section5_document(
         application.importer.section5_authorities.filter(is_active=True), files__pk=document_pk
     )
 
-    return import_views.view_file(request, application, section5.files, document_pk)
+    return case_views.view_application_file(
+        request.user, application, section5.files, document_pk, "import"
+    )
