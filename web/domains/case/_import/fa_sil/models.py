@@ -46,6 +46,7 @@ class SILApplication(ImportApplication):
 
     # section 5
     user_section5 = models.ManyToManyField(SILUserSection5, related_name="import_application")
+    verified_section5 = models.ManyToManyField(Section5Authority, related_name="import_application")
 
 
 class SILGoodsSection1(models.Model):
@@ -185,15 +186,3 @@ class SILGoodsSection582Other(models.Model):
     description = models.CharField(max_length=4096)
 
     quantity = models.IntegerField()
-
-
-class SILVerifiedSection5(models.Model):
-    import_application = models.ForeignKey(
-        SILApplication, on_delete=models.PROTECT, related_name="verified_section5"
-    )
-    section5_authority = models.ForeignKey(
-        Section5Authority, on_delete=models.PROTECT, related_name="verified_section5"
-    )
-
-    created_datetime = models.DateTimeField(auto_now_add=True)
-    updated_datetime = models.DateTimeField(auto_now=True)

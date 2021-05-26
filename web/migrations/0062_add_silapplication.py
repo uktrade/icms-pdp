@@ -12,6 +12,24 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name="SILUserSection5",
+            fields=[
+                (
+                    "file_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="web.file",
+                    ),
+                ),
+                ("updated_datetime", models.DateTimeField(auto_now=True)),
+            ],
+            bases=("web.file",),
+        ),
+        migrations.CreateModel(
             name="SILApplication",
             fields=[
                 (
@@ -54,6 +72,18 @@ class Migration(migrations.Migration):
                 ("commodity_code", models.CharField(max_length=40, null=True)),
                 ("know_bought_from", models.BooleanField(null=True)),
                 ("additional_comments", models.CharField(blank=True, max_length=4000, null=True)),
+                (
+                    "user_section5",
+                    models.ManyToManyField(
+                        related_name="import_application", to="web.SILUserSection5"
+                    ),
+                ),
+                (
+                    "verified_section5",
+                    models.ManyToManyField(
+                        related_name="import_application", to="web.Section5Authority"
+                    ),
+                ),
             ],
             bases=("web.importapplication",),
         ),
@@ -69,60 +99,6 @@ class Migration(migrations.Migration):
                 ],
                 max_length=70,
                 null=True,
-            ),
-        ),
-        migrations.CreateModel(
-            name="SILUserSection5",
-            fields=[
-                (
-                    "file_ptr",
-                    models.OneToOneField(
-                        auto_created=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        parent_link=True,
-                        primary_key=True,
-                        serialize=False,
-                        to="web.file",
-                    ),
-                ),
-                ("updated_datetime", models.DateTimeField(auto_now=True)),
-            ],
-            bases=("web.file",),
-        ),
-        migrations.CreateModel(
-            name="SILVerifiedSection5",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
-                    ),
-                ),
-                ("created_datetime", models.DateTimeField(auto_now_add=True)),
-                ("updated_datetime", models.DateTimeField(auto_now=True)),
-                (
-                    "import_application",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="verified_section5",
-                        to="web.silapplication",
-                    ),
-                ),
-                (
-                    "section5_authority",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="verified_section5",
-                        to="web.section5authority",
-                    ),
-                ),
-            ],
-        ),
-        migrations.AddField(
-            model_name="silapplication",
-            name="user_section5",
-            field=models.ManyToManyField(
-                related_name="import_application", to="web.SILUserSection5"
             ),
         ),
     ]

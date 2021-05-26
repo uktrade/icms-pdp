@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
+from web.domains.case import forms as case_forms
 from web.domains.file.utils import create_file_model
 from web.domains.template.models import Template
 from web.flow.models import Task
@@ -166,14 +167,16 @@ def _get_sil_errors(application: models.SILApplication) -> ApplicationErrors:
         )
         errors.add(section_errors)
 
-    importer_has_section5 = application.importer.section5_authorities.active()
+    today = timezone.now().date()
+    importer_has_section5 = application.importer.section5_authorities.filter(
+        is_active=True, start_date__lte=today, end_date__gte=today
+    )
+    selected_section5 = application.verified_section5.filter(
+        is_active=True, start_date__lte=today, end_date__gte=today
+    ).exists()
 
     # Verified Section 5
-    if (
-        application.section5
-        and importer_has_section5
-        and not application.verified_section5.exists()
-    ):
+    if application.section5 and importer_has_section5 and not selected_section5:
         url = reverse(
             "import:fa-sil:edit",
             kwargs={"application_pk": application.pk},
@@ -252,13 +255,23 @@ def edit(request: HttpRequest, *, application_pk: int) -> HttpResponse:
         else:
             form = forms.PrepareSILForm(instance=application, initial={"contact": request.user})
 
+        today = timezone.now().date()
+        verified_section5 = application.importer.section5_authorities.filter(
+            is_active=True, start_date__lte=today, end_date__gte=today
+        )
+        available_verified_section5 = verified_section5.exclude(
+            pk__in=application.verified_section5.all()
+        )
+
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
             "process": application,
             "task": task,
             "form": form,
             "user_section5": application.user_section5.filter(is_active=True),
-            "verified_section5": application.importer.section5_authorities.active(),
+            "verified_section5": verified_section5,
+            "available_verified_section5": available_verified_section5,
+            "selected_section5": application.verified_section5.all(),
             "page_title": "Firearms and Ammunition (Specific Import Licence) - Edit",
         }
 
@@ -458,7 +471,7 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
             raise PermissionDenied
 
         if request.POST:
-            form = forms.Section5DocumentForm(data=request.POST, files=request.FILES)
+            form = case_forms.DocumentForm(data=request.POST, files=request.FILES)
             document = request.FILES.get("document")
 
             if form.is_valid():
@@ -479,7 +492,7 @@ def add_section5_document(request: HttpRequest, *, application_pk: int) -> HttpR
                     reverse("import:fa-sil:edit", kwargs={"application_pk": application_pk})
                 )
         else:
-            form = forms.Section5DocumentForm()
+            form = case_forms.DocumentForm()
 
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
@@ -544,7 +557,7 @@ def add_verified_section5(
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        application.verified_section5.get_or_create(section5_authority=section5)
+        application.verified_section5.add(section5)
 
         return redirect(reverse("import:fa-sil:edit", kwargs={"application_pk": application_pk}))
 
@@ -559,14 +572,14 @@ def delete_verified_section5(
         application = get_object_or_404(
             models.SILApplication.objects.select_for_update(), pk=application_pk
         )
-        section5 = get_object_or_404(application.verified_section5, section5_authority=section5_pk)
+        section5 = get_object_or_404(application.verified_section5, pk=section5_pk)
 
         application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        section5.delete()
+        application.verified_section5.remove(section5)
 
         return redirect(reverse("import:fa-sil:edit", kwargs={"application_pk": application_pk}))
 
@@ -596,6 +609,7 @@ def view_verified_section5(
             "page_title": "Firearms and Ammunition (Specific Import Licence) - View Verified Section 5",
             "section5": section5,
         }
+
         return render(
             request, "web/domains/case/import/fa-sil/view-verified-section5.html", context
         )

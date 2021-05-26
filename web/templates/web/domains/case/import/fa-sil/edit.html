@@ -66,11 +66,6 @@
 
   <h5>Section 5 Authorities</h5>
   {% if verified_section5 %}
-    <div class="info-box info-box-info">
-      Please select your verified authorities from the list below. Contact the Home Office if
-      the correct authority is not listed and request that they verify it on ICMS.
-    </div>
-    <h6>Verified Section 5 Authorities</h6>
     {% with read_only = False %}
       {% include "web/domains/case/import/partials/fa-sil/verified-section5-authorities.html" %}
     {% endwith %}
