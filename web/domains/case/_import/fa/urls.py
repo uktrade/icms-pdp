@@ -10,8 +10,28 @@ urlpatterns = [
         "<int:application_pk>/",
         include(
             [
-                # TODO: Add import contacts
-                # path("import-contacts/", include([])),
+                path(
+                    "import-contacts/",
+                    include(
+                        [
+                            path(
+                                "manage/",
+                                views.list_import_contacts,
+                                name="list-import-contacts",
+                            ),
+                            path(
+                                "<entity>/create/",
+                                views.create_import_contact,
+                                name="create-import-contact",
+                            ),
+                            path(
+                                "<entity>/<int:contact_pk>/edit/",
+                                views.edit_import_contact,
+                                name="edit-import-contact",
+                            ),
+                        ]
+                    ),
+                ),
                 path(
                     "constabulary-emails/",
                     include(
