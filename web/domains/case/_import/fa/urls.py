@@ -20,14 +20,21 @@ urlpatterns = [
                                 name="list-import-contacts",
                             ),
                             path(
-                                "<entity>/create/",
-                                views.create_import_contact,
-                                name="create-import-contact",
-                            ),
-                            path(
-                                "<entity>/<int:contact_pk>/edit/",
-                                views.edit_import_contact,
-                                name="edit-import-contact",
+                                "<entity>/",
+                                include(
+                                    [
+                                        path(
+                                            "create/",
+                                            views.create_import_contact,
+                                            name="create-import-contact",
+                                        ),
+                                        path(
+                                            "<int:contact_pk>/edit/",
+                                            views.edit_import_contact,
+                                            name="edit-import-contact",
+                                        ),
+                                    ]
+                                ),
                             ),
                         ]
                     ),

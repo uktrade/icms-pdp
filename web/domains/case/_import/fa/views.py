@@ -9,13 +9,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from web.domains.case import views as case_views
 from web.domains.case._import.fa.forms import (
     ConstabularyEmailForm,
     ConstabularyEmailResponseForm,
     ImportContactLegalEntityForm,
     ImportContactPersonForm,
 )
+from web.domains.case.views import check_application_permission
 from web.domains.template.models import Template
 from web.models import (
     ConstabularyEmail,
@@ -269,14 +269,13 @@ def add_response_constabulary_email(
         )
 
 
-# TODO: Revisit these if we get around to ICMSLST-657
 @login_required
 def list_import_contacts(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: ImportApplication = get_object_or_404(
             ImportApplication.objects.select_for_update(), pk=application_pk
         )
-        case_views.check_application_permission(application, request.user, "import")
+        check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -298,10 +297,12 @@ def create_import_contact(
     form_class = _get_entity_form(entity)
 
     with transaction.atomic():
-        application: ImportApplication = get_object_or_404(
+        import_application: ImportApplication = get_object_or_404(
             ImportApplication.objects.select_for_update(), pk=application_pk
         )
-        case_views.check_application_permission(application, request.user, "import")
+        application: FaImportApplication = _get_fa_application(import_application)
+
+        check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -353,7 +354,7 @@ def edit_import_contact(
         application: ImportApplication = get_object_or_404(
             ImportApplication.objects.select_for_update(), pk=application_pk
         )
-        case_views.check_application_permission(application, request.user, "import")
+        check_application_permission(application, request.user, "import")
         person = get_object_or_404(ImportContact, pk=contact_pk)
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
@@ -389,24 +390,7 @@ def edit_import_contact(
         return render(request, "web/domains/case/import/fa/import-contacts/edit.html", context)
 
 
-def _update_know_bought_from(application: ImportApplication) -> None:
-    # Map process types to the ImportApplication link to that class
-    process_type_link = {
-        OpenIndividualLicenceApplication.PROCESS_TYPE: "openindividuallicenceapplication",
-        DFLApplication.PROCESS_TYPE: "dflapplication",
-        SILApplication.PROCESS_TYPE: "silapplication",
-    }
-
-    try:
-        link = process_type_link[application.process_type]
-    except KeyError:
-        raise NotImplementedError(
-            f"Unable to check know_bought_from: Unknown Firearm process_type: {application.process_type}"
-        )
-
-    # e.g. application.openindividuallicenceapplication to get access to OpenIndividualLicenceApplication
-    firearms_application: FaImportApplication = getattr(application, link)
-
+def _update_know_bought_from(firearms_application: FaImportApplication) -> None:
     if not firearms_application.know_bought_from:
         firearms_application.know_bought_from = True
         firearms_application.save()
