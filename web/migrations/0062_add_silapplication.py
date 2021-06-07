@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "user_imported_certificates",
-                    models.ManyToManyField(related_name="+", to="web.UserImportCertificate"),
+                    models.ManyToManyField(related_name="+", to="UserImportCertificate"),
                 ),
             ],
             bases=("web.importapplication",),

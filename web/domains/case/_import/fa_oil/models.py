@@ -25,7 +25,7 @@ class VerifiedCertificate(models.Model):
         related_name="verified_certificates",
     )
     firearms_authority = models.ForeignKey(
-        "web.FirearmsAuthority", on_delete=models.PROTECT, related_name="verified_certificates"
+        "FirearmsAuthority", on_delete=models.PROTECT, related_name="verified_certificates"
     )
 
     created_datetime = models.DateTimeField(auto_now_add=True)

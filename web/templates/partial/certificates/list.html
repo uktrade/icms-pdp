@@ -28,7 +28,7 @@
         <td>{{ certificate.expiry_date.strftime('%d-%b-%Y') }}</td>
         <td>
             <a
-              href="{{ icms_url('import:fa:view-certificate-document', kwargs={'application_pk': process.pk, 'document_pk': certificate.pk}) }}">
+              href="{{ icms_url('import:fa:view-certificate-document', kwargs={'application_pk': process.pk, 'certificate_pk': certificate.pk}) }}">
               {{ certificate.filename }}</a>
             <span class="extra-info">{{ certificate.human_readable_file_size() }}</span>
         </td>

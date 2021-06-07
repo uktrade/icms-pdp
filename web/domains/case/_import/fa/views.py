@@ -26,7 +26,6 @@ from web.models import (
     ImportContact,
     OpenIndividualLicenceApplication,
     SILApplication,
-    UserImportCertificate,
 )
 from web.notify import email
 from web.utils.s3 import get_file_from_s3, get_s3_client
@@ -394,7 +393,7 @@ def edit_import_contact(
 
 
 @login_required
-def list_certificates(request: HttpRequest, *, application_pk: int) -> HttpResponse:
+def manage_certificates(request: HttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         import_application: ImportApplication = get_object_or_404(
             ImportApplication.objects.select_for_update(), pk=application_pk
@@ -413,7 +412,7 @@ def list_certificates(request: HttpRequest, *, application_pk: int) -> HttpRespo
             "page_title": "Firearms and Ammunition - Certificates",
         }
 
-        return render(request, "web/domains/case/import/fa/certificates/list.html", context)
+        return render(request, "web/domains/case/import/fa/certificates/manage.html", context)
 
 
 @login_required
@@ -447,7 +446,7 @@ def create_certificate(request: HttpRequest, *, application_pk: int) -> HttpResp
 
                 return redirect(
                     reverse(
-                        "import:fa:list-certificates", kwargs={"application_pk": application_pk}
+                        "import:fa:manage-certificates", kwargs={"application_pk": application_pk}
                     )
                 )
         else:
@@ -469,11 +468,13 @@ def edit_certificate(
     request: HttpRequest, *, application_pk: int, certificate_pk: int
 ) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        import_application: ImportApplication = get_object_or_404(
             ImportApplication.objects.select_for_update(), pk=application_pk
         )
+        application: FaImportApplication = _get_fa_application(import_application)
         check_application_permission(application, request.user, "import")
-        certificate = get_object_or_404(UserImportCertificate, pk=certificate_pk)
+
+        certificate = get_object_or_404(application.user_imported_certificates, pk=certificate_pk)
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
@@ -485,7 +486,7 @@ def edit_certificate(
 
                 return redirect(
                     reverse(
-                        "import:fa:list-certificates",
+                        "import:fa:manage-certificates",
                         kwargs={"application_pk": application_pk},
                     )
                 )
@@ -508,13 +509,13 @@ def edit_certificate(
 @require_GET
 @login_required
 def view_certificate_document(
-    request: HttpRequest, *, application_pk: int, document_pk: int
+    request: HttpRequest, *, application_pk: int, certificate_pk: int
 ) -> HttpResponse:
     import_application: ImportApplication = get_object_or_404(ImportApplication, pk=application_pk)
     application: FaImportApplication = _get_fa_application(import_application)
 
     return view_application_file(
-        request.user, application, application.user_imported_certificates, document_pk, "import"
+        request.user, application, application.user_imported_certificates, certificate_pk, "import"
     )
 
 
@@ -537,7 +538,7 @@ def archive_certificate(
         document.save()
 
         return redirect(
-            reverse("import:fa:list-certificates", kwargs={"application_pk": application_pk})
+            reverse("import:fa:manage-certificates", kwargs={"application_pk": application_pk})
         )
 
 

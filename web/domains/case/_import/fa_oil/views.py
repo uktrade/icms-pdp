@@ -89,14 +89,14 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
         errors.add(page_errors)
 
         has_certificates = (
-            application.user_imported_certificates.exists()
+            application.user_imported_certificates.filter(is_active=True).exists()
             or application.verified_certificates.exists()
         )
 
         if not has_certificates:
             page_errors = PageErrors(
                 page_name="Certificates",
-                url=reverse("import:fa:list-certificates", kwargs={"application_pk": pk}),
+                url=reverse("import:fa:manage-certificates", kwargs={"application_pk": pk}),
             )
 
             page_errors.add(

@@ -56,6 +56,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="openindividuallicenceapplication",
             name="user_imported_certificates",
-            field=models.ManyToManyField(related_name="+", to="web.UserImportCertificate"),
+            field=models.ManyToManyField(related_name="+", to="UserImportCertificate"),
         ),
     ]

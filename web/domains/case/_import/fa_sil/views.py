@@ -219,10 +219,13 @@ def _get_sil_errors(application: models.SILApplication) -> ApplicationErrors:
         errors.add(section_errors)
 
     # User certificates errors
-    if application.section1 and not application.user_imported_certificates.exists():
+    if (
+        application.section1
+        and not application.user_imported_certificates.filter(is_active=True).exists()
+    ):
         certificate_errors = PageErrors(
             page_name="Certificates",
-            url=reverse("import:fa:list-certificates", kwargs={"application_pk": application.pk}),
+            url=reverse("import:fa:manage-certificates", kwargs={"application_pk": application.pk}),
         )
 
         certificate_errors.add(
