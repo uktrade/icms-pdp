@@ -38,7 +38,7 @@
                              kwargs={'application_pk': process.pk, 'authority_pk': certificate.pk}) }}" method="post">
               {{ csrf_input }}
               {# TODO fix in ICMSLST-554 #}
-              {% if process.verified_certificates.filter(firearms_authority=certificate).exists() %}
+              {% if certificate.selected %}
                 <input type="submit" class="button small-button" value="Remove"/>
               {% else %}
                 <input type="submit" class="button small-button" value="Select"/>

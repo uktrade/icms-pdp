@@ -3,6 +3,7 @@ from typing import Type, Union
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
+from django.db.models import OuterRef
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -59,7 +60,9 @@ def manage_constabulary_emails(request: HttpRequest, *, application_pk: int) -> 
             context.update(
                 {
                     "show_verified_certificates": True,
-                    "verified_certificates": application.verified_certificates.all(),
+                    "verified_certificates": application.verified_certificates.filter(
+                        is_active=True
+                    ),
                 }
             )
 
@@ -403,12 +406,17 @@ def manage_certificates(request: HttpRequest, *, application_pk: int) -> HttpRes
 
         task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
 
+        selected_verified = application.verified_certificates.filter(pk=OuterRef("pk")).values("pk")
+        verified_certificates = application.importer.firearms_authorities.filter(
+            is_active=True
+        ).annotate(selected=selected_verified)
+
         context = {
             "process_template": "web/domains/case/import/partials/process.html",
             "process": application,
             "task": task,
             "certificates": application.user_imported_certificates.active(),
-            "verified_certificates": application.importer.firearms_authorities.active(),
+            "verified_certificates": verified_certificates,
             "page_title": "Firearms and Ammunition - Certificates",
         }
 

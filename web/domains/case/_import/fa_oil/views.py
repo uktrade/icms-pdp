@@ -20,11 +20,7 @@ from web.utils.validation import (
 
 from .. import views as import_views
 from .forms import ChecklistFirearmsOILApplicationForm, PrepareOILForm, SubmitOILForm
-from .models import (
-    ChecklistFirearmsOILApplication,
-    OpenIndividualLicenceApplication,
-    VerifiedCertificate,
-)
+from .models import ChecklistFirearmsOILApplication, OpenIndividualLicenceApplication
 
 
 @login_required
@@ -90,7 +86,7 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
 
         has_certificates = (
             application.user_imported_certificates.filter(is_active=True).exists()
-            or application.verified_certificates.exists()
+            or application.verified_certificates.filter(is_active=True).exists()
         )
 
         if not has_certificates:
@@ -190,14 +186,16 @@ def toggle_verified_firearms(request, application_pk, authority_pk):
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        certificate, created = application.verified_certificates.get_or_create(
-            firearms_authority=firearms_authority
+        selected_certificate = application.verified_certificates.filter(
+            is_active=True, pk=authority_pk
         )
-        if not created:
-            certificate.delete()
+        if not selected_certificate:
+            application.verified_certificates.add(firearms_authority)
+        else:
+            application.verified_certificates.remove(firearms_authority)
 
         return redirect(
-            reverse("import:fa-oil:list-user-import-certificates", kwargs={"pk": application_pk})
+            reverse("import:fa:manage-certificates", kwargs={"application_pk": application_pk})
         )
 
 
@@ -225,7 +223,7 @@ def view_verified_firearms(request, application_pk, authority_pk):
             "firearms_authority": firearms_authority,
         }
         return render(
-            request, "web/domains/case/import/fa-oil/certificates/view-verified.html", context
+            request, "web/domains/case/import/fa/certificates/view-verified.html", context
         )
 
 
@@ -267,9 +265,7 @@ def manage_checklist(request, pk):
 @login_required
 def view_verified_certificate_file(request, application_pk, authority_pk, file_pk):
     application = get_object_or_404(OpenIndividualLicenceApplication, pk=application_pk)
-    certificate = get_object_or_404(
-        VerifiedCertificate, import_application=application, firearms_authority__pk=authority_pk
-    )
+    certificate = get_object_or_404(application.verified_certificates, pk=authority_pk)
 
     return import_views.view_file(
         request, application, certificate.firearms_authority.files, file_pk

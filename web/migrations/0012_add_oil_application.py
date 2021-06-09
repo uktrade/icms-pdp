@@ -25,6 +25,13 @@ class Migration(migrations.Migration):
                         to="web.importapplication",
                     ),
                 ),
+                (
+                    "verified_certificates",
+                    models.ManyToManyField(
+                        related_name="+",
+                        to="FirearmsAuthority",
+                    ),
+                ),
             ],
             bases=("web.importapplication",),
         ),
