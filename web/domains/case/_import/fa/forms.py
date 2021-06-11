@@ -70,8 +70,8 @@ class ConstabularyEmailForm(forms.ModelForm):
         process_type = application.process_type
 
         if process_type == OpenIndividualLicenceApplication.PROCESS_TYPE:
-            return Q(firearmsauthority__verified_certificates__import_application=application) | Q(
-                userimportcertificate__import_application=application
+            return Q(firearmsauthority__oil_application=application) | Q(
+                userimportcertificate__oil_application=application
             )
 
         elif process_type == DFLApplication.PROCESS_TYPE:

@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 (
                     "verified_certificates",
                     models.ManyToManyField(
-                        related_name="+",
+                        related_name="oil_application",
                         to="FirearmsAuthority",
                     ),
                 ),

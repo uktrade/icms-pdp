@@ -6,7 +6,6 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_POST
 
 from web.domains.case._import.models import ImportApplication
 from web.domains.template.models import Template
@@ -18,7 +17,6 @@ from web.utils.validation import (
     create_page_errors,
 )
 
-from .. import views as import_views
 from .forms import ChecklistFirearmsOILApplicationForm, PrepareOILForm, SubmitOILForm
 from .models import ChecklistFirearmsOILApplication, OpenIndividualLicenceApplication
 
@@ -170,64 +168,6 @@ def submit_oil(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
-@require_POST
-def toggle_verified_firearms(request, application_pk, authority_pk):
-    with transaction.atomic():
-        application = get_object_or_404(
-            OpenIndividualLicenceApplication.objects.select_for_update(), pk=application_pk
-        )
-        firearms_authority = get_object_or_404(
-            application.importer.firearms_authorities.active(), pk=authority_pk
-        )
-
-        application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
-        selected_certificate = application.verified_certificates.filter(
-            is_active=True, pk=authority_pk
-        )
-        if not selected_certificate:
-            application.verified_certificates.add(firearms_authority)
-        else:
-            application.verified_certificates.remove(firearms_authority)
-
-        return redirect(
-            reverse("import:fa:manage-certificates", kwargs={"application_pk": application_pk})
-        )
-
-
-@login_required
-@permission_required("web.importer_access", raise_exception=True)
-def view_verified_firearms(request, application_pk, authority_pk):
-    with transaction.atomic():
-        application = get_object_or_404(
-            OpenIndividualLicenceApplication.objects.select_for_update(), pk=application_pk
-        )
-        firearms_authority = get_object_or_404(
-            application.importer.firearms_authorities.active(), pk=authority_pk
-        )
-
-        task = application.get_task(ImportApplication.IN_PROGRESS, "prepare")
-
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
-
-        context = {
-            "process_template": "web/domains/case/import/partials/process.html",
-            "process": application,
-            "task": task,
-            "page_title": "Open Individual Import Licence - Verified Certificate",
-            "firearms_authority": firearms_authority,
-        }
-        return render(
-            request, "web/domains/case/import/fa/certificates/view-verified.html", context
-        )
-
-
-@login_required
 @permission_required("web.reference_data_access", raise_exception=True)
 def manage_checklist(request, pk):
     with transaction.atomic():
@@ -259,14 +199,3 @@ def manage_checklist(request, pk):
             template_name="web/domains/case/import/management/checklist.html",
             context=context,
         )
-
-
-@require_GET
-@login_required
-def view_verified_certificate_file(request, application_pk, authority_pk, file_pk):
-    application = get_object_or_404(OpenIndividualLicenceApplication, pk=application_pk)
-    certificate = get_object_or_404(application.verified_certificates, pk=authority_pk)
-
-    return import_views.view_file(
-        request, application, certificate.firearms_authority.files, file_pk
-    )

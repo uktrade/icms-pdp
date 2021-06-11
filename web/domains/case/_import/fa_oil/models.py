@@ -14,8 +14,12 @@ class OpenIndividualLicenceApplication(ImportApplication):
 
     know_bought_from = models.BooleanField(null=True)
 
-    user_imported_certificates = models.ManyToManyField(UserImportCertificate, related_name="+")
-    verified_certificates = models.ManyToManyField("FirearmsAuthority", related_name="+")
+    user_imported_certificates = models.ManyToManyField(
+        UserImportCertificate, related_name="oil_application"
+    )
+    verified_certificates = models.ManyToManyField(
+        "FirearmsAuthority", related_name="oil_application"
+    )
 
     commodity_code = models.CharField(max_length=40, blank=False, null=True)
 
