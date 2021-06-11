@@ -640,6 +640,7 @@ def view_authority(request: HttpRequest, *, application_pk: int, authority_pk: i
             "page_title": "Firearms Authority - Verified Certificate",
             "firearms_authority": firearms_authority,
         }
+
         return render(
             request, "web/domains/case/import/fa/certificates/view-verified.html", context
         )

@@ -14,6 +14,7 @@ from web.models import (
     ImportApplication,
     ImportContact,
     OpenIndividualLicenceApplication,
+    SILApplication,
     UserImportCertificate,
 )
 
@@ -72,6 +73,11 @@ class ConstabularyEmailForm(forms.ModelForm):
         if process_type == OpenIndividualLicenceApplication.PROCESS_TYPE:
             return Q(firearmsauthority__oil_application=application) | Q(
                 userimportcertificate__oil_application=application
+            )
+
+        elif process_type == SILApplication.PROCESS_TYPE:
+            return Q(firearmsauthority__sil_application=application) | Q(
+                userimportcertificate__sil_application=application
             )
 
         elif process_type == DFLApplication.PROCESS_TYPE:
