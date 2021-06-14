@@ -617,7 +617,6 @@ def view_authority_document(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def view_authority(request: HttpRequest, *, application_pk: int, authority_pk: int):
     with transaction.atomic():
         import_application: ImportApplication = get_object_or_404(
