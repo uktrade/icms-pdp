@@ -54,8 +54,8 @@
       </div>
       <div class="six columns">
         <span class="text-widget ">
-          {% if unlimited_quantity %}
-            Yes
+          {% if section.unlimited_quantity %}
+            Unlimited
           {% else %}
             {{ section.quantity }}
           {% endif %}
