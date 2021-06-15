@@ -438,9 +438,10 @@ def create_certificate(request: HttpRequest, *, application_pk: int) -> HttpResp
             form = UserImportCertificateForm(
                 data=request.POST, application=application, files=request.FILES
             )
-            document = request.FILES.get("document")
 
             if form.is_valid():
+                document = form.cleaned_data.get("document")
+
                 extra_args = {
                     field: value
                     for (field, value) in form.cleaned_data.items()

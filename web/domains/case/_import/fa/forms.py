@@ -76,8 +76,10 @@ class ConstabularyEmailForm(forms.ModelForm):
             )
 
         elif process_type == SILApplication.PROCESS_TYPE:
-            return Q(firearmsauthority__sil_application=application) | Q(
-                userimportcertificate__sil_application=application
+            return (
+                Q(firearmsauthority__sil_application=application)
+                | Q(userimportcertificate__sil_application=application)
+                | Q(silusersection5__sil_application=application)
             )
 
         elif process_type == DFLApplication.PROCESS_TYPE:
@@ -158,9 +160,3 @@ class UserImportCertificateForm(forms.ModelForm):
             self.fields["certificate_type"].choices = (
                 UserImportCertificate.CertificateType.registered_as_choice(),
             )
-
-    def clean(self):
-        data = super().clean()
-
-        # document is handled in the view
-        data.pop("document", None)
