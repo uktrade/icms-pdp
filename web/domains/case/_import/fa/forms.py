@@ -137,10 +137,6 @@ class ImportContactLegalEntityForm(forms.ModelForm):
 class UserImportCertificateForm(forms.ModelForm):
     document = ICMSFileField(required=True)
 
-    certificate_type = forms.ChoiceField(
-        choices=(UserImportCertificate.CertificateType.registered_as_choice(),)
-    )
-
     class Meta:
         model = UserImportCertificate
         fields = (
@@ -153,10 +149,15 @@ class UserImportCertificateForm(forms.ModelForm):
         )
         widgets = {"date_issued": DateInput, "expiry_date": DateInput}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, application, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.is_active:
             self.fields["document"].required = False
+
+        if application.process_type == "OpenIndividualLicenceApplication":
+            self.fields["certificate_type"].choices = (
+                UserImportCertificate.CertificateType.registered_as_choice(),
+            )
 
     def clean(self):
         data = super().clean()
