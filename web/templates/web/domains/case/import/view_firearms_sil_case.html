@@ -1,0 +1,140 @@
+{% extends "web/domains/case/import/view_case.html" %}
+
+{% block sidebar %}
+  <ul class="menu-out">
+    <li>
+      <a href="#view-contact">Contact</a>
+    </li>
+    <li>
+      <a href="#view-fa">Firearms and Ammunition</a>
+    </li>
+    <li>
+      <a href="#view-goods">Goods</a>
+    </li>
+    <li>
+      <a href="#view-certificates">Certificates</a>
+    </li>
+    <li>
+      <a href="#view-licence-for">Goods - Licence For</a>
+    </li>
+    <li>
+      <a href="#view-from">Details of who bought from</a>
+    </li>
+    <li>
+      <a href="#view-misc">Misc</a>
+    </li>
+  </ul>
+{% endblock %}
+
+
+{% block main_content %}
+  {% block application_contact %}
+    {{ super() }}
+  {% endblock %}
+
+  <h4 id="view-fa">Firearms and Ammunition</h4>
+  <div class="container">
+    <dl>
+      <dt class="bold">Applicant Reference</dt>
+      <dd>{{ process.applicant_reference or 'N/A' }}</dd>
+      <dt class="bold">Firearms Licence for</dt>
+      <dd>Section 1, Section 2</dd>
+      <dt class="bold">Country Of Origin</dt>
+      <dd>{{ process.origin_country.name }}</dd>
+      <dt class="bold">Country Of Consignment</dt>
+      <dd>{{ process.consignment_country.name }}</dd>
+    </dl>
+  </div>
+
+  <hr />
+
+  <h4 id="view-goods">Goods</h4>
+  <div class="container">
+    <dl>
+      <dt class="bold">Commodity Code</dt>
+      <dd>{{ process.commodity_group }}</dd>
+    </dl>
+  </div>
+
+  <table class="setoutList">
+    <thead>
+      <tr>
+        <th style="width: 400px"> Goods Description </th>
+        <th> Quantity </th>
+        <th> Unit </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="individual-input">
+            <span class="text-widget">
+              Firearms, component parts thereof, or ammunition of any applicable commodity code,
+              other than those falling under Section 5 of the Firearms Act 1968 as amended.
+            </span>
+          </div>
+        </td>
+        <td>
+          <div class="individual-input">
+            <span class="text-widget">Unlimited</span>
+          </div>
+        </td>
+        <td>
+          <div class="individual-input">
+            <span class="text-widget">units</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <h4 id="view-certificates">Certificates/Documents</h4>
+  <h5>Verified Firearms Authorities</h5>
+  {% with read_only=True %}
+    {% include "partial/certificates/list-verified.html" %}
+  {% endwith %}
+
+  <h5>Other Certificates</h5>
+  {% with read_only = True %}
+    {% include "partial/certificates/list.html" %}
+  {% endwith %}
+
+  <hr />
+
+  <h5>Section 5 Authorities</h5>
+  {% if verified_section5 %}
+    {% with read_only = True %}
+      {% include "web/domains/case/import/partials/fa-sil/verified-section5-authorities.html" %}
+    {% endwith %}
+  {% else %}
+    {% with read_only = True %}
+      {% include "web/domains/case/import/partials/fa-sil/user-section5-authorities.html" %}
+    {% endwith %}
+  {% endif %}
+
+
+  <h4 id="view-licence-for">Goods - Licence for</h4>
+  {% with read_only = True %}
+    {% include "web/domains/case/import/fa-sil/goods/section1-boxes.html" %}
+    {% include "web/domains/case/import/fa-sil/goods/section2-boxes.html" %}
+    {% include "web/domains/case/import/fa-sil/goods/section5-boxes.html" %}
+    {% include "web/domains/case/import/fa-sil/goods/section582-obsolete-boxes.html" %}
+    {% include "web/domains/case/import/fa-sil/goods/section582-other-boxes.html" %}
+  {% endwith %}
+
+  <h4 id="view-from">Details of who bought from</h4>
+  {% with read_only = True %}
+    {% include "partial/import-contacts/list.html" %}
+  {% endwith %}
+
+  <h4 id="view-misc">Misc</h4>
+  <div class="container">
+    <dl>
+      <dt class="bold">Additional Comments</dt>
+      <dd>{{ process.additional_comments or 'N/A' }}</dd>
+    </dl>
+  </div>
+
+{% endblock %}
