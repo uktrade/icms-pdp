@@ -32,109 +32,124 @@
     {{ super() }}
   {% endblock %}
 
-  <h4 id="view-fa">Firearms and Ammunition</h4>
-  <div class="container">
-    <dl>
-      <dt class="bold">Applicant Reference</dt>
-      <dd>{{ process.applicant_reference or 'N/A' }}</dd>
-      <dt class="bold">Firearms Licence for</dt>
-      <dd>Section 1, Section 2</dd>
-      <dt class="bold">Country Of Origin</dt>
-      <dd>{{ process.origin_country.name }}</dd>
-      <dt class="bold">Country Of Consignment</dt>
-      <dd>{{ process.consignment_country.name }}</dd>
-    </dl>
-  </div>
+  {% call application_section("Firearms and Ammunition", "view-fa") %}
+    {{ application_field(process.applicant_reference, "Applicant Reference", "N/a") }}
 
-  <hr />
+    <div class="row">
+      <div class="three columns">
+        <label class="prompt west">Firearms Licence For</label>
+      </div>
+      <div class="six columns">
+        {% if process.section1 %}<p>Section 1</p>{% endif %}
+        {% if process.section2 %}<p>Section 2</p>{% endif %}
+        {% if process.section5 %}<p>Section 5</p>{% endif %}
+        {% if process.section58_obsolete %}<p>Section 58(2) - Obsolete Calibre</p>{% endif %}
+        {% if process.section58_other %}<p>Section 58(2) - Other</p>{% endif %}
+      </div>
+      <div class="three columns"></div>
+    </div>
 
-  <h4 id="view-goods">Goods</h4>
-  <div class="container">
-    <dl>
-      <dt class="bold">Commodity Code</dt>
-      <dd>{{ process.commodity_group }}</dd>
-    </dl>
-  </div>
+    {{ application_field(process.origin_country, "Country Of Origin") }}
+    {{ application_field(process.consignment_country, "Country Of Consignment") }}
 
-  <table class="setoutList">
-    <thead>
-      <tr>
-        <th style="width: 400px"> Goods Description </th>
-        <th> Quantity </th>
-        <th> Unit </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <div class="individual-input">
-            <span class="text-widget">
-              Firearms, component parts thereof, or ammunition of any applicable commodity code,
-              other than those falling under Section 5 of the Firearms Act 1968 as amended.
-            </span>
-          </div>
-        </td>
-        <td>
-          <div class="individual-input">
-            <span class="text-widget">Unlimited</span>
-          </div>
-        </td>
-        <td>
-          <div class="individual-input">
-            <span class="text-widget">units</span>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <hr />
 
-  <hr />
+    <div class="row">
+      <div class="three columns">
+        <label class="prompt west">Are any of your items for the military or police?</label>
+      </div>
+      <div class="six columns">
+        {% if process.military_police %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </div>
+      <div class="three columns"></div>
+    </div>
 
-  <h4 id="view-certificates">Certificates/Documents</h4>
-  <h5>Verified Firearms Authorities</h5>
-  {% with read_only=True %}
-    {% include "partial/certificates/list-verified.html" %}
-  {% endwith %}
+    <div class="row">
+      <div class="three columns">
+        <label class="prompt west">Were any of your items in the EU Single Market before 14 September 2018?</label>
+      </div>
+      <div class="six columns">
+        {% if process.eu_single_market %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </div>
+      <div class="three columns"></div>
+    </div>
 
-  <h5>Other Certificates</h5>
-  {% with read_only = True %}
-    {% include "partial/certificates/list.html" %}
-  {% endwith %}
+    <div class="row">
+      <div class="three columns">
+        <label class="prompt west">Were any of your items manufactured before 1 September 1939?</label>
+      </div>
+      <div class="six columns">
+        {% if process.manufactured %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </div>
+      <div class="three columns"></div>
+    </div>
+  {% endcall %}
 
-  <hr />
 
-  <h5>Section 5 Authorities</h5>
-  {% if verified_section5 %}
+  {% call application_section("Goods", "view-goods") %}
+    {{ application_field(process.commodity_code, "Commodity Code") }}
+
+    <hr />
+
+    <h5 id="view-licence-for"> Licence for</h4>
     {% with read_only = True %}
-      {% include "web/domains/case/import/partials/fa-sil/verified-section5-authorities.html" %}
+      {% include "web/domains/case/import/fa-sil/goods/section1-boxes.html" %}
+      {% include "web/domains/case/import/fa-sil/goods/section2-boxes.html" %}
+      {% include "web/domains/case/import/fa-sil/goods/section5-boxes.html" %}
+      {% include "web/domains/case/import/fa-sil/goods/section582-obsolete-boxes.html" %}
+      {% include "web/domains/case/import/fa-sil/goods/section582-other-boxes.html" %}
     {% endwith %}
-  {% else %}
+  {% endcall %}
+
+
+  <hr />
+
+  {% call application_section("Certificates/Documents", "view-certificates") %}
+    <h5>Verified Firearms Authorities</h5>
+    {% with read_only=True %}
+      {% include "partial/certificates/list-verified.html" %}
+    {% endwith %}
+
+    <h5>Other Certificates</h5>
     {% with read_only = True %}
-      {% include "web/domains/case/import/partials/fa-sil/user-section5-authorities.html" %}
+      {% include "partial/certificates/list.html" %}
     {% endwith %}
-  {% endif %}
+
+    <hr />
+
+    <h5>Section 5 Authorities</h5>
+    {% if verified_section5 %}
+      {% with read_only = True %}
+        {% include "web/domains/case/import/partials/fa-sil/verified-section5-authorities.html" %}
+      {% endwith %}
+    {% else %}
+      {% with read_only = True %}
+        {% include "web/domains/case/import/partials/fa-sil/user-section5-authorities.html" %}
+      {% endwith %}
+    {% endif %}
+  {% endcall %}
 
 
-  <h4 id="view-licence-for">Goods - Licence for</h4>
-  {% with read_only = True %}
-    {% include "web/domains/case/import/fa-sil/goods/section1-boxes.html" %}
-    {% include "web/domains/case/import/fa-sil/goods/section2-boxes.html" %}
-    {% include "web/domains/case/import/fa-sil/goods/section5-boxes.html" %}
-    {% include "web/domains/case/import/fa-sil/goods/section582-obsolete-boxes.html" %}
-    {% include "web/domains/case/import/fa-sil/goods/section582-other-boxes.html" %}
-  {% endwith %}
+  {% call application_section("Details of who bought from", "view-from") %}
+    {% with read_only = True %}
+      {% include "partial/import-contacts/list.html" %}
+    {% endwith %}
+  {% endcall %}
 
-  <h4 id="view-from">Details of who bought from</h4>
-  {% with read_only = True %}
-    {% include "partial/import-contacts/list.html" %}
-  {% endwith %}
-
-  <h4 id="view-misc">Misc</h4>
-  <div class="container">
-    <dl>
-      <dt class="bold">Additional Comments</dt>
-      <dd>{{ process.additional_comments or 'N/A' }}</dd>
-    </dl>
-  </div>
+  {% call application_section("Misc", "view-misc") %}
+    {{ application_field(process.additional_comments|nl2br, "Additional Comments", "N/a") }}
+  {% endcall %}
 
 {% endblock %}
