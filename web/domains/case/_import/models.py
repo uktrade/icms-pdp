@@ -224,7 +224,6 @@ class ImportApplication(ApplicationBase):
     origin_country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        blank=True,
         null=True,
         related_name="import_applications_from",
         verbose_name="Country Of Origin",
@@ -232,7 +231,6 @@ class ImportApplication(ApplicationBase):
     consignment_country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
-        blank=True,
         null=True,
         related_name="import_applications_to",
         verbose_name="Country Of Consignment",
