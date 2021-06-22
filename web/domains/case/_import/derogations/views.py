@@ -11,7 +11,12 @@ from web.domains.case._import.models import ImportApplication
 from web.domains.file.utils import create_file_model
 from web.domains.template.models import Template
 from web.types import AuthenticatedHttpRequest
-from web.utils.validation import ApplicationErrors, PageErrors, create_page_errors
+from web.utils.validation import (
+    ApplicationErrors,
+    FieldError,
+    PageErrors,
+    create_page_errors,
+)
 
 from .. import views as import_views
 from .forms import (
@@ -148,16 +153,7 @@ def submit_derogations(request: AuthenticatedHttpRequest, pk: int) -> HttpRespon
         if not request.user.has_perm("web.is_contact_of_importer", application.importer):
             raise PermissionDenied
 
-        errors = ApplicationErrors()
-
-        page_errors = PageErrors(
-            page_name="Application details",
-            url=reverse("import:derogations:edit", kwargs={"application_pk": pk}),
-        )
-        create_page_errors(
-            DerogationsForm(data=model_to_dict(application), instance=application), page_errors
-        )
-        errors.add(page_errors)
+        errors = _get_derogations_errors(application)
 
         if request.POST:
             form = SubmitDerogationsForm(data=request.POST)
@@ -290,3 +286,34 @@ def edit_goods_licence(request: AuthenticatedHttpRequest, pk: int) -> HttpRespon
 
 def get_page_title(page: str) -> str:
     return f"Derogation from Sanctions Import Ban - {page}"
+
+
+def _get_derogations_errors(application: DerogationsApplication) -> ApplicationErrors:
+    errors = ApplicationErrors()
+
+    page_errors = PageErrors(
+        page_name="Application details",
+        url=reverse("import:derogations:edit", kwargs={"application_pk": application.pk}),
+    )
+    create_page_errors(
+        DerogationsForm(data=model_to_dict(application), instance=application), page_errors
+    )
+    errors.add(page_errors)
+
+    if not application.supporting_documents.filter(is_active=True).exists():
+        supporting_document_errors = PageErrors(
+            page_name="Supporting Documents",
+            url=reverse(
+                "import:derogations:add-supporting-document", kwargs={"pk": application.pk}
+            ),
+        )
+        supporting_document_errors.add(
+            FieldError(
+                field_name="Provide details of why this is a pre-existing contract",
+                messages=["Please ensure you have uploaded at least one supporting document."],
+            )
+        )
+
+        errors.add(supporting_document_errors)
+
+    return errors
