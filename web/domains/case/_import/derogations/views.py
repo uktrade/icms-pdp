@@ -70,10 +70,11 @@ def edit_derogations(request: AuthenticatedHttpRequest, *, application_pk: int) 
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def add_supporting_document(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
-
+def add_supporting_document(request: AuthenticatedHttpRequest, application_pk: int) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(DerogationsApplication.objects.select_for_update(), pk=pk)
+        application = get_object_or_404(
+            DerogationsApplication.objects.select_for_update(), pk=application_pk
+        )
 
         task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
@@ -87,7 +88,9 @@ def add_supporting_document(request: AuthenticatedHttpRequest, pk: int) -> HttpR
             if form.is_valid():
                 create_file_model(document, request.user, application.supporting_documents)
 
-                return redirect(reverse("import:derogations:edit", kwargs={"application_pk": pk}))
+                return redirect(
+                    reverse("import:derogations:edit", kwargs={"application_pk": application_pk})
+                )
         else:
             form = SupportingDocumentForm()
 
@@ -143,10 +146,10 @@ def delete_supporting_document(
 
 @login_required
 @permission_required("web.importer_access", raise_exception=True)
-def submit_derogations(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
+def submit_derogations(request: AuthenticatedHttpRequest, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: DerogationsApplication = get_object_or_404(
-            DerogationsApplication.objects.select_for_update(), pk=pk
+            DerogationsApplication.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
@@ -245,10 +248,10 @@ def manage_checklist(request: AuthenticatedHttpRequest, *, application_pk) -> Ht
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def edit_goods_licence(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
+def edit_goods_licence(request: AuthenticatedHttpRequest, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: DerogationsApplication = get_object_or_404(
-            DerogationsApplication.objects.select_for_update(), pk=pk
+            DerogationsApplication.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
             [ImportApplication.Statuses.SUBMITTED, ImportApplication.Statuses.WITHDRAWN], "process"
@@ -263,7 +266,7 @@ def edit_goods_licence(request: AuthenticatedHttpRequest, pk: int) -> HttpRespon
                 return redirect(
                     reverse(
                         "case:prepare-response",
-                        kwargs={"application_pk": application.pk, "case_type": "import"},
+                        kwargs={"application_pk": application_pk, "case_type": "import"},
                     )
                 )
         else:
@@ -304,7 +307,8 @@ def _get_derogations_errors(application: DerogationsApplication) -> ApplicationE
         supporting_document_errors = PageErrors(
             page_name="Supporting Documents",
             url=reverse(
-                "import:derogations:add-supporting-document", kwargs={"pk": application.pk}
+                "import:derogations:add-supporting-document",
+                kwargs={"application_pk": application.pk},
             ),
         )
         supporting_document_errors.add(
