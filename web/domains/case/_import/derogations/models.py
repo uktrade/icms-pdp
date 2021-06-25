@@ -14,6 +14,7 @@ class DerogationsApplication(ImportApplication):
 
     contract_sign_date = models.DateField(verbose_name="Contract Sign Date", null=True)
     contract_completion_date = models.DateField(verbose_name="Contract Completion Date", null=True)
+
     explanation = models.CharField(
         max_length=4096,
         null=True,
@@ -33,16 +34,20 @@ class DerogationsApplication(ImportApplication):
             " contact the Classification Advisory Service on (01702) 366077."
         ),
     )
+
     goods_description = models.CharField(
         max_length=4096,
         null=True,
         verbose_name="Goods Description",
         help_text="Details of the goods that are subject to the contract notification",
     )
+
     quantity = models.DecimalField(
         max_digits=9, decimal_places=2, null=True, validators=[at_least_0]
     )
+
     unit = models.CharField(max_length=40, null=True, verbose_name="Unit", choices=Unit.choices)
+
     value = models.DecimalField(
         max_digits=9,
         decimal_places=2,

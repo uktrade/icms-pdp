@@ -72,7 +72,7 @@ def edit_derogations(request: AuthenticatedHttpRequest, *, application_pk: int) 
 @permission_required("web.importer_access", raise_exception=True)
 def add_supporting_document(request: AuthenticatedHttpRequest, application_pk: int) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        application: DerogationsApplication = get_object_or_404(
             DerogationsApplication.objects.select_for_update(), pk=application_pk
         )
 
@@ -112,7 +112,9 @@ def add_supporting_document(request: AuthenticatedHttpRequest, application_pk: i
 def view_supporting_document(
     request: AuthenticatedHttpRequest, application_pk: int, document_pk: int
 ) -> HttpResponse:
-    application = get_object_or_404(DerogationsApplication, pk=application_pk)
+    application: DerogationsApplication = get_object_or_404(
+        DerogationsApplication, pk=application_pk
+    )
 
     return import_views.view_file(
         request, application, application.supporting_documents, document_pk
@@ -126,7 +128,7 @@ def delete_supporting_document(
     request: AuthenticatedHttpRequest, application_pk: int, document_pk: int
 ) -> HttpResponse:
     with transaction.atomic():
-        application = get_object_or_404(
+        application: DerogationsApplication = get_object_or_404(
             DerogationsApplication.objects.select_for_update(), pk=application_pk
         )
 
