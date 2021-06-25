@@ -54,12 +54,9 @@ class DerogationsForm(forms.ModelForm):
         )
         self.fields["contact"].queryset = users.filter(is_active=True)
 
-        self.fields["origin_country"].queryset = Country.objects.filter(
-            country_groups__name="Derogation from Sanctions COOs"
-        )
-        self.fields["consignment_country"].queryset = Country.objects.filter(
-            country_groups__name="Derogation from Sanctions COOs"
-        )
+        countries = Country.objects.filter(country_groups__name="Derogation from Sanctions COOs")
+        self.fields["origin_country"].queryset = countries
+        self.fields["consignment_country"].queryset = countries
 
 
 class SupportingDocumentForm(forms.Form):
