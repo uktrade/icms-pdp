@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Any, NamedTuple, Type, Union
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django.db.models import ManyToManyField, ObjectDoesNotExist, Q
+from django.db.models import ManyToManyField, Q
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -101,16 +101,6 @@ def _has_importer_exporter_access(user: User, case_type: str) -> bool:
     raise NotImplementedError(f"Unknown case_type {case_type}")
 
 
-def _is_importer_exporter_contact(user: User, application: ImpOrExp, case_type: str) -> bool:
-    if case_type == "import":
-        return user.has_perm("web.is_contact_of_importer", application.importer)
-
-    elif case_type == "export":
-        return user.has_perm("web.is_contact_of_exporter", application.exporter)
-
-    raise NotImplementedError(f"Unknown case_type {case_type}")
-
-
 def check_application_permission(application: ImpOrExpOrAccess, user: User, case_type: str) -> None:
     """Check the given user has permission to access the given application."""
 
@@ -122,9 +112,11 @@ def check_application_permission(application: ImpOrExpOrAccess, user: User, case
             raise PermissionDenied
 
     elif case_type in ["import", "export"]:
-        if not _has_importer_exporter_access(user, case_type) or not _is_importer_exporter_contact(
-            user, application, case_type
-        ):
+        assert isinstance(application, (ImportApplication, ExportApplication))
+
+        is_contact = application.user_is_contact_of_org(user)
+
+        if not _has_importer_exporter_access(user, case_type) or not is_contact:
             raise PermissionDenied
 
     else:
@@ -147,7 +139,7 @@ def list_notes(
 
     with transaction.atomic():
         application: ImpOrExp = get_object_or_404(
-            klass=model_class.objects.select_for_update(), pk=application_pk
+            model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
         context = {
@@ -400,8 +392,7 @@ def withdraw_case(
             [model_class.Statuses.SUBMITTED, model_class.Statuses.WITHDRAWN], "process"
         )
 
-        is_contact = _is_importer_exporter_contact(request.user, application, case_type)
-        if not is_contact:
+        if not application.user_is_contact_of_org(request.user):
             raise PermissionDenied
 
         if request.POST:
@@ -461,8 +452,7 @@ def archive_withdrawal(
 
         task = application.get_task(model_class.Statuses.WITHDRAWN, "process")
 
-        is_contact = _is_importer_exporter_contact(request.user, application, case_type)
-        if not is_contact:
+        if not application.user_is_contact_of_org(request.user):
             raise PermissionDenied
 
         application.status = model_class.Statuses.SUBMITTED
@@ -1185,10 +1175,8 @@ def view_case(
 
         # first check is for case managers (who are not marked as contacts of
         # importers), second is for people submitting applications
-        if not has_perm_reference_data and not _is_importer_exporter_contact(
-            request.user, application, case_type
-        ):
-
+        is_contact = application.user_is_contact_of_org(request.user)
+        if not has_perm_reference_data and not is_contact:
             raise PermissionDenied
 
     if application.process_type == OpenIndividualLicenceApplication.PROCESS_TYPE:

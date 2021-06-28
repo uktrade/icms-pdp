@@ -244,6 +244,10 @@ class ApplicationBase(WorkbasketBase, Process):
         """Get the edit view name."""
         raise NotImplementedError
 
+    def user_is_contact_of_org(self, user: User) -> bool:
+        """Is the user a contact of the org (Importer or Exporter)"""
+        raise NotImplementedError
+
     def get_workbasket_subject(self) -> str:
         """Get workbasket subject/topic column content."""
         raise NotImplementedError
