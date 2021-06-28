@@ -1,5 +1,5 @@
 import os.path
-from typing import Any, Dict, Type
+from typing import Any, Dict
 
 from django import forms
 from django.db import models
@@ -7,6 +7,7 @@ from django_chunk_upload_handlers.clam_av import validate_virus_check_result
 from storages.backends.s3boto3 import S3Boto3StorageFile
 
 from web.domains.user.models import User
+from web.models import File
 from web.utils.s3 import delete_file_from_s3
 
 EXTENSION_BLACKLIST = [
@@ -57,7 +58,7 @@ def validate_file_extension(file: S3Boto3StorageFile) -> None:
 def create_file_model(
     f: S3Boto3StorageFile,
     created_by: User,
-    related_file_model: Type[models.ManyToManyField],
+    related_file_manager: models.manager.RelatedManager[File],
     extra_args: Dict[str, Any] = None,
 ) -> models.Model:
     """Create File (or sub-class) model, add it to the related set. Note that
@@ -68,7 +69,7 @@ def create_file_model(
     if extra_args is None:
         extra_args = {}
 
-    return related_file_model.create(
+    return related_file_manager.create(
         filename=f.original_name,
         file_size=f.file_size,
         content_type=f.content_type,
