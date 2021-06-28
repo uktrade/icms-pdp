@@ -58,7 +58,7 @@ def validate_file_extension(file: S3Boto3StorageFile) -> None:
 def create_file_model(
     f: S3Boto3StorageFile,
     created_by: User,
-    related_file_manager: models.manager.RelatedManager[File],
+    related_file_manager: "models.manager.RelatedManager[File]",
     extra_args: Dict[str, Any] = None,
 ) -> models.Model:
     """Create File (or sub-class) model, add it to the related set. Note that
