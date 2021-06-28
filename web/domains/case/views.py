@@ -148,7 +148,7 @@ def list_notes(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -174,7 +174,7 @@ def add_note(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -196,7 +196,7 @@ def archive_note(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -218,7 +218,7 @@ def unarchive_note(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -239,7 +239,7 @@ def edit_note(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -290,7 +290,7 @@ def add_note_document(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -343,7 +343,7 @@ def view_note_document(
 ) -> HttpResponse:
     model_class = _get_class_imp_or_exp(case_type)
 
-    application: ImpOrExp = get_object_or_404(model_class, pk=application_pk)
+    application: ImpOrExp = get_object_or_404(model_class, pk=application_pk)  # type: ignore[assignment]
     note = application.case_notes.get(pk=note_pk)
     document = note.files.get(pk=file_pk)
     file_content = get_file_from_s3(document.path)
@@ -368,7 +368,7 @@ def delete_note_document(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -395,7 +395,7 @@ def withdraw_case(
 
     with transaction.atomic():
         model_class = _get_class_imp_or_exp(case_type)
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -455,7 +455,7 @@ def archive_withdrawal(
 
     with transaction.atomic():
         model_class = _get_class_imp_or_exp(case_type)
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         withdrawal = get_object_or_404(application.withdrawals, pk=withdrawal_pk)
@@ -488,7 +488,7 @@ def manage_update_requests(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -598,7 +598,7 @@ def close_update_request(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.SUBMITTED, "process")
@@ -1101,7 +1101,7 @@ def manage_withdrawals(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -1385,7 +1385,7 @@ def take_ownership(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(
@@ -1415,7 +1415,7 @@ def release_ownership(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(
@@ -1435,7 +1435,7 @@ def manage_case(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -1497,7 +1497,7 @@ def prepare_response(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -1706,7 +1706,7 @@ def start_authorisation(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         task = application.get_task(
@@ -1909,7 +1909,7 @@ def cancel_authorisation(
     model_class = _get_class_imp_or_exp(case_type)
 
     with transaction.atomic():
-        application: ImpOrExp = get_object_or_404(
+        application: ImpOrExp = get_object_or_404(  # type: ignore[assignment]
             model_class.objects.select_for_update(), pk=application_pk
         )
         application.get_task(model_class.Statuses.PROCESSING, "process")
