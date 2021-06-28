@@ -268,10 +268,10 @@ class ApplicationBase(WorkbasketBase, Process):
         r.information = "Application Processing"
 
         if self.is_import_application():
-            r.company = self.importer
+            r.company = self.importer  # type: ignore[attr-defined]
             case_type = "import"
         else:
-            r.company = self.exporter
+            r.company = self.exporter  # type: ignore[attr-defined]
             case_type = "export"
 
         # common kwargs
@@ -287,7 +287,9 @@ class ApplicationBase(WorkbasketBase, Process):
             admin_actions: list[WorkbasketAction] = []
 
             if self.status in [self.Statuses.SUBMITTED, self.Statuses.WITHDRAWN]:
-                if not self.case_owner:
+                case_owner = self.case_owner  # type: ignore[attr-defined]
+
+                if not case_owner:
                     admin_actions.append(
                         WorkbasketAction(
                             is_post=True,
@@ -298,7 +300,7 @@ class ApplicationBase(WorkbasketBase, Process):
 
                     admin_actions.append(view_action)
 
-                elif (self.case_owner == user) and task and task.task_type == "process":
+                elif (case_owner == user) and task and task.task_type == "process":
                     admin_actions.append(
                         WorkbasketAction(
                             is_post=False, name="Manage", url=reverse("case:manage", kwargs=kwargs)
@@ -341,7 +343,7 @@ class ApplicationBase(WorkbasketBase, Process):
                     ),
                 )
 
-                for fir in self.further_information_requests.open():
+                for fir in self.further_information_requests.open():  # type: ignore[attr-defined]
                     applicant_actions.append(
                         WorkbasketAction(
                             is_post=False,
