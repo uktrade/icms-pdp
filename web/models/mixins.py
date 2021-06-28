@@ -1,7 +1,12 @@
-from django.db import transaction
+from django.db import models, transaction
 
 
 class Archivable(object):
+    # This is only for mypy's benefit, it is overridden by all classes that inherit from Archivable
+    # e.g. see Template.__mro__
+    # It gets rid of over 30 errors
+    is_active = models.BooleanField()
+
     def archive(self):
         self.is_active = False
         self.save()  # type: ignore[attr-defined]
