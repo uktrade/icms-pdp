@@ -308,7 +308,9 @@ def manage_checklist(request: AuthenticatedHttpRequest, *, application_pk: int) 
         )
 
         if request.POST:
-            form = WoodQuotaChecklistOptionalForm(request.POST, instance=checklist)
+            form: WoodQuotaChecklistForm = WoodQuotaChecklistOptionalForm(
+                request.POST, instance=checklist
+            )
 
             if form.is_valid():
                 form.save()
