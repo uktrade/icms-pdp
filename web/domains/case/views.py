@@ -72,6 +72,16 @@ ImpOrExpOrAccess = Union[ImportApplication, ExportApplication, AccessRequest]
 ImpOrExpOrAccessT = Type[ImpOrExpOrAccess]
 
 
+ApplicationsWithChecklist = Union[
+    OpenIndividualLicenceApplication,
+    DFLApplication,
+    SILApplication,
+    WoodQuotaApplication,
+    DerogationsApplication,
+    OutwardProcessingTradeApplication,
+]
+
+
 def _get_class_imp_or_exp(case_type: str) -> ImpOrExpT:
     if case_type == "import":
         return ImportApplication
@@ -1815,7 +1825,7 @@ def _get_import_errors(application, application_errors, prepare_errors):
 
 def _get_fa_oil_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.openindividuallicenceapplication,
+        application.openindividuallicenceapplication,  # type: ignore[union-attr]
         "import:fa-oil:manage-checklist",
         ChecklistFirearmsOILApplicationForm,
     )
@@ -1823,25 +1833,25 @@ def _get_fa_oil_errors(application: ImportApplication) -> PageErrors:
 
 def _get_fa_dfl_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.dflapplication, "import:fa-dfl:manage-checklist", DFLChecklistForm
+        application.dflapplication, "import:fa-dfl:manage-checklist", DFLChecklistForm  # type: ignore[union-attr]
     )
 
 
 def _get_fa_sil_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.silapplication, "import:fa-sil:manage-checklist", SILChecklistForm
+        application.silapplication, "import:fa-sil:manage-checklist", SILChecklistForm  # type: ignore[union-attr]
     )
 
 
 def _get_wood_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.woodquotaapplication, "import:wood:manage-checklist", WoodQuotaChecklistForm
+        application.woodquotaapplication, "import:wood:manage-checklist", WoodQuotaChecklistForm  # type: ignore[union-attr]
     )
 
 
 def _get_derogations_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.derogationsapplication,
+        application.derogationsapplication,  # type: ignore[union-attr]
         "import:derogations:manage-checklist",
         DerogationsChecklistForm,
     )
@@ -1849,14 +1859,14 @@ def _get_derogations_errors(application: ImportApplication) -> PageErrors:
 
 def _get_opt_errors(application: ImportApplication) -> PageErrors:
     return _get_checklist_errors(
-        application.outwardprocessingtradeapplication,
+        application.outwardprocessingtradeapplication,  # type: ignore[union-attr]
         "import:opt:manage-checklist",
         OPTChecklistForm,
     )
 
 
 def _get_checklist_errors(
-    application: ImportApplication,
+    application: ApplicationsWithChecklist,
     manage_checklist_url: str,
     checklist_form: Type[ChecklistBaseForm],
 ):
