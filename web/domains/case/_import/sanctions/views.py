@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from web.domains.case._import.models import ImportApplication
 from web.domains.case.forms import DocumentForm, SubmitForm
+from web.domains.case.views import check_application_permission
 from web.domains.file.utils import create_file_model
 from web.domains.template.models import Template
 from web.flow.models import Task
@@ -41,16 +42,15 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def edit_application(request: AuthenticatedHttpRequest, *, application_pk: int) -> HttpResponse:
     with transaction.atomic():
         application: SanctionsAndAdhocApplication = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
-        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+        check_application_permission(application, request.user, "import")
+
+        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
         if request.method == "POST":
             form = SanctionsAndAdhocLicenseForm(data=request.POST, instance=application)
@@ -84,16 +84,15 @@ def edit_application(request: AuthenticatedHttpRequest, *, application_pk: int) 
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def add_goods(request, pk):
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
         )
-        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+        check_application_permission(application, request.user, "import")
+
+        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
         if request.method == "POST":
             goods_form = GoodsForm(request.POST)
@@ -122,7 +121,6 @@ def add_goods(request, pk):
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def edit_goods(
     request: AuthenticatedHttpRequest, application_pk: int, goods_pk: int
 ) -> HttpResponse:
@@ -130,10 +128,10 @@ def edit_goods(
         application: SanctionsAndAdhocApplication = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
-        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+        check_application_permission(application, request.user, "import")
+
+        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
         form_class = GoodsForm
         success_url = reverse("import:sanctions:edit", kwargs={"application_pk": application_pk})
@@ -206,15 +204,14 @@ def _edit_goods(
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 @require_POST
 def delete_goods(request, application_pk, goods_pk):
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+
+        check_application_permission(application, request.user, "import")
 
         get_object_or_404(application.sanctionsandadhocapplicationgoods_set, pk=goods_pk).delete()
 
@@ -222,16 +219,15 @@ def delete_goods(request, application_pk, goods_pk):
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def add_supporting_document(request, pk):
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
         )
-        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+        check_application_permission(application, request.user, "import")
+
+        task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
         if request.method == "POST":
             form = DocumentForm(request.POST, request.FILES)
@@ -265,17 +261,15 @@ def view_supporting_document(request, application_pk, document_pk):
 
 @require_POST
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def delete_supporting_document(request, application_pk, document_pk):
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
         )
 
-        application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
+        check_application_permission(application, request.user, "import")
 
-        if not request.user.has_perm("web.is_contact_of_importer", application.importer):
-            raise PermissionDenied
+        application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
         document = application.supporting_documents.get(pk=document_pk)
         document.is_active = False
@@ -285,12 +279,13 @@ def delete_supporting_document(request, application_pk, document_pk):
 
 
 @login_required
-@permission_required("web.importer_access", raise_exception=True)
 def submit_sanctions(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
         )
+
+        check_application_permission(application, request.user, "import")
 
         task = application.get_task(ImportApplication.Statuses.IN_PROGRESS, "prepare")
 
