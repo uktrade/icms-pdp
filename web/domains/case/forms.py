@@ -1,6 +1,10 @@
+from typing import Type, Union
+
 from django import forms
+from guardian.shortcuts import get_users_with_perms
 
 from web.domains.file.utils import ICMSFileField
+from web.models import ExportApplication, ImportApplication, User
 
 from .models import (
     CASE_NOTE_STATUSES,
@@ -9,6 +13,38 @@ from .models import (
     UpdateRequest,
     WithdrawApplication,
 )
+
+ImpOrExp = Union[ImportApplication, ExportApplication]
+ImpOrExpT = Type[ImpOrExp]
+
+
+def application_contacts(application: ImpOrExpT, user: User) -> User:
+    if isinstance(application, ImportApplication):
+        if application.user_is_agent_of_org(user):
+            # fixme only agents contact
+            application.importer.agents.filter(user=user).first()
+            users = get_users_with_perms(
+                application.importer, only_with_perms_in=["is_contact_of_importer"]
+            )
+        else:
+            users = get_users_with_perms(
+                application.importer, only_with_perms_in=["is_agent_of_importer"]
+            )
+    elif isinstance(application, ExportApplication):
+        if application.user_is_agent_of_org(user):
+            # fixme only agents contact
+            application.exporter.agents.filter(user=user).first()
+            users = get_users_with_perms(
+                application.exporter, only_with_perms_in=["is_contact_of_exporter"]
+            )
+        else:
+            users = get_users_with_perms(
+                application.exporter, only_with_perms_in=["is_agent_of_exporter"]
+            )
+    else:
+        raise Exception("Application not supported: {}".format(application))
+
+    return users.filter(is_active=True)
 
 
 class DocumentForm(forms.Form):

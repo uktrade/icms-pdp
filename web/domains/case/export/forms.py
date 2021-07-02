@@ -7,6 +7,7 @@ from django_select2 import forms as s2forms
 from django_select2.forms import ModelSelect2Widget
 from guardian.shortcuts import get_objects_for_user
 
+from web.domains.case.forms import application_contacts
 from web.domains.exporter.models import Exporter
 from web.domains.office.models import Office
 from web.domains.user.models import User
@@ -103,12 +104,10 @@ class PrepareCertManufactureForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["contact"].required = True
         self.fields["is_pesticide_on_free_sale_uk"].required = True
         self.fields["is_manufacturer"].required = True
 
-        # TODO: ICMSLST-425 change contact.queryset to be just users who should be listed
-        self.fields["contact"].queryset = User.objects.filter(is_active=True)
+        self.fields["contact"].queryset = application_contacts(self.instance)
 
         self.fields[
             "countries"

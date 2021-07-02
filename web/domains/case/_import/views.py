@@ -220,6 +220,11 @@ def _create_application(
             application.application_type = application_type
             application.issue_paper_licence_only = _get_paper_licence_only(application_type)
 
+            # find first agent for agent contact
+            if application.user_is_agent_of_org(request.user):
+                agent = application.importer.agents.filter(user=request.user).first()
+                application.agent = agent
+
             with transaction.atomic():
                 application.save()
                 Task.objects.create(process=application, task_type="prepare", owner=request.user)

@@ -128,15 +128,7 @@ def delete_supporting_document(request, application_pk, document_pk):
 
 
 @login_required
-<<<<<<< HEAD
-@permission_required("web.importer_access", raise_exception=True)
 def add_contract_document(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
-||||||| parent of a7f30521 (ICMSLST-425 Use check_application_permission in views)
-@permission_required("web.importer_access", raise_exception=True)
-def add_contract_document(request, pk):
-=======
-def add_contract_document(request, pk):
->>>>>>> a7f30521 (ICMSLST-425 Use check_application_permission in views)
     with transaction.atomic():
         application: WoodQuotaApplication = get_object_or_404(
             WoodQuotaApplication.objects.select_for_update(), pk=pk
