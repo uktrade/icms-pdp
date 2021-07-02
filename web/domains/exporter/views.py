@@ -1,17 +1,20 @@
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
+from guardian.shortcuts import assign_perm, remove_perm
 
 from web.domains.exporter.forms import AgentForm, ExporterFilter, ExporterForm
 from web.domains.office.forms import OfficeForm
 from web.domains.user.forms import ContactForm
 from web.domains.user.models import User
+from web.types import AuthenticatedHttpRequest
 from web.views import ModelFilterView
 from web.views.actions import Archive, CreateExporterAgent, Edit, Unarchive
 
 from .models import Exporter
+from .utils import available_contacts, exporter_contacts
 
 
 class ExporterListView(ModelFilterView):
@@ -34,7 +37,7 @@ class ExporterListView(ModelFilterView):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def edit_exporter(request, pk):
+def edit_exporter(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     exporter = get_object_or_404(Exporter, pk=pk)
 
     if request.POST:
@@ -45,43 +48,29 @@ def edit_exporter(request, pk):
     else:
         form = ExporterForm(instance=exporter)
 
-    exporter_contacts = get_users_with_perms(
-        exporter, only_with_perms_in=["is_contact_of_exporter"]
-    ).filter(user_permissions__codename="exporter_access")
-    available_contacts = (
-        User.objects.account_active()
-        .filter(user_permissions__codename="exporter_access")
-        .exclude(pk__in=exporter_contacts)
-    )
-
+    contacts = available_contacts(exporter)
     context = {
         "object": exporter,
         "form": form,
-        "contact_form": ContactForm(available_contacts),
-        "contacts": exporter_contacts,
+        "contact_form": ContactForm(contacts),
+        "contacts": exporter_contacts(exporter),
     }
     return render(request, "web/domains/exporter/edit.html", context)
 
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def detail_exporter(request, pk):
+def detail_exporter(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     exporter = get_object_or_404(Exporter, pk=pk)
 
-    exporter_contacts = get_users_with_perms(
-        exporter, only_with_perms_in=["is_contact_of_exporter"]
-    ).filter(user_permissions__codename="exporter_access")
+    context = {"object": exporter, "contacts": exporter_contacts(exporter)}
 
-    context = {
-        "object": exporter,
-        "contacts": exporter_contacts,
-    }
     return render(request, "web/domains/exporter/detail.html", context)
 
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def create_exporter(request):
+def create_exporter(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     if request.POST:
         form = ExporterForm(request.POST)
         if form.is_valid():
@@ -98,34 +87,41 @@ def create_exporter(request):
 @require_POST
 def add_contact(request, pk):
     exporter = get_object_or_404(Exporter, pk=pk)
-    available_contacts = User.objects.exporter_access()
 
-    form = ContactForm(available_contacts, request.POST)
+    contacts = available_contacts(exporter)
+    form = ContactForm(contacts, request.POST)
+
     if form.is_valid():
         contact = form.cleaned_data["contact"]
         if exporter.is_agent():
             assign_perm("web.is_agent_of_exporter", contact, exporter.main_exporter)
+            assign_perm("web.is_contact_of_exporter", contact, exporter)
         else:
             assign_perm("web.is_contact_of_exporter", contact, exporter)
 
     if exporter.is_agent():
+
         return redirect(reverse("exporter-agent-edit", kwargs={"pk": exporter.pk}))
     else:
+
         return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
 
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
 @require_POST
-def delete_contact(request, pk, contact_pk):
+def delete_contact(request: AuthenticatedHttpRequest, *, pk: int, contact_pk: int) -> HttpResponse:
     exporter = get_object_or_404(Exporter, pk=pk)
     contact = get_object_or_404(User, pk=contact_pk)
 
     if exporter.is_agent():
         remove_perm("web.is_agent_of_exporter", contact, exporter.main_exporter)
+        remove_perm("web.is_contact_of_exporter", contact, exporter)
+
         return redirect(reverse("exporter-agent-edit", kwargs={"pk": exporter.pk}))
     else:
         remove_perm("web.is_contact_of_exporter", contact, exporter)
+
         return redirect(reverse("exporter-edit", kwargs={"pk": exporter.pk}))
 
 
@@ -208,6 +204,7 @@ def create_agent(request, exporter_pk):
         form = AgentForm(request.POST, initial=initial)
         if form.is_valid():
             agent = form.save()
+            # fixme: if ind set user as contact
 
             return redirect(reverse("exporter-agent-edit", kwargs={"pk": agent.pk}))
     else:
@@ -235,16 +232,12 @@ def edit_agent(request, pk):
     else:
         form = AgentForm(instance=agent)
 
-    agent_contacts = get_users_with_perms(
-        agent.main_exporter, only_with_perms_in=["is_agent_of_exporter"]
-    ).filter(user_permissions__codename="exporter_access")
-    available_contacts = User.objects.exporter_access().exclude(pk__in=agent_contacts)
-
+    contacts = available_contacts(agent)
     context = {
         "object": agent.main_exporter,
         "form": form,
-        "contact_form": ContactForm(available_contacts),
-        "contacts": agent_contacts,
+        "contact_form": ContactForm(contacts),
+        "contacts": exporter_contacts(agent),
     }
 
     return render(request, "web/domains/exporter/edit-agent.html", context=context)
