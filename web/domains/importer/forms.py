@@ -10,22 +10,18 @@ from web.domains.user.models import User
 
 
 class ImporterIndividualForm(ModelForm):
-    user = ModelChoiceField(
-        queryset=User.objects.importer_access(),
-        widget=PersonWidget,
-        help_text="""
-            Search a user to link. Users returned are matched against first/last name,
-            email and title.
-        """,
-    )
-
     class Meta:
         model = Importer
         fields = ["user", "eori_number", "eori_number_ni", "region_origin", "comments"]
+        widgets = {"user": PersonWidget}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields["eori_number"].required = True
+        self.fields["user"].queryset = User.objects.filter(
+            is_active=True, user_permissions__codename="importer_access"
+        )
 
     def clean(self):
         """Set type as individual as Importer can be an organisation too."""

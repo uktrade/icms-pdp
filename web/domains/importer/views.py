@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
+from guardian.shortcuts import assign_perm, remove_perm
 
 from web.address.address import find as postcode_lookup
 from web.company.companieshouse import api_get_companies
@@ -39,6 +39,8 @@ from web.views.actions import (
     Edit,
     Unarchive,
 )
+
+from .utils import available_contacts, importer_contacts
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +75,7 @@ class ImporterListView(ModelFilterView):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def edit_importer(request, pk):
+def edit_importer(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     importer = get_object_or_404(Importer, pk=pk)
 
     if importer.is_organisation():
@@ -89,41 +91,43 @@ def edit_importer(request, pk):
     else:
         form = ImporterForm(instance=importer)
 
-    importer_contacts = get_users_with_perms(
-        importer, only_with_perms_in=["is_contact_of_importer"]
-    ).filter(user_permissions__codename="importer_access")
-    available_contacts = User.objects.importer_access().exclude(pk__in=importer_contacts)
-    if importer.type == Importer.INDIVIDUAL:
-        available_contacts = available_contacts.exclude(pk=importer.user.pk)
-
+    contacts = available_contacts(importer)
     context = {
         "object": importer,
         "form": form,
-        "contact_form": ContactForm(available_contacts),
-        "contacts": importer_contacts,
+        "contact_form": ContactForm(contacts),
+        "contacts": importer_contacts(importer),
     }
     return render(request, "web/domains/importer/edit.html", context)
 
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def create_importer(request, entity):
+def create_importer(request: AuthenticatedHttpRequest, *, entity: str):
     if entity == "organisation":
         ImporterForm = ImporterOrganisationForm
-    else:
+    elif entity == "individual":
         ImporterForm = ImporterIndividualForm
+    else:
+        NotImplementedError(f"Unknown entity {entity}")
 
     if request.POST:
         form = ImporterForm(request.POST)
         if form.is_valid():
             importer = form.save()
+
+            if entity == "individual":
+                if importer.is_agent():
+                    assign_perm("web.is_agent_of_importer", importer.user, importer.main_importer)
+                    assign_perm("web.is_contact_of_importer", importer.user, importer)
+                else:
+                    assign_perm("web.is_contact_of_importer", importer.user, importer)
+
             return redirect(reverse("importer-edit", kwargs={"pk": importer.pk}))
     else:
         form = ImporterForm()
 
-    context = {
-        "form": form,
-    }
+    context = {"form": form}
 
     return render(request, "web/domains/importer/create.html", context)
 
@@ -132,14 +136,18 @@ def create_importer(request, entity):
 @permission_required("web.reference_data_access", raise_exception=True)
 # TODO: permissions - importer's contacts should be able to manage contacts
 @require_POST
-def add_contact(request, pk):
+def add_contact(request: AuthenticatedHttpRequest, pk: int) -> HttpResponse:
     importer = get_object_or_404(Importer, pk=pk)
-    available_contacts = User.objects.importer_access()
-    form = ContactForm(available_contacts, request.POST)
+
+    contacts = available_contacts(importer)
+    form = ContactForm(contacts, request.POST)
+
     if form.is_valid():
         contact = form.cleaned_data["contact"]
+
         if importer.is_agent():
             assign_perm("web.is_agent_of_importer", contact, importer.main_importer)
+            assign_perm("web.is_contact_of_importer", contact, importer)
         else:
             assign_perm("web.is_contact_of_importer", contact, importer)
 
@@ -331,15 +339,20 @@ def delete_document_section5(
 @permission_required("web.reference_data_access", raise_exception=True)
 # TODO: permissions - importer's contacts should be able to manage contacts
 @require_POST
-def delete_contact(request, importer_pk, contact_pk):
+def delete_contact(
+    request: AuthenticatedHttpRequest, *, importer_pk: int, contact_pk: int
+) -> HttpResponse:
     importer = get_object_or_404(Importer, pk=importer_pk)
     contact = get_object_or_404(User, pk=contact_pk)
 
     if importer.is_agent():
         remove_perm("web.is_agent_of_importer", contact, importer.main_importer)
+        remove_perm("web.is_contact_of_exporter", contact, importer)
+
         return redirect(reverse("importer-agent-edit", kwargs={"pk": importer.pk}))
     else:
         remove_perm("web.is_contact_of_importer", contact, importer)
+
         return redirect(reverse("importer-edit", kwargs={"pk": importer.pk}))
 
 
@@ -424,16 +437,21 @@ def unarchive_office(request, importer_pk, office_pk):
 @permission_required("web.reference_data_access", raise_exception=True)
 def create_agent(request, importer_pk, entity):
     importer = get_object_or_404(Importer, pk=importer_pk)
-    initial = {"main_importer": importer_pk}
+
     if entity == "organisation":
         AgentForm = AgentOrganisationForm
-    else:
+    elif entity == "individual":
         AgentForm = AgentIndividualForm
+    else:
+        NotImplementedError(f"Unknown entity {entity}")
 
+    initial = {"main_importer": importer_pk}
     if request.POST:
         form = AgentForm(request.POST, initial=initial)
         if form.is_valid():
             agent = form.save()
+            # fixme: if ind set user as contact
+
             return redirect(reverse("importer-agent-edit", kwargs={"pk": agent.pk}))
     else:
         form = AgentForm(initial=initial)
@@ -463,16 +481,12 @@ def edit_agent(request, pk):
     else:
         form = AgentForm(instance=agent)
 
-    agent_contacts = get_users_with_perms(
-        agent.main_importer, only_with_perms_in=["is_agent_of_importer"]
-    ).filter(user_permissions__codename="importer_access")
-    available_contacts = User.objects.importer_access().exclude(pk__in=agent_contacts)
-
+    contacts = available_contacts(agent)
     context = {
         "object": agent.main_importer,
         "form": form,
-        "contact_form": ContactForm(available_contacts),
-        "contacts": agent_contacts,
+        "contact_form": ContactForm(contacts),
+        "contacts": importer_contacts(agent),
     }
 
     return render(request, "web/domains/importer/edit-agent.html", context=context)
@@ -508,16 +522,11 @@ def unarchive_agent(self, pk):
 
 @login_required
 @permission_required("web.reference_data_access", raise_exception=True)
-def importer_detail_view(request, pk):
+def importer_detail_view(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     importer = get_object_or_404(Importer, pk=pk)
-    contacts = get_users_with_perms(importer, only_with_perms_in=["is_contact_of_importer"]).filter(
-        user_permissions__codename="importer_access"
-    )
 
-    context = {
-        "object": importer,
-        "contacts": contacts,
-    }
+    context = {"object": importer, "contacts": importer_contacts(importer)}
+
     return render(request, "web/domains/importer/view.html", context)
 
 

@@ -52,3 +52,17 @@ class SILSectionTypeConverter:
             raise ValueError
 
         return value
+
+
+class EntityTypeConverter:
+    regex = "individual|organisation"
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+
+        if value not in ["individual", "organisation"]:
+            raise ValueError
+
+        return value
