@@ -84,7 +84,7 @@ def edit_application(request: AuthenticatedHttpRequest, *, application_pk: int) 
 
 
 @login_required
-def add_goods(request: AuthenticatedHttpRequest, *, pk: int):
+def add_goods(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
@@ -218,7 +218,9 @@ def _edit_goods(
 
 @login_required
 @require_POST
-def delete_goods(request: AuthenticatedHttpRequest, *, application_pk: int, goods_pk: int):
+def delete_goods(
+    request: AuthenticatedHttpRequest, *, application_pk: int, goods_pk: int
+) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk
@@ -232,7 +234,7 @@ def delete_goods(request: AuthenticatedHttpRequest, *, application_pk: int, good
 
 
 @login_required
-def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int):
+def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=pk
@@ -267,7 +269,7 @@ def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int):
 @login_required
 def view_supporting_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     application = get_object_or_404(SanctionsAndAdhocApplication, pk=application_pk)
     return import_views.view_file(
         request, application, application.supporting_documents, document_pk
@@ -278,7 +280,7 @@ def view_supporting_document(
 @login_required
 def delete_supporting_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             SanctionsAndAdhocApplication.objects.select_for_update(), pk=application_pk

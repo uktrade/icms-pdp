@@ -68,7 +68,7 @@ def edit_wood_quota(request: AuthenticatedHttpRequest, *, application_pk: int) -
 
 
 @login_required
-def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int):
+def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(WoodQuotaApplication.objects.select_for_update(), pk=pk)
 
@@ -102,7 +102,7 @@ def add_supporting_document(request: AuthenticatedHttpRequest, *, pk: int):
 @login_required
 def view_supporting_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     application = get_object_or_404(WoodQuotaApplication, pk=application_pk)
 
     return import_views.view_file(
@@ -114,7 +114,7 @@ def view_supporting_document(
 @login_required
 def delete_supporting_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             WoodQuotaApplication.objects.select_for_update(), pk=application_pk
@@ -180,7 +180,7 @@ def add_contract_document(request: AuthenticatedHttpRequest, *, pk: int) -> Http
 @login_required
 def view_contract_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     application = get_object_or_404(WoodQuotaApplication, pk=application_pk)
 
     return import_views.view_file(request, application, application.contract_documents, document_pk)
@@ -190,7 +190,7 @@ def view_contract_document(
 @login_required
 def delete_contract_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             WoodQuotaApplication.objects.select_for_update(), pk=application_pk
@@ -210,7 +210,7 @@ def delete_contract_document(
 @login_required
 def edit_contract_document(
     request: AuthenticatedHttpRequest, *, application_pk: int, document_pk: int
-):
+) -> HttpResponse:
     with transaction.atomic():
         application = get_object_or_404(
             WoodQuotaApplication.objects.select_for_update(), pk=application_pk
