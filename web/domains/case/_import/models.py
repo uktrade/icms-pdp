@@ -304,9 +304,7 @@ class ImportApplication(ApplicationBase):
         return user.has_perm("web.is_contact_of_importer", self.importer)
 
     def user_is_agent_of_org(self, user: User) -> bool:
-        return not self.user_is_contact_of_org(user) and user.has_perm(
-            "web.is_agent_of_importer", self.importer
-        )
+        return user.has_perm("web.is_agent_of_importer", self.importer)
 
     def get_workbasket_subject(self) -> str:
         return "\n".join(
