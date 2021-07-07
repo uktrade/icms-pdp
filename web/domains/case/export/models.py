@@ -143,7 +143,7 @@ class ExportApplication(ApplicationBase):
     def get_workbasket_subject(self) -> str:
         return "\n".join(
             [
-                "Certificate Application",
+                "Export Application",
                 ExportApplicationType.ProcessTypes(self.process_type).label,
             ]
         )
