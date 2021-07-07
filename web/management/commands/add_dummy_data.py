@@ -27,6 +27,15 @@ class Command(BaseCommand):
         if settings.APP_ENV not in ("local", "dev"):
             raise CommandError("Can only add dummy data in 'dev' / 'local' environments!")
 
+        self.activate_import_application_types()
+
+        user = self.create_superuser(options["password"])
+        agent = self.create_agent(options["password"])
+
+        self.create_exporter(user, agent)
+        self.create_importer(user, agent)
+
+    def activate_import_application_types(self):
         # enable disabled application types so we can test/develop them
         ImportApplicationType.objects.filter(
             type__in=[
@@ -36,18 +45,24 @@ class Command(BaseCommand):
             ]
         ).update(is_active=True)
 
-        user = User.objects.create_superuser(
-            username="admin",
-            email="admin@blaa.com",
-            password=options["password"],
-            first_name="admin",
-            last_name="admin",
-            date_of_birth=datetime.date(2000, 1, 1),
-            security_question="admin",
-            security_answer="admin",
-        )
+    def create_superuser(self, password: str) -> User:
+        try:
+            user = User.objects.get(username="admin")
 
-        self.stdout.write("Created following users: admin")
+            self.stdout.write("Existing user: admin")
+        except User.DoesNotExist:
+            user = User.objects.create_superuser(
+                username="admin",
+                email="admin@blaa.com",
+                password=password,
+                first_name="admin",
+                last_name="admin",
+                date_of_birth=datetime.date(2000, 1, 1),
+                security_question="admin",
+                security_answer="admin",
+            )
+
+            self.stdout.write("Created following user: admin")
 
         # permissions
         for perm in [
@@ -60,7 +75,40 @@ class Command(BaseCommand):
 
         user.save()
 
-        # exporter
+        return user
+
+    def create_agent(self, password: str) -> User:
+        try:
+            agent = User.objects.get(username="agent")
+
+            self.stdout.write("Existing user: agent")
+        except User.DoesNotExist:
+            agent = User.objects.create(
+                username="agent",
+                email="agent@blaa.com",
+                first_name="agent",
+                last_name="agent",
+                date_of_birth=datetime.date(2000, 1, 1),
+                security_question="agent",
+                security_answer="agent",
+                password_disposition=User.FULL,
+            )
+            agent.set_password(password)
+
+            self.stdout.write("Created following user: agent")
+
+        # permissions
+        for perm in [
+            "importer_access",
+            "exporter_access",
+        ]:
+            agent.user_permissions.add(Permission.objects.get(codename=perm))
+
+        agent.save()
+
+        return agent
+
+    def create_exporter(self, user: User, agent: User) -> None:
         exporter = Exporter.objects.create(
             is_active=True, name="Dummy exporter", registered_number="42"
         )
@@ -76,7 +124,26 @@ class Command(BaseCommand):
         )
         exporter.offices.add(office)
 
-        # importer
+        # agent for exporter
+        agent_exporter = Exporter.objects.create(
+            is_active=True,
+            name="Agent for Dummy exporter",
+            registered_number="4242",
+            main_exporter=exporter,
+        )
+        assign_perm("web.is_agent_of_exporter", agent, exporter)
+        assign_perm("web.is_contact_of_exporter", agent, agent_exporter)
+
+        agent_office = Office.objects.create(
+            is_active=True, postcode="TW6 2LA", address="Nettleton Rd, London"
+        )
+        agent_exporter.offices.add(agent_office)
+
+        self.stdout.write(
+            "Created dummy exporter and its agent with associated users: admin and agent"
+        )
+
+    def create_importer(self, user: User, agent: User) -> None:
         importer = Importer.objects.create(
             is_active=True,
             name="Dummy importer",
@@ -95,4 +162,22 @@ class Command(BaseCommand):
         )
         importer.offices.add(office)
 
-        self.stdout.write("Created dummy importer/exporter and associated admin user with them")
+        # agent for importer
+        agent_importer = Importer.objects.create(
+            is_active=True,
+            name="Agent for Dummy importer",
+            registered_number="8484",
+            type=Importer.ORGANISATION,
+            main_importer=importer,
+        )
+        assign_perm("web.is_agent_of_importer", agent, importer)
+        assign_perm("web.is_contact_of_importer", agent, agent_importer)
+
+        agent_office = Office.objects.create(
+            is_active=True, postcode="EN1 3SS", address="14 Mafeking Rd, Enfield"
+        )
+        agent_importer.offices.add(agent_office)
+
+        self.stdout.write(
+            "Created dummy importer and its agent with associated users: admin and agent"
+        )
