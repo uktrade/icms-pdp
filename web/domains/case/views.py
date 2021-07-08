@@ -1259,7 +1259,7 @@ def _view_fa_oil(
         "contacts": application.importcontact_set.all(),
     }
 
-    return render(request, "web/domains/case/import/view_firearms_oil_case.html", context)
+    return render(request, "web/domains/case/import/fa-oil/view.html", context)
 
 
 def _view_fa_sil(
@@ -1276,7 +1276,7 @@ def _view_fa_sil(
         "contacts": application.importcontact_set.all(),
     }
 
-    return render(request, "web/domains/case/import/view_firearms_sil_case.html", context)
+    return render(request, "web/domains/case/import/fa-sil/view.html", context)
 
 
 def _view_sanctions_and_adhoc(
@@ -1290,7 +1290,7 @@ def _view_sanctions_and_adhoc(
         "supporting_documents": application.supporting_documents.filter(is_active=True),
     }
 
-    return render(request, "web/domains/case/import/view_sanctions_and_adhoc_case.html", context)
+    return render(request, "web/domains/case/import/sanctions/view.html", context)
 
 
 def _view_wood_quota(
@@ -1317,7 +1317,7 @@ def _view_derogations(
         "supporting_documents": application.supporting_documents.filter(is_active=True),
     }
 
-    return render(request, "web/domains/case/import/view_derogations.html", context)
+    return render(request, "web/domains/case/import/derogations/view.html", context)
 
 
 def _view_dfl(request: AuthenticatedHttpRequest, application: DFLApplication) -> HttpResponse:
