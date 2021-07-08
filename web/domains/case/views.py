@@ -1211,6 +1211,14 @@ def view_case(
         if not has_perm_reference_data and not is_contact:
             raise PermissionDenied
 
+    # Access Requests
+    if application.process_type == ImporterAccessRequest.PROCESS_TYPE:
+        return _view_accessrequest(request, application.importeraccessrequest)  # type: ignore[union-attr]
+
+    elif application.process_type == ExporterAccessRequest.PROCESS_TYPE:
+        return _view_accessrequest(request, application.exporteraccessrequest)  # type: ignore[union-attr]
+
+    # Import applications
     if application.process_type == OpenIndividualLicenceApplication.PROCESS_TYPE:
         return _view_fa_oil(request, application.openindividuallicenceapplication)  # type: ignore[union-attr]
 
@@ -1226,15 +1234,6 @@ def view_case(
     elif application.process_type == DerogationsApplication.PROCESS_TYPE:
         return _view_derogations(request, application.derogationsapplication)  # type: ignore[union-attr]
 
-    elif application.process_type == ImporterAccessRequest.PROCESS_TYPE:
-        return _view_accessrequest(request, application.importeraccessrequest)  # type: ignore[union-attr]
-
-    elif application.process_type == ExporterAccessRequest.PROCESS_TYPE:
-        return _view_accessrequest(request, application.exporteraccessrequest)  # type: ignore[union-attr]
-
-    elif application.process_type == CertificateOfManufactureApplication.PROCESS_TYPE:
-        return _view_com(request, application.certificateofmanufactureapplication)  # type: ignore[union-attr]
-
     elif application.process_type == DFLApplication.PROCESS_TYPE:
         return _view_dfl(request, application.dflapplication)  # type: ignore[union-attr]
 
@@ -1243,6 +1242,11 @@ def view_case(
 
     elif application.process_type == TextilesApplication.PROCESS_TYPE:
         return _view_textiles_quota(request, application.textilesapplication)  # type: ignore[union-attr]
+
+    # Export applications
+    elif application.process_type == CertificateOfManufactureApplication.PROCESS_TYPE:
+        return _view_com(request, application.certificateofmanufactureapplication)  # type: ignore[union-attr]
+
     else:
         raise NotImplementedError(f"Unknown process_type {application.process_type}")
 
@@ -1407,8 +1411,13 @@ def _view_accessrequest(
 def _view_com(
     request: AuthenticatedHttpRequest, application: CertificateOfManufactureApplication
 ) -> HttpResponse:
-    # TODO: implement (ICMSLST-678)
-    raise NotImplementedError
+    context = {
+        "process_template": "web/domains/case/export/partials/process.html",
+        "process": application,
+        "page_title": application.application_type.get_type_description(),
+    }
+
+    return render(request, "web/domains/case/export/com/view.html", context)
 
 
 @login_required
